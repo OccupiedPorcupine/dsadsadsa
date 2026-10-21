@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign Route Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --border: rgba(11, 11, 11, 0.10);
+    --critical: #d03b3b;
+
+    /* Population: one-hue blue ramp, light -> dark (lightest step kept >= 2:1 on the map) */
+    --pop-1: #ED2938;
+    --pop-2: #B25F4A;
+    --pop-3: #77945C;
+    --pop-4: #3BCA6D;
+    --pop-5: #00FF7F;
+
+    /* Politicians: categorical slots, starting after blue because blue already means population */
+    --pol-1: #eb6834;
+    --pol-2: #1baf7a;
+    --pol-3: #eda100;
+    --pol-4: #e87ba4;
+    --pol-5: #008300;
+    --pol-6: #6250d6;
+    --pol-7: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --border: rgba(255, 255, 255, 0.10);
+      --pop-1: #184f95;
+      --pop-2: #2a78d6;
+      --pop-3: #5598e7;
+      --pop-4: #86b6ef;
+      --pop-5: #cde2fb;
+      --pol-1: #d95926;
+      --pol-2: #199e70;
+      --pol-3: #c98500;
+      --pol-4: #d55181;
+      --pol-5: #008300;
+      --pol-6: #9085e9;
+      --pol-7: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --border: rgba(255, 255, 255, 0.10);
+    --pop-1: #184f95;
+    --pop-2: #2a78d6;
+    --pop-3: #5598e7;
+    --pop-4: #86b6ef;
+    --pop-5: #cde2fb;
+    --pol-1: #d95926;
+    --pol-2: #199e70;
+    --pol-3: #c98500;
+    --pol-4: #d55181;
+    --pol-5: #008300;
+    --pol-6: #9085e9;
+    --pol-7: #e66767;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .page { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); margin: 0 0 16px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-bottom: 12px; }
+  .control-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .control-label { color: var(--text-secondary); margin-right: 2px; }
+  button, .chip {
+    font: inherit;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  button[aria-pressed="true"] { border-color: var(--text-primary); font-weight: 600; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .chip input { margin: 0; }
+  .swatch-line { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 120px;
+  }
+  .stat-label { color: var(--text-secondary); font-size: 12px; }
+  .stat-value { font-size: 18px; font-weight: 600; }
+  .stat-value.bad { color: var(--critical); }
+
+  .map-wrap { position: relative; }
+  #map {
+    height: 70vh;
+    min-height: 420px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+  .legend {
+    position: absolute;
+    right: 10px;
+    bottom: 24px;
+    z-index: 500;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    max-width: 220px;
+  }
+  .legend h3 { font-size: 12px; margin: 0 0 4px; color: var(--text-secondary); font-weight: 600; }
+  .legend-row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+  .legend-dot { display: inline-block; border-radius: 50%; border: 1.5px solid var(--surface); box-shadow: 0 0 0 1px var(--border); }
+  .legend-section + .legend-section { margin-top: 8px; }
+
+  .timeline { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .timeline input[type="range"] { flex: 1; min-width: 200px; }
+  .time-label { font-variant-numeric: tabular-nums; min-width: 150px; }
+  .positions { color: var(--text-secondary); margin-top: 6px; min-height: 1.5em; }
+
+  details { margin-top: 16px; }
+  summary { cursor: pointer; color: var(--text-secondary); }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; margin-top: 8px; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { color: var(--text-secondary); font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .leaflet-tooltip { font: 12px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tip-title { font-weight: 600; font-size: 13px; }
+  .tip-clash { color: #d03b3b; font-weight: 600; }
+  .hq-icon {
+    background: var(--text-primary);
+    color: var(--surface);
+    font-weight: 700;
+    font-size: 10px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .order-badge {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .position-marker {
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Campaign routes</h1>
+  <p class="subtitle" id="subtitle"></p>
+
+  <div class="controls">
+    <div class="control-group" id="approach-buttons"><span class="control-label">Approach</span></div>
+    <div class="control-group" id="politician-toggles"><span class="control-label">Show</span></div>
+    <label class="chip"><input type="checkbox" id="show-order"> Visit numbers</label>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="map-wrap">
+    <div id="map" role="img" aria-label="Map of Malaysia with each politician's campaign route"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="timeline">
+    <button id="play">Play</button>
+    <input type="range" id="time" min="0" step="0.25" value="0" aria-label="Campaign hour">
+    <span class="time-label" id="time-label"></span>
+  </div>
+  <div class="positions" id="positions"></div>
+
+  <details>
+    <summary>Route table</summary>
+    <div class="table-wrap"><table id="route-table"></table></div>
+  </details>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+
+const POPULATION_BINS = [
+  { min: 0, label: "Under 100k", radius: 5 },
+  { min: 100000, label: "100k to 250k", radius: 6 },
+  { min: 250000, label: "250k to 500k", radius: 7.5 },
+  { min: 500000, label: "500k to 1M", radius: 9 },
+  { min: 1000000, label: "1M and over", radius: 11 },
+];
+const APPROACH_NAMES = {
+  uncoordinated: "Uncoordinated (baseline)",
+  sequential: "A: one at a time",
+  ils: "B: iterated local search",
+};
+const MAX_POLITICIAN_COLOURS = 7;
+const PLAY_SECONDS = 20;  // the whole campaign plays in this many seconds
+
+const hq = DATA.meta.hq;
+const hqLatLng = [hq.lat, hq.lon];
+const numPoliticians = DATA.meta.politicians;
+
+let currentApproach = DATA.routes.ils ? "ils" : Object.keys(DATA.routes)[0];
+let visiblePoliticians = new Set([...Array(numPoliticians).keys()]);
+let currentHour = 0;
+let playing = false;
+
+// ---------- helpers ----------
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function populationBin(pop) {
+  let bin = 0;
+  POPULATION_BINS.forEach((b, i) => { if (pop >= b.min) bin = i; });
+  return bin;
+}
+function populationColour(pop) { return cssVar(`--pop-${populationBin(pop) + 1}`); }
+function politicianColour(p) { return cssVar(`--pol-${(p % MAX_POLITICIAN_COLOURS) + 1}`); }
+function politicianName(p) { return `P${p + 1}`; }
+function formatPopulation(pop) { return pop.toLocaleString("en-US"); }
+function formatHour(h) {
+  const day = Math.floor(h / 24) + 1;
+  return `h ${h.toFixed(1)} (day ${day})`;
+}
+function townLatLng(townIndex) {
+  const t = DATA.towns[townIndex];
+  return [t.lat, t.lon];
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+// Visits of the current approach, grouped by politician and in route order.
+function routesByPolitician() {
+  const routes = [...Array(numPoliticians)].map(() => []);
+  for (const v of DATA.routes[currentApproach]) routes[v.p].push(v);
+  routes.forEach(r => r.sort((a, b) => a.seq - b.seq));
+  return routes;
+}
+
+// Pairs of rallies in the same town whose times overlap.
+function findClashes(visits) {
+  const byTown = new Map();
+  for (const v of visits) {
+    if (!byTown.has(v.town)) byTown.set(v.town, []);
+    byTown.get(v.town).push(v);
+  }
+  const clashes = [];
+  for (const [town, rallies] of byTown) {
+    rallies.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < rallies.length; i++) {
+      for (let j = i + 1; j < rallies.length; j++) {
+        if (rallies[j].start < rallies[i].finish - 1e-6) clashes.push({ town, a: rallies[i], b: rallies[j] });
+      }
+    }
+  }
+  return clashes;
+}
+
+// Same reach rule as the solver: in each town, the k-th rally (by start time) reaches pop * alpha^(k-1).
+function computeStats(visits) {
+  const alpha = DATA.meta.alpha;
+  const byTown = new Map();
+  for (const v of visits) {
+    if (!byTown.has(v.town)) byTown.set(v.town, []);
+    byTown.get(v.town).push(v);
+  }
+  let reach = 0;
+  const reachByPolitician = new Array(numPoliticians).fill(0);
+  for (const [town, rallies] of byTown) {
+    rallies.sort((a, b) => a.start - b.start);
+    rallies.forEach((r, i) => {
+      const gain = DATA.towns[town].pop * Math.pow(alpha, i);
+      reach += gain;
+      reachByPolitician[r.p] += gain;
+    });
+  }
+  let maxReach = 0;
+  for (const t of DATA.towns) {
+    for (let i = 0; i < numPoliticians; i++) maxReach += t.pop * Math.pow(alpha, i);
+  }
+  const highest = Math.max(...reachByPolitician);
+  const fairness = highest > 0 ? Math.min(...reachByPolitician) / highest : 1;
+  return { reach, maxReach, fairness, rallies: visits.length };
+}
+
+// ---------- map ----------
+
+const map = L.map("map", { zoomSnap: 0.25 });
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+let baseLayer = null;
+
+function isDark() {
+  const forced = document.documentElement.getAttribute("data-theme");
+  if (forced) return forced === "dark";
+  return darkQuery.matches;
+}
+function setBaseLayer() {
+  if (baseLayer) map.removeLayer(baseLayer);
+  // Esri's grey basemaps are muted so the data stands out, and they don't need an API key.
+  const style = isDark() ? "World_Dark_Gray_Base" : "World_Light_Gray_Base";
+  baseLayer = L.tileLayer(`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${style}/MapServer/tile/{z}/{y}/{x}`, {
+    attribution: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",
+    maxZoom: 16,
+  }).addTo(map);
+}
+
+const routeLayer = L.layerGroup().addTo(map);
+const townLayer = L.layerGroup().addTo(map);
+const labelLayer = L.layerGroup().addTo(map);
+const positionLayer = L.layerGroup().addTo(map);
+
+// A small arrow halfway along each leg, pointing the way the politician travelled.
+function arrowMarker(from, to, colour) {
+  const mid = [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2];
+  const dx = (to[1] - from[1]) * Math.cos(mid[0] * Math.PI / 180);
+  const dy = to[0] - from[0];
+  const degrees = Math.atan2(-dy, dx) * 180 / Math.PI;  // screen y points down
+  const svg = `<svg width="12" height="12" viewBox="-6 -6 12 12" style="transform: rotate(${degrees}deg)">
+                 <path d="M5,0 L-4,-4 L-4,4 Z" fill="${colour}"/></svg>`;
+  return L.marker(mid, {
+    icon: L.divIcon({ className: "", html: svg, iconSize: [12, 12], iconAnchor: [6, 6] }),
+    interactive: false,
+    keyboard: false,
+  });
+}
+
+function drawRoutes(routes) {
+  routeLayer.clearLayers();
+  routes.forEach((route, p) => {
+    if (!visiblePoliticians.has(p) || route.length === 0) return;
+    const colour = politicianColour(p);
+    const points = [hqLatLng, ...route.map(v => townLatLng(v.town)), hqLatLng];
+    L.polyline(points, { color: colour, weight: 2.5, opacity: 0.9, interactive: false }).addTo(routeLayer);
+    for (let i = 0; i + 1 < points.length; i++) {
+      arrowMarker(points[i], points[i + 1], colour).addTo(routeLayer);
+    }
+  });
+}
+
+function townTooltip(townIndex, visitsHere, clashesHere) {
+  const t = DATA.towns[townIndex];
+  let html = `<div class="tip-title">${escapeHtml(t.name)}</div>
+              Population ${formatPopulation(t.pop)}<br>Rally length ${t.rallyHours.toFixed(1)} h`;
+  if (visitsHere.length === 0) {
+    html += "<br><i>Not visited</i>";
+  }
+  for (const v of visitsHere) {
+    const waited = v.start - v.arrive;
+    html += `<br><b style="color:${politicianColour(v.p)}">&#9644;</b> ${politicianName(v.p)}, stop ${v.seq + 1}:
+             ${formatHour(v.start)} to h ${v.finish.toFixed(1)}`;
+    if (waited > 0.01) html += `, waited ${waited.toFixed(1)} h`;
+  }
+  for (const c of clashesHere) {
+    html += `<br><span class="tip-clash">&#9888; Clash: ${politicianName(c.a.p)} and ${politicianName(c.b.p)} overlap</span>`;
+  }
+  return html;
+}
+
+function drawTowns(routes, clashes) {
+  townLayer.clearLayers();
+  labelLayer.clearLayers();
+  const surface = cssVar("--surface");
+
+  const visitsByTown = new Map();
+  routes.forEach((route, p) => {
+    if (!visiblePoliticians.has(p)) return;
+    for (const v of route) {
+      if (!visitsByTown.has(v.town)) visitsByTown.set(v.town, []);
+      visitsByTown.get(v.town).push(v);
+    }
+  });
+
+  // Smallest towns first so the big dots end up on top.
+  const order = DATA.towns.map((t, i) => i).sort((a, b) => DATA.towns[a].pop - DATA.towns[b].pop);
+  for (const townIndex of order) {
+    const town = DATA.towns[townIndex];
+    const visitsHere = visitsByTown.get(townIndex) || [];
+    const clashesHere = clashes.filter(c => c.town === townIndex
+      && visiblePoliticians.has(c.a.p) && visiblePoliticians.has(c.b.p));
+    const bin = POPULATION_BINS[populationBin(town.pop)];
+    const visited = visitsHere.length > 0;
+
+    if (clashesHere.length > 0) {
+      L.circleMarker([town.lat, town.lon], {
+        radius: bin.radius + 5, color: cssVar("--critical"), weight: 2, dashArray: "3 3",
+        fill: false, interactive: false,
+      }).addTo(townLayer);
+    }
+
+    L.circleMarker([town.lat, town.lon], {
+      radius: bin.radius,
+      fillColor: populationColour(town.pop),
+      fillOpacity: visited ? 1 : 0.35,
+      color: surface,
+      weight: 1.5,
+      opacity: visited ? 1 : 0.5,
+    })
+      .bindTooltip(townTooltip(townIndex, visitsHere, clashesHere), { direction: "top", offset: [0, -bin.radius] })
+      .addTo(townLayer);
+  }
+
+  if (document.getElementById("show-order").checked) {
+    routes.forEach((route, p) => {
+      if (!visiblePoliticians.has(p)) return;
+      for (const v of route) {
+        // Shift each politician's badge sideways so two badges on one town don't overlap.
+        const shift = 12 + 18 * p;
+        L.marker(townLatLng(v.town), {
+          icon: L.divIcon({
+            className: "",
+            html: `<div class="order-badge" style="border-color:${politicianColour(p)};width:18px;height:18px">${v.seq + 1}</div>`,
+            iconSize: [18, 18],
+            iconAnchor: [-shift + 18, 9],
+          }),
+          interactive: false,
+          keyboard: false,
+        }).addTo(labelLayer);
+      }
+    });
+  }
+
+  L.marker(hqLatLng, {
+    icon: L.divIcon({ className: "", html: '<div class="hq-icon" style="width:22px;height:16px">HQ</div>', iconSize: [22, 16] }),
+    zIndexOffset: 1000,
+  }).bindTooltip(`<div class="tip-title">${escapeHtml(hq.name)}</div>Every route starts and ends here`, { direction: "top" })
+    .addTo(labelLayer);
+}
+
+// ---------- timeline ----------
+
+// Where politician p is at hour h, and what they are doing.
+function positionAt(route, p, h) {
+  let fromLatLng = hqLatLng;
+  let leaveTime = 0;
+  for (const v of route) {
+    const town = DATA.towns[v.town];
+    const here = [town.lat, town.lon];
+    if (h < v.arrive) {
+      const fraction = Math.min(1, Math.max(0, (h - leaveTime) / (v.arrive - leaveTime)));
+      return { latLng: lerp(fromLatLng, here, fraction), status: `travelling to ${town.name}` };
+    }
+    if (h < v.start) return { latLng: here, status: `waiting in ${town.name}` };
+    if (h <= v.finish) return { latLng: here, status: `rally in ${town.name}` };
+    fromLatLng = here;
+    leaveTime = v.finish;
+  }
+  const backAtHq = DATA.returns[currentApproach][p] ?? 0;
+  if (h < backAtHq) {
+    const fraction = Math.min(1, Math.max(0, (h - leaveTime) / (backAtHq - leaveTime)));
+    return { latLng: lerp(fromLatLng, hqLatLng, fraction), status: "heading back to HQ" };
+  }
+  return { latLng: hqLatLng, status: "back at HQ" };
+}
+function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
+
+function drawPositions(routes) {
+  positionLayer.clearLayers();
+  const lines = [];
+  routes.forEach((route, p) => {
+    if (!visiblePoliticians.has(p)) return;
+    const { latLng, status } = positionAt(route, p, currentHour);
+    // Spread the markers sideways a little so two politicians in one place are both visible.
+    const sideways = 22 * (p - (numPoliticians - 1) / 2);
+    L.marker(latLng, {
+      icon: L.divIcon({
+        className: "",
+        html: `<div class="position-marker" style="background:${politicianColour(p)};width:24px;height:24px">${politicianName(p)}</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12 - sideways, 12],
+      }),
+      zIndexOffset: 2000,
+      interactive: false,
+    }).addTo(positionLayer);
+    lines.push(`<b style="color:${politicianColour(p)}">${politicianName(p)}</b> ${escapeHtml(status)}`);
+  });
+  document.getElementById("time-label").textContent = `${formatHour(currentHour)} of ${DATA.meta.campaignHours}`;
+  document.getElementById("positions").innerHTML = lines.join(" &middot; ");
+}
+
+const slider = document.getElementById("time");
+slider.max = DATA.meta.campaignHours;
+slider.addEventListener("input", () => {
+  currentHour = Number(slider.value);
+  drawPositions(routesByPolitician());
+});
+
+const playButton = document.getElementById("play");
+let lastFrame = null;
+function tick(now) {
+  if (!playing) return;
+  if (lastFrame !== null) {
+    const hoursPerSecond = DATA.meta.campaignHours / PLAY_SECONDS;
+    currentHour += hoursPerSecond * (now - lastFrame) / 1000;
+    if (currentHour >= DATA.meta.campaignHours) {
+      currentHour = DATA.meta.campaignHours;
+      playing = false;
+      playButton.textContent = "Play";
+    }
+    slider.value = currentHour;
+    drawPositions(routesByPolitician());
+  }
+  lastFrame = now;
+  requestAnimationFrame(tick);
+}
+playButton.addEventListener("click", () => {
+  playing = !playing;
+  playButton.textContent = playing ? "Pause" : "Play";
+  if (playing) {
+    if (currentHour >= DATA.meta.campaignHours) currentHour = 0;
+    lastFrame = null;
+    requestAnimationFrame(tick);
+  }
+});
+
+// ---------- panels ----------
+
+function drawStats(clashes) {
+  const visits = DATA.routes[currentApproach].filter(v => visiblePoliticians.has(v.p));
+  const s = computeStats(DATA.routes[currentApproach]);
+  const stats = [
+    ["Reach", `${(s.reach / 1e6).toFixed(2)}M`],
+    ["Share of maximum", `${(100 * s.reach / s.maxReach).toFixed(1)}%`],
+    ["Rallies", `${s.rallies}`],
+    ["Clashes", `${clashes.length}`, clashes.length > 0],
+    ["Fairness (lowest / highest)", s.fairness.toFixed(2)],
+  ];
+  document.getElementById("stats").innerHTML = stats.map(([label, value, bad]) =>
+    `<div class="stat"><div class="stat-label">${label}</div>
+     <div class="stat-value${bad ? " bad" : ""}">${bad ? "&#9888; " : ""}${value}</div></div>`).join("");
+}
+
+function drawLegend() {
+  let html = '<div class="legend-section"><h3>Town population</h3>';
+  for (let i = POPULATION_BINS.length - 1; i >= 0; i--) {
+    const b = POPULATION_BINS[i];
+    const size = b.radius * 2;
+    html += `<div class="legend-row"><span class="legend-dot" style="width:${size}px;height:${size}px;background:${cssVar(`--pop-${i + 1}`)}"></span>${b.label}</div>`;
+  }
+  html += '<div class="legend-row"><span class="legend-dot" style="width:10px;height:10px;background:var(--pop-3);opacity:.35"></span>Not visited</div></div>';
+
+  html += '<div class="legend-section"><h3>Routes</h3>';
+  for (let p = 0; p < numPoliticians; p++) {
+    html += `<div class="legend-row"><span class="swatch-line" style="background:${politicianColour(p)}"></span>Politician ${p + 1}</div>`;
+  }
+  html += `<div class="legend-row"><span class="legend-dot" style="width:14px;height:14px;background:transparent;border:2px dashed ${cssVar("--critical")};box-shadow:none"></span>&#9888; Clash</div></div>`;
+  document.getElementById("legend").innerHTML = html;
+}
+
+function drawTable(routes) {
+  let html = "<thead><tr><th>Politician</th><th>Stop</th><th>Town</th><th>Population</th>"
+           + "<th>Arrive (h)</th><th>Start (h)</th><th>Finish (h)</th><th>Waited (h)</th></tr></thead><tbody>";
+  routes.forEach((route, p) => {
+    if (!visiblePoliticians.has(p)) return;
+    for (const v of route) {
+      const t = DATA.towns[v.town];
+      html += `<tr><td>${politicianName(p)}</td><td class="num">${v.seq + 1}</td><td>${escapeHtml(t.name)}</td>
+               <td class="num">${formatPopulation(t.pop)}</td><td class="num">${v.arrive.toFixed(1)}</td>
+               <td class="num">${v.start.toFixed(1)}</td><td class="num">${v.finish.toFixed(1)}</td>
+               <td class="num">${(v.start - v.arrive).toFixed(1)}</td></tr>`;
+    }
+  });
+  document.getElementById("route-table").innerHTML = html + "</tbody>";
+}
+
+function buildControls() {
+  const approachGroup = document.getElementById("approach-buttons");
+  for (const approach of Object.keys(DATA.routes)) {
+    const button = document.createElement("button");
+    button.textContent = APPROACH_NAMES[approach] || approach;
+    button.dataset.approach = approach;
+    button.addEventListener("click", () => { currentApproach = approach; render(); });
+    approachGroup.appendChild(button);
+  }
+
+  const politicianGroup = document.getElementById("politician-toggles");
+  for (let p = 0; p < numPoliticians; p++) {
+    const label = document.createElement("label");
+    label.className = "chip";
+    label.innerHTML = `<input type="checkbox" checked data-politician="${p}">
+                       <span class="swatch-line" data-swatch="${p}"></span>${politicianName(p)}`;
+    label.querySelector("input").addEventListener("change", e => {
+      if (e.target.checked) visiblePoliticians.add(p); else visiblePoliticians.delete(p);
+      render();
+    });
+    politicianGroup.appendChild(label);
+  }
+  document.getElementById("show-order").addEventListener("change", render);
+}
+
+function render() {
+  document.querySelectorAll("#approach-buttons button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.approach === currentApproach)));
+  document.querySelectorAll("[data-swatch]").forEach(s =>
+    s.style.background = politicianColour(Number(s.dataset.swatch)));
+
+  const routes = routesByPolitician();
+  const clashes = findClashes(DATA.routes[currentApproach]);
+  drawRoutes(routes);
+  drawTowns(routes, clashes);
+  drawPositions(routes);
+  drawStats(clashes);
+  drawLegend();
+  drawTable(routes);
+}
+
+document.getElementById("subtitle").textContent =
+  `${DATA.towns.length} towns, ${numPoliticians} politicians, alpha = ${DATA.meta.alpha}, `
+  + `${DATA.meta.campaignHours} campaign hours. Every route starts and ends at ${hq.name}.`;
+
+buildControls();
+setBaseLayer();
+map.fitBounds([hqLatLng, ...DATA.towns.map(t => [t.lat, t.lon])], { padding: [24, 24] });
+render();
+
+// Follow the system theme if it changes while the page is open.
+darkQuery.addEventListener("change", () => { setBaseLayer(); render(); });
+</script>
+</body>
+</html>

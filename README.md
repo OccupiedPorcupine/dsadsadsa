@@ -4,6 +4,17 @@ k politicians campaign across Malaysia within a fixed time budget. Each politici
 - **Goal:** maximise population reach. A town's first rally earns its population, and each later rally there earns `alpha` times the previous one.
 - **Constraint:** two politicians may never hold a rally in the same town at the same time.
 
+## Documentation
+
+| Document | Read it for |
+|---|---|
+| [docs/DESIGN.md](docs/DESIGN.md) | The problem, why classic TSP doesn't fit, data structures, both algorithms with pseudocode, complexity, how results are checked, limitations, and a code map |
+| [docs/RESULTS.md](docs/RESULTS.md) | Experiment results, findings, and the commands to reproduce them |
+| [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) | Every modelling assumption and decision, with reasons |
+| [docs/AI_USAGE.md](docs/AI_USAGE.md) | Draft AI acknowledgement for the submission (team must complete) |
+| [docs/papers/README.md](docs/papers/README.md) | Reading list and downloaded papers |
+| [viz/README.md](viz/README.md) | How the route map works |
+
 ## Build and run
 
 Requires a C++17 compiler and `make`. No third-party libraries.
@@ -17,8 +28,29 @@ make                      # builds build/campaign
 Example: 3 politicians, no decay, 72 hours, write routes and a summary row:
 
 ```sh
-./build/campaign --k 3 --alpha 1 --hours 72 --routes-dir results --summary results/summary.csv
+mkdir -p results/k3
+./build/campaign --k 3 --alpha 1 --hours 72 --routes-dir results/k3 --summary results/summary.csv
 ```
+
+## Route map
+
+The visualisation is kept separate from the solver, in `viz/`. It reads the CSVs that `--routes-dir` writes and needs only Python 3, with no extra packages.
+
+```sh
+mkdir -p results/default
+./build/campaign --routes-dir results/default
+python3 viz/make_map.py results/default      # writes results/default/campaign_map.html
+```
+
+Open `campaign_map.html` in a browser. It needs an internet connection for the map tiles.
+
+What the map shows:
+- **Towns:** coloured and sized by population. Faded towns weren't visited.
+- **Routes:** each politician's route in their own colour, with arrows showing the direction of travel.
+- **Clashes:** marked with a dashed red ring.
+- **Controls:** switch between approaches, show or hide individual politicians, and turn on visit numbers.
+- **Timeline:** press Play or drag the slider to see where each politician is at any hour.
+- **Route table:** every rally with its times.
 
 ## Folder structure
 
@@ -29,8 +61,11 @@ Example: 3 politicians, no decay, 72 hours, write routes and a summary row:
 | `src/sequential.cpp` | Baseline (uncoordinated) and Approach A (sequential greedy with booking table) |
 | `src/ils.cpp` | Approach B (iterated local search with clash-aware `maxShift`) |
 | `src/solution.*` | Independent validator: timing, horizon, repeat visits, clashes, reach |
-| `src/main.cpp` | Command-line driver |
+| `src/main.cpp` | Command-line driver; `--routes-dir` exports towns, settings and routes as CSV |
+| `viz/` | Route map: `make_map.py` turns a results folder into an interactive HTML map (`map_template.html`) |
+| `results/` | Solver output (CSVs) and generated maps |
 | `CS201_2026_project/` | Provided GeoNames dataset (`MY.txt`) |
+| `docs/ASSUMPTIONS.md` | Every modelling assumption and decision, with reasons |
 | `docs/papers/` | Reference papers and reading list |
 
 ## Approaches
@@ -50,6 +85,8 @@ Example: 3 politicians, no decay, 72 hours, write routes and a summary row:
 - **Merging:** GeoNames lists cities and their districts separately, each with a population. Places are sorted by population, and any place within `--merge-km` (default 5 km) of a larger kept place is dropped.
 
 ## Derived attributes and assumptions
+
+The full list, with the reasoning behind each one, is in [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md). The main ones:
 
 | Attribute | Definition |
 |---|---|

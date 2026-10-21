@@ -37,7 +37,7 @@ static void printUsage() {
             "  --approach NAME      uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
-            "  --routes-dir DIR     write each approach's timed routes as CSV into DIR\n"
+            "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
 }
@@ -96,18 +96,40 @@ static void printTableRow(const string& approach, const Instance& inst, const Me
     }
 }
 
-static void writeRoutesCsv(const string& path, const Instance& inst, const Solution& solution) {
+// One row per rally. return_h (when that politician gets back to HQ) repeats on each of their rows.
+static void writeRoutesCsv(const string& path, const Instance& inst, const Solution& solution,
+                           const Metrics& metrics) {
     ofstream out(path);
-    out << "politician,seq,geonameid,town,lat,lon,population,arrive_h,start_h,finish_h\n";
+    out << "politician,seq,geonameid,town,lat,lon,population,arrive_h,start_h,finish_h,return_h\n";
     for (int p = 0; p < (int)solution.routes.size(); ++p) {
         for (int i = 0; i < (int)solution.routes[p].size(); ++i) {
             const Visit& visit = solution.routes[p][i];
             const Town& town = inst.towns[visit.town];
             out << p << ',' << i << ',' << town.geonameId << ",\"" << town.name << "\"," << town.lat << ','
                 << town.lon << ',' << town.population << ',' << visit.arrive << ',' << visit.start << ','
-                << visit.finish << '\n';
+                << visit.finish << ',' << metrics.returnTime[p] << '\n';
         }
     }
+}
+
+// Every town in the instance (visited or not) plus the run settings, so other tools
+// can make sense of the routes without re-reading the GeoNames file.
+static void writeInstanceCsv(const string& dir, const Instance& inst) {
+    ofstream towns(dir + "/towns.csv");
+    towns << "geonameid,town,lat,lon,population,rally_h\n";
+    for (const Town& town : inst.towns) {
+        towns << town.geonameId << ",\"" << town.name << "\"," << town.lat << ',' << town.lon << ','
+              << town.population << ',' << town.rallyHours << '\n';
+    }
+
+    ofstream meta(dir + "/meta.csv");
+    meta << "key,value\n";
+    meta << "politicians," << inst.numPoliticians << '\n';
+    meta << "alpha," << inst.alpha << '\n';
+    meta << "campaign_hours," << inst.campaignHours << '\n';
+    meta << "hq_name,\"" << inst.hq.name << "\"\n";
+    meta << "hq_lat," << inst.hq.lat << '\n';
+    meta << "hq_lon," << inst.hq.lon << '\n';
 }
 
 static void appendSummaryCsv(const string& path, const string& approach, const Instance& inst, const Metrics& m,
@@ -150,6 +172,7 @@ int main(int argc, char** argv) {
            inst.numPoliticians, inst.alpha, inst.campaignHours, inst.hq.name.c_str());
     printf("Upper bound on reach (everyone visits everywhere): %.0f\n\n", inst.maxPossibleReach());
     if (options.listTowns) printTowns(inst);
+    if (!options.routesDir.empty()) writeInstanceCsv(options.routesDir, inst);
 
     printTableHeader();
     IlsStats ilsStats;
@@ -166,7 +189,7 @@ int main(int argc, char** argv) {
         printTableRow(approach, inst, metrics, runtimeMs);
 
         if (!options.routesDir.empty()) {
-            writeRoutesCsv(options.routesDir + "/" + approach + "_routes.csv", inst, solution);
+            writeRoutesCsv(options.routesDir + "/" + approach + "_routes.csv", inst, solution, metrics);
         }
         if (!options.summaryFile.empty()) {
             appendSummaryCsv(options.summaryFile, approach, inst, metrics, runtimeMs);
