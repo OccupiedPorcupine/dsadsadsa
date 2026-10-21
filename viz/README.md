@@ -54,10 +54,12 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 ## Colour choices
 
 - **Population** uses one blue hue from light to dark, because it is a magnitude. Dot size changes too, so the information isn't carried by colour alone.
-- **Politicians** use distinct categorical hues, starting at orange and then aqua. Blue is skipped because it already means population.
+- **Politicians** use orange, then aqua, then further categorical colours. Blue is skipped because it already means population.
 - **Clashes** use a reserved red, always with the ⚠ symbol and a text label.
-- The palette passes a colour-blindness check (CVD separation ΔE ≥ 9) in both light and dark mode.
+- The colours pass a colour-blindness check (CVD separation ΔE ≥ 9) in both light and dark mode.
+- We also tried a light-yellow-to-dark-purple ramp and single-hue amber, purple and grey ramps. We kept blue.
 - The page follows the system light/dark setting.
+- **If you change a colour, change it in all three blocks** at the top of `map_template.html` (one for light mode, two for dark mode), then rerun `make_map.py`.
 
 ## Known limits
 
