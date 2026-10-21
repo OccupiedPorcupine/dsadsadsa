@@ -17,10 +17,12 @@ Column meanings:
 
 | Approach | Reach | % max | Rallies | Clashes | Travel (h) | Fairness | Runtime |
 |---|---|---|---|---|---|---|---|
+| Classic nearest neighbour (benchmark) | *35.94M* | *100%* | 184 | **92** | 96.3 | 0.50 | < 0.1 ms |
 | Uncoordinated (baseline) | 29.24M | 81.4% | 90 | **45** | 106.1 | 0.50 | < 0.1 ms |
 | A: one at a time | 30.43M | 84.7% | 95 | 0 | 96.1 | 0.68 | < 0.1 ms |
 | B: iterated local search | **31.87M** | **88.7%** | 108 | 0 | **68.1** | **0.93** | ~125 ms |
 
+- **Classic nearest neighbour:** invalid twice over. Its tour takes **254.3 h** (48 h driving + 206 h of rallies) against a 168 h budget, and both politicians follow it, so all 92 towns clash. Its reach is in italics because it counts rallies held after the deadline. Cut off at 168 h, a politician gets through 60 of the 92 towns, reaching 16.04M people (67% of the population). Johor Bahru, the second-largest town, is 83rd on the tour and is never reached. One politician on this route reaches about half of what A or B reach with two.
 - **Baseline:** both politicians choose the same 45 towns in the same order, so every rally clashes.
 - **A:** valid, but P1 gets the best towns, so fairness is only 0.68.
 - **B:** reaches 4.7% more people than A, in 29% less travel time, and is much fairer.
@@ -52,24 +54,26 @@ The route map for this run is `results/default/campaign_map.html` (see [viz/READ
 | 5 | 1 | 72 | 56.97 | 59.71 | 1.048 | 0.91 | 0.93 | 3.5 | 1.2 |
 | 5 | 1 | 168 | 97.43 | **96.28** | **0.988** | 0.98 | 0.92 | 9.4 | 0 |
 
-The baseline clashed in every one of these runs (from 18 clashes up to 450).
+The baseline clashed in every one of these runs (from 18 clashes up to 450). The nearest-neighbour benchmark is left out of this table: it builds the same tour whatever k and alpha are, so it is invalid in every setting (back at HQ at 254.3 h, with every rally clashing).
 
 ## 3. Scaling with instance size
 
 k = 2, alpha = 0.5, 168 hours. Larger instances were made by lowering the population cut-off.
 
-| Towns | A reach | B reach | A runtime | B runtime |
-|---|---|---|---|---|
-| 15 | 16.07M | 16.07M | < 0.1 ms | 0.5 ms |
-| 30 | 25.09M | 25.09M | < 0.1 ms | 2.1 ms |
-| 60 | 30.21M | 31.65M | < 0.1 ms | 35 ms |
-| 92 | 30.43M | 31.87M | < 0.1 ms | 125 ms |
-| 175 (pop ≥ 20k) | 30.43M | 31.85M | < 0.1 ms | 437 ms |
-| 255 (pop ≥ 10k) | 30.43M | 31.88M | 0.1 ms | 1,054 ms |
+| Towns | A reach | B reach | A runtime | B runtime | Nearest-neighbour tour length |
+|---|---|---|---|---|---|
+| 15 | 16.07M | 16.07M | < 0.1 ms | 0.5 ms | 72.2 h |
+| 30 | 25.09M | 25.09M | < 0.1 ms | 2.1 ms | 113.4 h |
+| 60 | 30.21M | 31.65M | < 0.1 ms | 35 ms | 188.6 h |
+| 92 | 30.43M | 31.87M | < 0.1 ms | 125 ms | 254.3 h |
+| 175 (pop ≥ 20k) | 30.43M | 31.85M | < 0.1 ms | 437 ms | 408.3 h |
+| 255 (pop ≥ 10k) | 30.43M | 31.88M | 0.1 ms | 1,054 ms | 511.1 h |
+
+The nearest-neighbour tour fits in 168 h only up to 30 towns, and even there every rally clashes because both politicians follow the same tour.
 
 ## 4. Findings
 
-1. **Classic single-traveller planning fails outright.** The uncoordinated baseline clashes in every town in every setting.
+1. **Classic single-traveller planning fails outright.** The textbook nearest-neighbour tour overruns the 168 h budget by 86 h and visits towns in distance order, not by size. The uncoordinated baseline fixes the budget and the town choice, but still clashes in every town in every setting.
 2. **B beats A on reach in 13 of 18 settings, ties in 4, and loses in 1** (k = 5, alpha = 1, 168 h, by 1.2%). In the ties, both visit every town once, which is the maximum possible when alpha = 0.
 3. **B travels far less.** In the default run it travels 68 h vs A's 96 h, because inserting a town between two existing rallies avoids long detours.
 4. **The clash rule rarely forces anyone to wait.** Waiting is 0 in most runs and at most 25 h (A, k = 5). With continuous 24-hour days, there is almost always another free slot. Adding daytime-only rallies (assumption T6) should make the rule bite much harder.

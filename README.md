@@ -58,6 +58,7 @@ What the map shows:
 |---|---|
 | `src/instance.*` | Loads GeoNames data, filters and merges towns, builds the travel-time matrix |
 | `src/booking.*` | `BookingTable`: per-town sorted rally bookings, used to detect and avoid clashes |
+| `src/nearest.cpp` | Benchmark: classic nearest-neighbour TSP tour |
 | `src/sequential.cpp` | Baseline (uncoordinated) and Approach A (sequential greedy with booking table) |
 | `src/ils.cpp` | Approach B (iterated local search with clash-aware `maxShift`) |
 | `src/solution.*` | Independent validator: timing, horizon, repeat visits, clashes, reach |
@@ -72,6 +73,7 @@ What the map shows:
 
 | | What it does | Data structures |
 |---|---|---|
+| **Benchmark: classic nearest neighbour** | The brief's textbook TSP heuristic: one tour through every town, closest first, given to every politician. Ignores population, the time budget and the clash rule. | Visited flags |
 | **Baseline: uncoordinated** | Each politician plans greedily as if alone, which is classic single-traveller thinking. Violates the clash rule by design. | Visited flags |
 | **A: sequential greedy** | Politicians are planned one after another. Each appends the town with the best `reach / (travel + wait + rally hours)`, avoiding times already booked. | `BookingTable` (per-town sorted intervals) |
 | **B: iterated local search** | All politicians at once. Insert the best `(town, politician, position)` by `gain^2 / extra time`, then shake (remove runs of visits) and repeat. Based on Vansteenwegen et al. (2009). | `BookingTable` + per-visit `{arrive, start, finish, maxShift}`. `maxShift` includes the slack before the next clash, so each insertion is checked in O(1) |

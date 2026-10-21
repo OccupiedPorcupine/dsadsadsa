@@ -3,6 +3,10 @@
 #include "instance.hpp"
 #include "solution.hpp"
 
+// Benchmark: the textbook nearest-neighbour TSP tour through every town, closest town first,
+// handed to every politician. Ignores population, the time budget and the clash rule.
+Solution solveNearestNeighbour(const Instance& inst);
+
 // Baseline: each politician plans as if campaigning alone, the way a classic single-traveller
 // planner would. It ignores the clash rule, so it shows what goes wrong without coordination.
 Solution solveUncoordinated(const Instance& inst);

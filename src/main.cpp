@@ -34,7 +34,7 @@ static void printUsage() {
             "  --max-towns N        keep only the N most populous towns (default: all)\n"
             "  --merge-km D         merge places within D km of a bigger one (default 5)\n"
             "  --borneo             include Sabah, Sarawak and Labuan (reached by flight)\n"
-            "  --approach NAME      uncoordinated | sequential | ils | all (default all)\n"
+            "  --approach NAME      nearest | uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
@@ -148,6 +148,7 @@ static void appendSummaryCsv(const string& path, const string& approach, const I
 
 static Solution runPlanner(const string& approach, const Instance& inst, const Options& options,
                            IlsStats& ilsStats) {
+    if (approach == "nearest") return solveNearestNeighbour(inst);
     if (approach == "uncoordinated") return solveUncoordinated(inst);
     if (approach == "sequential") return solveSequential(inst);
     return solveIls(inst, options.ilsParams, &ilsStats);
@@ -176,7 +177,7 @@ int main(int argc, char** argv) {
 
     printTableHeader();
     IlsStats ilsStats;
-    vector<string> approaches = {"uncoordinated", "sequential", "ils"};
+    vector<string> approaches = {"nearest", "uncoordinated", "sequential", "ils"};
     for (const string& approach : approaches) {
         if (options.approach != "all" && options.approach != approach) continue;
 

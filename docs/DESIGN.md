@@ -122,6 +122,20 @@ This is the same idea as Vansteenwegen et al. (2009). Their slack only covers fi
 
 ## 6. Algorithms
 
+### 6.0 Benchmark: classic nearest neighbour (`solveNearestNeighbour`)
+[src/nearest.cpp](../src/nearest.cpp). The brief's nearest-neighbour TSP, unchanged:
+
+```
+here = HQ;  t = 0;  tour = []
+repeat n times:
+    c = the unvisited town closest to here (by travel time)
+    arrive = t + travel(here, c);  start = arrive;  finish = start + rally(c)
+    append c;  t = finish;  here = c
+every politician gets this same tour, then returns to HQ
+```
+
+It visits every town, has no idea of population or the time budget, and every politician follows the same tour, so every rally clashes. It is here to show the starting point the redesigns improve on. The validator marks it invalid, and its reach figure counts rallies after the deadline, so that number can't be compared with the other approaches.
+
 ### 6.1 Baseline: uncoordinated greedy
 Each politician runs the greedy builder (6.2) with an **empty** booking table, as if campaigning alone. Because the builder is deterministic, every politician picks the same route, which shows what goes wrong without coordination.
 
@@ -201,6 +215,7 @@ Notation: n towns, k politicians, L = total rallies across all routes (L ≤ k·
 | Merge nearby places (c candidates, m kept) | O(c · m) | O(c) |
 | Travel matrix | O(n²) | O(n²) |
 | Booking table query or update | O(k) | O(L) in total |
+| **Benchmark (nearest neighbour)** | n steps, each scanning up to n towns → **O(n²)**, then k copies → O(n² + k·n) | O(k · n) |
 | **Baseline** | Same loop as A, but every lookup is O(1) because the booking table is empty → **O(n · L)** | O(n) |
 | **Approach A** | each step scans n towns at O(k) each; L steps in total → **O(k · n · L)**, at most O(k² n²) | O(n + L) |
 | **Approach B**, one insertion | try n towns × (L + k) positions at O(k) each, then O(L · k) to update → **O(k · n · (L + k))** | O(n + L) |
@@ -218,7 +233,7 @@ Measured (see [RESULTS.md](RESULTS.md)): A takes under 1 ms on every instance. B
 - **Clashes:** every pair of overlapping rallies in the same town is counted.
 - **Reach:** recomputed from scratch.
 
-A plan is reported as `valid` only if there are no errors and no clashes. Approaches A and B have been valid in every run so far: 81 stress-test settings across k, alpha, T and instance size, plus every run in [RESULTS.md](RESULTS.md). The baseline is invalid by design.
+A plan is reported as `valid` only if there are no errors and no clashes. Approaches A and B have been valid in every run so far: 81 stress-test settings across k, alpha, T and instance size, plus every run in [RESULTS.md](RESULTS.md). The baseline and the nearest-neighbour benchmark are invalid by design.
 
 ## 9. Trade-offs and limitations
 
@@ -236,7 +251,8 @@ A plan is reported as `valid` only if there are no errors and no clashes. Approa
 | [src/instance.hpp/.cpp](../src/instance.cpp) | `Town`, `Config`, `Instance`; loading and preprocessing | `buildInstance`, `readCandidateTowns`, `mergeNearbyPlaces`, `travelHoursBetween` |
 | [src/geo.hpp](../src/geo.hpp) | Great-circle distance | `haversineKm` |
 | [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `book`, `cancel`, `rebook` |
-| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveUncoordinated`, `solveSequential`, `solveIls` |
+| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveIls` |
+| [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmark | `solveNearestNeighbour`, `buildNearestNeighbourTour` |
 | [src/sequential.cpp](../src/sequential.cpp) | Baseline and Approach A | `buildGreedyRoute` |
 | [src/ils.cpp](../src/ils.cpp) | Approach B | `IlsPlanner::insertUntilFull`, `tryInsertion`, `applyInsertion`, `updateMaxShifts`, `shake`, `recalculateTimes` |
 | [src/solution.hpp/.cpp](../src/solution.cpp) | `Visit`, `Solution`, `Metrics`; the validator | `evaluate`, `checkRoute` |

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 using namespace std;
 
@@ -69,7 +70,10 @@ static void checkRoute(const Instance& inst, int politician, const vector<Visit>
     metrics.travelHours += tripHome;
     metrics.returnTime[politician] = currentTime + tripHome;
     if (metrics.returnTime[politician] > inst.campaignHours + TOLERANCE) {
-        metrics.errors.push_back(describeError(politician, -1, "returns to HQ after the campaign ends"));
+        char problem[100];
+        snprintf(problem, sizeof problem, "returns to HQ at %.1f h, after the campaign ends (%.0f h)",
+                 metrics.returnTime[politician], inst.campaignHours);
+        metrics.errors.push_back(describeError(politician, -1, problem));
     }
 }
 

@@ -43,6 +43,7 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 
 | # | Decision | Why |
 |---|---|---|
+| A0 | Benchmark: the brief's classic nearest-neighbour TSP. One tour through every town, closest (by travel time) first, given unchanged to every politician. Rallies start on arrival. | Shows how the unmodified classic algorithm does on this problem before any redesign. It breaks the time budget and the clash rule, so it is reported but never valid. |
 | A1 | Baseline: each politician plans greedily as if alone, which is the classic single-traveller view. | Shows what goes wrong without coordination: identical routes and a clash in every town. |
 | A2 | Approach A ranks towns by `reach / (travel + wait + rally hours)`. | Plain greedy "reach per hour". |
 | A3 | Approach B ranks insertions by `reach² / extra time`. | Taken from Vansteenwegen et al. (2009). Squaring favours big towns. |
@@ -59,3 +60,4 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 ## Change log
 
 - 2026-10-21: First version. Model and defaults as above.
+- 2026-10-21: Added the classic nearest-neighbour benchmark (A0).
