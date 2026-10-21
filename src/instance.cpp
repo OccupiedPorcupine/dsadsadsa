@@ -1,3 +1,6 @@
+// Turns the GeoNames file into a problem instance: picks the rally towns, finds HQ,
+// and works out the travel time between every pair of places.
+
 #include "instance.hpp"
 
 #include "geo.hpp"
@@ -6,104 +9,146 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace {
+using namespace std;
 
-constexpr double kBorneoMinLongitude = 109.0;  // Sabah, Sarawak and Labuan all lie east of this
+// Column positions in MY.txt (see CS201_2026_project/Metadata.txt).
+const int COL_ID = 0;
+const int COL_ASCII_NAME = 2;
+const int COL_LAT = 4;
+const int COL_LON = 5;
+const int COL_FEATURE_CLASS = 6;
+const int COL_FEATURE_CODE = 7;
+const int COL_POPULATION = 14;
 
-// GeoNames columns (see CS201_2026_project/Metadata.txt).
-constexpr int kColId = 0, kColAsciiName = 2, kColLat = 4, kColLon = 5;
-constexpr int kColFeatureClass = 6, kColFeatureCode = 7, kColPopulation = 14;
+// Sabah, Sarawak and Labuan are east of this longitude; the peninsula is west of it.
+const double BORNEO_MIN_LONGITUDE = 109.0;
 
-std::vector<std::string> splitTabs(const std::string& line) {
-    std::vector<std::string> fields;
-    std::size_t begin = 0;
-    while (true) {
-        std::size_t end = line.find('\t', begin);
-        fields.push_back(line.substr(begin, end - begin));
-        if (end == std::string::npos) break;
-        begin = end + 1;
+static vector<string> splitByTab(const string& line) {
+    vector<string> fields;
+    string field;
+    for (char ch : line) {
+        if (ch == '\t') {
+            fields.push_back(field);
+            field.clear();
+        } else {
+            field += ch;
+        }
     }
+    fields.push_back(field);
     return fields;
 }
 
-// 1h for a town of 10k, 2h for 100k, capped at 3h for 1M and above.
-double stayHoursFor(long population) {
-    double hours = 1.0 + std::log10(std::max(population, 10000L) / 10000.0);
-    return std::min(hours, 3.0);
+// Bigger towns get longer rallies: 1 hour at 10k people, 2 hours at 100k, 3 hours at 1M or more.
+static double rallyHoursFor(long population) {
+    if (population < 10000) return 1.0;
+    double hours = 1.0 + log10(population / 10000.0);
+    return min(hours, 3.0);
 }
 
-double travelHours(const Town& a, const Town& b, const Config& cfg) {
+static Town parseTown(const vector<string>& fields) {
+    Town town;
+    town.geonameId = stol(fields[COL_ID]);
+    town.name = fields[COL_ASCII_NAME];
+    town.lat = stod(fields[COL_LAT]);
+    town.lon = stod(fields[COL_LON]);
+    town.population = fields[COL_POPULATION].empty() ? 0 : stol(fields[COL_POPULATION]);
+    town.inBorneo = town.lon > BORNEO_MIN_LONGITUDE;
+    town.rallyHours = rallyHoursFor(town.population);
+    return town;
+}
+
+// Reads every populated place that passes the filters. Also finds the capital, which is used as HQ.
+static vector<Town> readCandidateTowns(const Config& config, Town& hq) {
+    ifstream file(config.dataPath);
+    if (!file) throw runtime_error("cannot open data file: " + config.dataPath);
+
+    vector<Town> candidates;
+    bool foundHq = false;
+    string line;
+    while (getline(file, line)) {
+        vector<string> fields = splitByTab(line);
+        if ((int)fields.size() <= COL_POPULATION) continue;
+        if (fields[COL_FEATURE_CLASS] != "P") continue;  // P = city, town or village
+
+        Town town = parseTown(fields);
+        if (fields[COL_FEATURE_CODE] == "PPLC") {  // PPLC = national capital
+            hq = town;
+            foundHq = true;
+        }
+        if (town.population < config.minPopulation) continue;
+        if (town.inBorneo && !config.includeBorneo) continue;
+        candidates.push_back(town);
+    }
+    if (!foundHq) throw runtime_error("no capital (PPLC) found to use as HQ");
+    return candidates;
+}
+
+// GeoNames lists a city and the districts inside it as separate places, each with its own
+// population, so adding them up would count people twice. We go from the biggest place down
+// and skip anything within mergeKm of a town we already kept.
+static vector<Town> mergeNearbyPlaces(vector<Town> candidates, const Config& config) {
+    sort(candidates.begin(), candidates.end(), [](const Town& a, const Town& b) {
+        if (a.population != b.population) return a.population > b.population;
+        return a.geonameId < b.geonameId;
+    });
+
+    vector<Town> kept;
+    for (const Town& candidate : candidates) {
+        bool tooClose = false;
+        for (const Town& town : kept) {
+            if (haversineKm(candidate.lat, candidate.lon, town.lat, town.lon) < config.mergeKm) {
+                tooClose = true;
+                break;
+            }
+        }
+        if (!tooClose) kept.push_back(candidate);
+        if (config.maxTowns > 0 && (int)kept.size() == config.maxTowns) break;
+    }
+    return kept;
+}
+
+static double travelHoursBetween(const Town& a, const Town& b, const Config& config) {
     double km = haversineKm(a.lat, a.lon, b.lat, b.lon);
-    if (a.borneo != b.borneo) return cfg.flightOverheadHours + km / cfg.flightSpeedKmh;
-    return km * cfg.roadFactor / cfg.driveSpeedKmh;
+    bool needsFlight = a.inBorneo != b.inBorneo;
+    if (needsFlight) {
+        return config.flightOverheadHours + km / config.flightSpeedKmh;
+    }
+    return km * config.roadFactor / config.driveSpeedKmh;
 }
 
-}  // namespace
-
-double Instance::maxReach() const {
+double Instance::maxPossibleReach() const {
     double total = 0;
-    for (int c = 0; c < n(); ++c)
-        for (int v = 0; v < k; ++v) total += gain(c, v);
+    for (int town = 0; town < numTowns(); ++town) {
+        for (int rally = 0; rally < numPoliticians; ++rally) {
+            total += rallyReach(town, rally);
+        }
+    }
     return total;
 }
 
-Instance buildInstance(const Config& cfg) {
-    std::ifstream in(cfg.dataPath);
-    if (!in) throw std::runtime_error("cannot open data file: " + cfg.dataPath);
+Instance buildInstance(const Config& config) {
+    Town hq;
+    vector<Town> candidates = readCandidateTowns(config, hq);
 
-    std::vector<Town> candidates;
-    Town depot;
-    bool haveDepot = false;
-    std::string line;
-    while (std::getline(in, line)) {
-        std::vector<std::string> f = splitTabs(line);
-        if (f.size() <= kColPopulation || f[kColFeatureClass] != "P") continue;
-
-        Town t;
-        t.geonameId = std::stol(f[kColId]);
-        t.name = f[kColAsciiName];
-        t.lat = std::stod(f[kColLat]);
-        t.lon = std::stod(f[kColLon]);
-        t.population = f[kColPopulation].empty() ? 0 : std::stol(f[kColPopulation]);
-        t.borneo = t.lon > kBorneoMinLongitude;
-        t.stayHours = stayHoursFor(t.population);
-
-        if (f[kColFeatureCode] == "PPLC") {  // national capital: party HQ
-            depot = t;
-            haveDepot = true;
-        }
-        if (t.population < cfg.minPopulation) continue;
-        if (t.borneo && !cfg.includeBorneo) continue;
-        candidates.push_back(t);
-    }
-    if (!haveDepot) throw std::runtime_error("no capital (PPLC) found to use as HQ");
-
-    // GeoNames lists cities and the districts inside them separately, each with its own
-    // population. Keep the largest place and drop anything within mergeKm of a kept one.
-    std::sort(candidates.begin(), candidates.end(), [](const Town& a, const Town& b) {
-        return a.population != b.population ? a.population > b.population : a.geonameId < b.geonameId;
-    });
     Instance inst;
-    for (const Town& c : candidates) {
-        bool absorbed = std::any_of(inst.towns.begin(), inst.towns.end(), [&](const Town& kept) {
-            return haversineKm(c.lat, c.lon, kept.lat, kept.lon) < cfg.mergeKm;
-        });
-        if (!absorbed) inst.towns.push_back(c);
-        if (cfg.maxTowns > 0 && inst.n() == cfg.maxTowns) break;
+    inst.towns = mergeNearbyPlaces(candidates, config);
+    inst.hq = hq;
+    inst.hq.name = "HQ " + hq.name;
+    inst.hq.rallyHours = 0;
+    inst.numPoliticians = config.numPoliticians;
+    inst.alpha = config.alpha;
+    inst.campaignHours = config.campaignHours;
+
+    // All towns plus HQ at the end.
+    vector<Town> places = inst.towns;
+    places.push_back(inst.hq);
+    int numPlaces = places.size();
+
+    inst.travelHours.assign(numPlaces, vector<double>(numPlaces, 0.0));
+    for (int from = 0; from < numPlaces; ++from) {
+        for (int to = 0; to < numPlaces; ++to) {
+            if (from != to) inst.travelHours[from][to] = travelHoursBetween(places[from], places[to], config);
+        }
     }
-
-    depot.name = "HQ " + depot.name;
-    depot.stayHours = 0;
-    inst.depot = depot;
-    inst.k = cfg.politicians;
-    inst.alpha = cfg.alpha;
-    inst.horizon = cfg.horizonHours;
-
-    int size = inst.n() + 1;
-    auto place = [&](int i) -> const Town& { return i == inst.depotIndex() ? inst.depot : inst.towns[i]; };
-    inst.travel.assign(size, std::vector<double>(size, 0.0));
-    for (int i = 0; i < size; ++i)
-        for (int j = 0; j < size; ++j)
-            if (i != j) inst.travel[i][j] = travelHours(place(i), place(j), cfg);
     return inst;
 }

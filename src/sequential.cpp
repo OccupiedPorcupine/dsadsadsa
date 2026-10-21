@@ -1,64 +1,81 @@
+// The baseline and Approach A. Both use the same greedy route builder; the difference is
+// whether politicians can see each other's bookings.
+
 #include "booking.hpp"
 #include "planners.hpp"
 
-namespace {
+using namespace std;
 
-// Builds one politician's route by repeatedly appending the town with the best reach per hour,
-// where the hour count includes travel, any wait for the town to be free, and the rally itself.
-// Stops when no remaining town can be added with enough time left to get back to HQ.
-std::vector<Visit> greedyRoute(const Instance& inst, int politician, const BookingTable& booked,
-                               const std::vector<int>& priorVisits) {
-    std::vector<Visit> route;
-    std::vector<char> visited(inst.n(), 0);
-    int cur = inst.depotIndex();
-    double t = 0;
+// Builds one politician's route. At each step it looks at every town not yet visited and picks
+// the one with the most reach per hour spent (travel + waiting for the town to be free + the rally).
+// It stops when no town can be added with enough time left to get back to HQ.
+static vector<Visit> buildGreedyRoute(const Instance& inst, int politician, const BookingTable& bookings,
+                                      const vector<int>& ralliesInTown) {
+    vector<Visit> route;
+    vector<bool> visited(inst.numTowns(), false);
+    int currentPlace = inst.hqIndex();
+    double currentTime = 0;
+
     while (true) {
         int bestTown = -1;
-        double bestRatio = -1, bestArrive = 0, bestStart = 0;
-        for (int c = 0; c < inst.n(); ++c) {
-            if (visited[c]) continue;
-            double arrive = t + inst.travelTime(cur, c);
-            double start = booked.earliestFree(c, arrive, inst.stay(c), politician);
-            double finish = start + inst.stay(c);
-            if (finish + inst.travelTime(c, inst.depotIndex()) > inst.horizon + kEps) continue;
-            double ratio = inst.gain(c, priorVisits[c]) / (finish - t);
-            if (ratio > bestRatio) {
-                bestRatio = ratio;
-                bestTown = c;
+        double bestReachPerHour = -1;
+        double bestArrive = 0;
+        double bestStart = 0;
+
+        for (int town = 0; town < inst.numTowns(); ++town) {
+            if (visited[town]) continue;
+
+            double arrive = currentTime + inst.travelTime(currentPlace, town);
+            double start = bookings.earliestFreeTime(town, arrive, inst.rallyHours(town), politician);
+            double finish = start + inst.rallyHours(town);
+            double backAtHq = finish + inst.travelTime(town, inst.hqIndex());
+            if (backAtHq > inst.campaignHours + EPS) continue;  // no time to get home afterwards
+
+            double reachPerHour = inst.rallyReach(town, ralliesInTown[town]) / (finish - currentTime);
+            if (reachPerHour > bestReachPerHour) {
+                bestReachPerHour = reachPerHour;
+                bestTown = town;
                 bestArrive = arrive;
                 bestStart = start;
             }
         }
-        if (bestTown < 0) break;
-        double finish = bestStart + inst.stay(bestTown);
+
+        if (bestTown == -1) break;  // nothing else fits
+
+        double finish = bestStart + inst.rallyHours(bestTown);
         route.push_back({bestTown, bestArrive, bestStart, finish});
-        visited[bestTown] = 1;
-        cur = bestTown;
-        t = finish;
+        visited[bestTown] = true;
+        currentPlace = bestTown;
+        currentTime = finish;
     }
     return route;
 }
 
-}  // namespace
-
 Solution solveUncoordinated(const Instance& inst) {
-    BookingTable nobodyElse(inst.n());
-    std::vector<int> noPriorVisits(inst.n(), 0);
-    Solution sol;
-    for (int p = 0; p < inst.k; ++p) sol.routes.push_back(greedyRoute(inst, p, nobodyElse, noPriorVisits));
-    return sol;
+    // Every politician gets an empty booking table and thinks no town has been visited yet.
+    BookingTable emptyBookings(inst.numTowns());
+    vector<int> noRallies(inst.numTowns(), 0);
+
+    Solution solution;
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        solution.routes.push_back(buildGreedyRoute(inst, p, emptyBookings, noRallies));
+    }
+    return solution;
 }
 
 Solution solveSequential(const Instance& inst) {
-    BookingTable booked(inst.n());
-    std::vector<int> visits(inst.n(), 0);
-    Solution sol;
-    for (int p = 0; p < inst.k; ++p) {
-        sol.routes.push_back(greedyRoute(inst, p, booked, visits));
-        for (const Visit& v : sol.routes.back()) {
-            booked.add(v.town, v.start, v.finish, p);
-            ++visits[v.town];
+    // Shared between politicians: later ones see what earlier ones booked.
+    BookingTable bookings(inst.numTowns());
+    vector<int> ralliesInTown(inst.numTowns(), 0);
+
+    Solution solution;
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        vector<Visit> route = buildGreedyRoute(inst, p, bookings, ralliesInTown);
+        for (const Visit& visit : route) {
+            bookings.book(visit.town, visit.start, visit.finish, p);
+            ralliesInTown[visit.town]++;
         }
+        solution.routes.push_back(route);
     }
-    return sol;
+    return solution;
 }

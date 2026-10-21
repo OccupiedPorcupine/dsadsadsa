@@ -5,28 +5,35 @@
 #include <string>
 #include <vector>
 
+// One rally in a politician's route. If start > arrive, the politician waited for the town to be free.
 struct Visit {
     int town;
-    double arrive, start, finish;  // start > arrive means the politician waited for the town to be free
+    double arrive;
+    double start;
+    double finish;
 };
 
+// A full plan: routes[p] is politician p's list of rallies, in order.
 struct Solution {
-    std::vector<std::vector<Visit>> routes;  // routes[p] = politician p's visits in order
+    std::vector<std::vector<Visit>> routes;
 };
 
+// Everything we report about a plan.
 struct Metrics {
     double reach = 0;
-    std::vector<double> reachByPolitician;  // the earlier rally in a town gets the larger share
-    std::vector<double> returnTime;
+    std::vector<double> reachByPolitician;  // in a shared town, whoever came first gets the bigger share
+    std::vector<double> returnTime;         // when each politician gets back to HQ
     int visits = 0;
-    int clashes = 0;       // pairs of rallies in the same town at overlapping times
+    int clashes = 0;                        // pairs of rallies in the same town at overlapping times
     double travelHours = 0;
     double waitHours = 0;
-    std::vector<std::string> errors;  // timing or horizon violations
+    std::vector<std::string> errors;        // timing mistakes or late returns
 
     bool valid() const { return clashes == 0 && errors.empty(); }
-    double fairness() const;  // lowest politician reach / highest politician reach
+
+    // Lowest politician reach divided by highest. 1 means everyone did equally well.
+    double fairness() const;
 };
 
-// Checks a solution from scratch, independent of how it was produced.
-Metrics evaluate(const Instance& inst, const Solution& sol);
+// Checks a plan from scratch, without trusting the planner that made it, and measures it.
+Metrics evaluate(const Instance& inst, const Solution& solution);

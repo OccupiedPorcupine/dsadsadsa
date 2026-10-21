@@ -1,226 +1,304 @@
+// Approach B: Iterated Local Search, based on Vansteenwegen et al. (2009),
+// "Iterated local search for the team orienteering problem with time windows".
+//
+// All politicians are planned together. Each round:
+//   1. Insert:  keep adding the best (town, politician, position) until nothing else fits.
+//   2. Shake:   remove a few visits from every route, so the next round can try other choices.
+// The best plan seen in any round is the answer.
+//
+// What makes insertion fast is maxShift. For every planned visit we store how much later it
+// could start without causing trouble further along the route (a clash with another politician,
+// or getting home too late). Checking whether an insertion fits is then one comparison instead
+// of re-simulating the rest of the route.
+
 #include "booking.hpp"
 #include "planners.hpp"
 
 #include <algorithm>
-#include <limits>
 
-namespace {
+using namespace std;
 
-struct Slot {
+struct PlannedVisit {
     int town;
-    double arrive, start, finish;
-    // How much later this rally may start without pushing a later rally into a clash or the
-    // politician home after the horizon. Computed backwards along the route.
-    double maxShift;
+    double arrive;
+    double start;
+    double finish;
+    double maxShift;  // how much later this rally could start without breaking anything after it
 
-    double wait() const { return start - arrive; }
+    double waitTime() const { return start - arrive; }
 };
 
-class Search {
+// A possible move: put `town` into `politician`'s route, just before `position`.
+struct Insertion {
+    int politician = -1;  // -1 means "no insertion found"
+    int position = 0;
+    int town = 0;
+    double arrive = 0;
+    double start = 0;
+    double score = -1;
+};
+
+class IlsPlanner {
 public:
-    explicit Search(const Instance& inst)
-        : inst_(inst), routes_(inst.k), booked_(inst.n()), visits_(inst.n(), 0),
-          inRoute_(inst.k, std::vector<char>(inst.n(), 0)) {}
+    explicit IlsPlanner(const Instance& instance);
 
-    // Greedily insert the best (town, politician, position) until nothing else fits.
-    int insertUntilFull();
+    void insertUntilFull();
+    void shake(int firstPosition, int howMany);
 
-    // Remove `count` consecutive visits from every route, starting at position `start`
-    // (wrapping around), then pull the remaining visits earlier.
-    void shake(int start, int count);
-
-    double reach() const;
-    int smallestRouteSize() const;
-    Solution snapshot() const;
+    double totalReach() const;
+    int shortestRouteLength() const;
+    Solution currentPlan() const;
 
 private:
-    struct Candidate {
-        int politician = -1, position = 0, town = 0;
-        double arrive = 0, start = 0, ratio = -1;
-    };
+    void tryInsertion(int politician, int town, int position, Insertion& best) const;
+    void applyInsertion(const Insertion& insertion);
+    void recalculateTimes(int politician);
+    void updateMaxShifts();
+    double timeBackAtHq(int politician) const;
 
-    double returnTime(int p) const;
-    void apply(const Candidate& c);
-    void retime(int p);
-    void refreshMaxShift();
-
-    const Instance& inst_;
-    std::vector<std::vector<Slot>> routes_;
-    BookingTable booked_;
-    std::vector<int> visits_;               // rallies held in each town so far
-    std::vector<std::vector<char>> inRoute_;  // inRoute_[p][town]
+    const Instance& inst;
+    vector<vector<PlannedVisit>> routes;
+    BookingTable bookings;
+    vector<int> ralliesInTown;
+    vector<vector<bool>> inRoute;  // inRoute[politician][town]
 };
 
-double Search::returnTime(int p) const {
-    const auto& r = routes_[p];
-    if (r.empty()) return 0;
-    return r.back().finish + inst_.travelTime(r.back().town, inst_.depotIndex());
+IlsPlanner::IlsPlanner(const Instance& instance)
+    : inst(instance),
+      routes(instance.numPoliticians),
+      bookings(instance.numTowns()),
+      ralliesInTown(instance.numTowns(), 0),
+      inRoute(instance.numPoliticians, vector<bool>(instance.numTowns(), false)) {}
+
+double IlsPlanner::timeBackAtHq(int politician) const {
+    const vector<PlannedVisit>& route = routes[politician];
+    if (route.empty()) return 0;
+    const PlannedVisit& last = route.back();
+    return last.finish + inst.travelTime(last.town, inst.hqIndex());
 }
 
-void Search::refreshMaxShift() {
-    for (int p = 0; p < inst_.k; ++p) {
-        auto& r = routes_[p];
-        double limit = inst_.horizon - returnTime(p);  // slack the trip home can absorb
-        for (int i = static_cast<int>(r.size()) - 1; i >= 0; --i) {
-            double clashSlack = booked_.nextOtherStart(r[i].town, r[i].start, p) - r[i].finish;
-            r[i].maxShift = std::min(clashSlack, limit);
-            limit = r[i].wait() + r[i].maxShift;
+// Goes backwards along each route. A visit can be delayed until either
+//   - it would run into another politician's next rally in the same town, or
+//   - the visit after it can't absorb the delay (its waiting time + its own maxShift).
+// For the last visit, the limit is the time left before the campaign ends.
+void IlsPlanner::updateMaxShifts() {
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        vector<PlannedVisit>& route = routes[p];
+        double delayNextCanTake = inst.campaignHours - timeBackAtHq(p);
+
+        for (int i = (int)route.size() - 1; i >= 0; --i) {
+            PlannedVisit& visit = route[i];
+            double slackBeforeClash = bookings.nextOtherBooking(visit.town, visit.start, p) - visit.finish;
+            visit.maxShift = min(slackBeforeClash, delayNextCanTake);
+            delayNextCanTake = visit.waitTime() + visit.maxShift;
         }
     }
 }
 
-int Search::insertUntilFull() {
-    int inserted = 0;
+// Works out what happens if `town` is added to `politician`'s route just before `position`,
+// and stores it in `best` if it scores higher than what we have.
+void IlsPlanner::tryInsertion(int politician, int town, int position, Insertion& best) const {
+    const vector<PlannedVisit>& route = routes[politician];
+    bool atStart = (position == 0);
+    bool atEnd = (position == (int)route.size());
+
+    // Where the politician comes from.
+    int previousPlace = atStart ? inst.hqIndex() : route[position - 1].town;
+    double leaveTime = atStart ? 0.0 : route[position - 1].finish;
+
+    // The new rally.
+    double arrive = leaveTime + inst.travelTime(previousPlace, town);
+    double start = bookings.earliestFreeTime(town, arrive, inst.rallyHours(town), politician);
+    double finish = start + inst.rallyHours(town);
+
+    // Where they go next (the next rally, or home), and how much later they now get there.
+    int nextPlace = atEnd ? inst.hqIndex() : route[position].town;
+    double oldArrivalAtNext = atEnd ? timeBackAtHq(politician) : route[position].arrive;
+    double delay = finish + inst.travelTime(town, nextPlace) - oldArrivalAtNext;
+
+    double allowedDelay;
+    if (atEnd) {
+        allowedDelay = inst.campaignHours - timeBackAtHq(politician);
+    } else {
+        allowedDelay = route[position].waitTime() + route[position].maxShift;
+    }
+    if (delay > allowedDelay + EPS) return;  // would cause a clash or a late return later on
+
+    // Vansteenwegen's score: reach squared, divided by the extra time used.
+    // Squaring favours big towns over many small ones.
+    double reach = inst.rallyReach(town, ralliesInTown[town]);
+    double score = reach * reach / max(delay, EPS);
+    if (score > best.score) {
+        best = {politician, position, town, arrive, start, score};
+    }
+}
+
+void IlsPlanner::insertUntilFull() {
     while (true) {
-        Candidate best;
-        for (int p = 0; p < inst_.k; ++p) {
-            const auto& r = routes_[p];
-            int m = static_cast<int>(r.size());
-            for (int c = 0; c < inst_.n(); ++c) {
-                if (inRoute_[p][c]) continue;
-                double gain = inst_.gain(c, visits_[c]);
-                if (gain <= 0) continue;
-                for (int pos = 0; pos <= m; ++pos) {
-                    int prevTown = pos == 0 ? inst_.depotIndex() : r[pos - 1].town;
-                    double prevFinish = pos == 0 ? 0.0 : r[pos - 1].finish;
-                    double arrive = prevFinish + inst_.travelTime(prevTown, c);
-                    double start = booked_.earliestFree(c, arrive, inst_.stay(c), p);
-                    double finish = start + inst_.stay(c);
+        Insertion best;
+        for (int p = 0; p < inst.numPoliticians; ++p) {
+            for (int town = 0; town < inst.numTowns(); ++town) {
+                if (inRoute[p][town]) continue;
+                if (inst.rallyReach(town, ralliesInTown[town]) <= 0) continue;  // nothing to gain (alpha = 0)
 
-                    // How much later the next stop (a rally, or HQ) is reached, and how much it can absorb.
-                    int nextTown = pos == m ? inst_.depotIndex() : r[pos].town;
-                    double nextArrive = pos == m ? returnTime(p) : r[pos].arrive;
-                    double absorb = pos == m ? inst_.horizon - returnTime(p) : r[pos].wait() + r[pos].maxShift;
-                    double delay = finish + inst_.travelTime(c, nextTown) - nextArrive;
-                    if (delay > absorb + kEps) continue;
-
-                    double ratio = gain * gain / std::max(delay, kEps);
-                    if (ratio > best.ratio) best = {p, pos, c, arrive, start, ratio};
+                for (int position = 0; position <= (int)routes[p].size(); ++position) {
+                    tryInsertion(p, town, position, best);
                 }
             }
         }
-        if (best.politician < 0) return inserted;
-        apply(best);
-        ++inserted;
+        if (best.politician == -1) return;  // nothing else fits anywhere
+        applyInsertion(best);
     }
 }
 
-void Search::apply(const Candidate& c) {
-    auto& r = routes_[c.politician];
-    double finish = c.start + inst_.stay(c.town);
-    r.insert(r.begin() + c.position, Slot{c.town, c.arrive, c.start, finish, 0});
-    booked_.add(c.town, c.start, finish, c.politician);
-    ++visits_[c.town];
-    inRoute_[c.politician][c.town] = 1;
+void IlsPlanner::applyInsertion(const Insertion& insertion) {
+    int p = insertion.politician;
+    vector<PlannedVisit>& route = routes[p];
 
-    // Push later rallies back. The maxShift check guarantees none of them now clashes.
-    for (std::size_t i = c.position + 1; i < r.size(); ++i) {
-        double arrive = r[i - 1].finish + inst_.travelTime(r[i - 1].town, r[i].town);
-        double start = std::max(arrive, r[i].start);
-        r[i].arrive = arrive;
-        if (start == r[i].start) break;  // absorbed by waiting time; the rest of the route is unchanged
-        r[i].start = start;
-        r[i].finish = start + inst_.stay(r[i].town);
-        booked_.move(r[i].town, c.politician, r[i].start, r[i].finish);
+    double finish = insertion.start + inst.rallyHours(insertion.town);
+    PlannedVisit newVisit = {insertion.town, insertion.arrive, insertion.start, finish, 0};
+    route.insert(route.begin() + insertion.position, newVisit);
+    bookings.book(insertion.town, insertion.start, finish, p);
+    ralliesInTown[insertion.town]++;
+    inRoute[p][insertion.town] = true;
+
+    // Push the later rallies back. The maxShift check in tryInsertion already made sure
+    // none of them ends up clashing or getting home late.
+    for (int i = insertion.position + 1; i < (int)route.size(); ++i) {
+        PlannedVisit& visit = route[i];
+        double newArrive = route[i - 1].finish + inst.travelTime(route[i - 1].town, visit.town);
+        double newStart = max(newArrive, visit.start);
+        visit.arrive = newArrive;
+
+        // If the delay was soaked up by waiting time, nothing after this point moves.
+        if (newStart == visit.start) break;
+
+        visit.start = newStart;
+        visit.finish = newStart + inst.rallyHours(visit.town);
+        bookings.rebook(visit.town, p, visit.start, visit.finish);
     }
-    refreshMaxShift();
+    updateMaxShifts();
 }
 
-void Search::retime(int p) {
-    int cur = inst_.depotIndex();
-    double t = 0;
-    for (Slot& s : routes_[p]) {
-        s.arrive = t + inst_.travelTime(cur, s.town);
-        s.start = booked_.earliestFree(s.town, s.arrive, inst_.stay(s.town), p);
-        s.finish = s.start + inst_.stay(s.town);
-        booked_.move(s.town, p, s.start, s.finish);
-        cur = s.town;
-        t = s.finish;
+// Re-simulates a route from HQ, starting every rally as early as possible.
+// After a shake this only ever moves rallies earlier: each rally's old start time is still free,
+// so earliestFreeTime can't return anything later than that.
+void IlsPlanner::recalculateTimes(int politician) {
+    int currentPlace = inst.hqIndex();
+    double currentTime = 0;
+    for (PlannedVisit& visit : routes[politician]) {
+        visit.arrive = currentTime + inst.travelTime(currentPlace, visit.town);
+        visit.start = bookings.earliestFreeTime(visit.town, visit.arrive, inst.rallyHours(visit.town), politician);
+        visit.finish = visit.start + inst.rallyHours(visit.town);
+        bookings.rebook(visit.town, politician, visit.start, visit.finish);
+        currentPlace = visit.town;
+        currentTime = visit.finish;
     }
 }
 
-void Search::shake(int start, int count) {
-    for (int p = 0; p < inst_.k; ++p) {
-        auto& r = routes_[p];
-        int m = static_cast<int>(r.size());
-        if (m == 0) continue;
-        std::vector<char> drop(m, 0);
-        for (int i = 0; i < std::min(count, m); ++i) drop[(start + i) % m] = 1;
+// Removes `howMany` visits in a row from every route, starting at `firstPosition`
+// (wrapping round to the start of the route if needed).
+void IlsPlanner::shake(int firstPosition, int howMany) {
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        vector<PlannedVisit>& route = routes[p];
+        int length = route.size();
+        if (length == 0) continue;
 
-        std::vector<Slot> kept;
-        for (int i = 0; i < m; ++i) {
-            if (!drop[i]) {
-                kept.push_back(r[i]);
-                continue;
-            }
-            booked_.remove(r[i].town, p);
-            --visits_[r[i].town];
-            inRoute_[p][r[i].town] = 0;
+        vector<bool> remove(length, false);
+        for (int i = 0; i < min(howMany, length); ++i) {
+            remove[(firstPosition + i) % length] = true;
         }
-        r = std::move(kept);
+
+        vector<PlannedVisit> kept;
+        for (int i = 0; i < length; ++i) {
+            if (remove[i]) {
+                bookings.cancel(route[i].town, p);
+                ralliesInTown[route[i].town]--;
+                inRoute[p][route[i].town] = false;
+            } else {
+                kept.push_back(route[i]);
+            }
+        }
+        route = kept;
     }
-    // Each rally can only move earlier: its old start time is still free, so earliestFree never returns later.
-    for (int p = 0; p < inst_.k; ++p) retime(p);
-    refreshMaxShift();
+
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        recalculateTimes(p);
+    }
+    updateMaxShifts();
 }
 
-double Search::reach() const {
+double IlsPlanner::totalReach() const {
     double total = 0;
-    for (int c = 0; c < inst_.n(); ++c)
-        for (int v = 0; v < visits_[c]; ++v) total += inst_.gain(c, v);
+    for (int town = 0; town < inst.numTowns(); ++town) {
+        for (int rally = 0; rally < ralliesInTown[town]; ++rally) {
+            total += inst.rallyReach(town, rally);
+        }
+    }
     return total;
 }
 
-int Search::smallestRouteSize() const {
-    std::size_t smallest = std::numeric_limits<std::size_t>::max();
-    for (const auto& r : routes_) smallest = std::min(smallest, r.size());
-    return static_cast<int>(smallest);
-}
-
-Solution Search::snapshot() const {
-    Solution sol;
-    for (const auto& r : routes_) {
-        std::vector<Visit> route;
-        for (const Slot& s : r) route.push_back({s.town, s.arrive, s.start, s.finish});
-        sol.routes.push_back(std::move(route));
+int IlsPlanner::shortestRouteLength() const {
+    int shortest = routes[0].size();
+    for (const vector<PlannedVisit>& route : routes) {
+        shortest = min(shortest, (int)route.size());
     }
-    return sol;
+    return shortest;
 }
 
-}  // namespace
+Solution IlsPlanner::currentPlan() const {
+    Solution plan;
+    for (const vector<PlannedVisit>& route : routes) {
+        vector<Visit> visits;
+        for (const PlannedVisit& v : route) {
+            visits.push_back({v.town, v.arrive, v.start, v.finish});
+        }
+        plan.routes.push_back(visits);
+    }
+    return plan;
+}
 
 Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats) {
-    Search search(inst);
-    search.insertUntilFull();
-    Solution best = search.snapshot();
-    double bestReach = search.reach();
+    IlsPlanner planner(inst);
+    planner.insertUntilFull();
+    Solution bestPlan = planner.currentPlan();
+    double bestReach = planner.totalReach();
 
-    // Shake schedule from Vansteenwegen et al. (2009): the removal start moves along the route
-    // and the removal length grows, resetting to 1 after an improvement or once it gets too long.
-    const int maxRemove = std::max(1, inst.n() / (3 * inst.k));
-    int removeStart = 0, removeCount = 1, sinceImprove = 0, iterations = 0, improvements = 0;
-    while (iterations < params.maxIterations && sinceImprove < params.maxNoImprove) {
-        ++iterations;
-        search.shake(removeStart, removeCount);
-        search.insertUntilFull();
+    // Shake schedule from the paper: the removal point moves along the route and the number
+    // removed grows by one each round. It goes back to 1 after an improvement, or once it
+    // gets too big.
+    int maxRemove = max(1, inst.numTowns() / (3 * inst.numPoliticians));
+    int removeFrom = 0;
+    int removeCount = 1;
+    int roundsWithoutImprovement = 0;
+    int iterations = 0;
+    int improvements = 0;
 
-        double reach = search.reach();
-        if (reach > bestReach + kEps) {
-            best = search.snapshot();
+    while (iterations < params.maxIterations && roundsWithoutImprovement < params.maxNoImprove) {
+        iterations++;
+        planner.shake(removeFrom, removeCount);
+        planner.insertUntilFull();
+
+        double reach = planner.totalReach();
+        if (reach > bestReach + EPS) {
+            bestPlan = planner.currentPlan();
             bestReach = reach;
             removeCount = 1;
-            sinceImprove = 0;
-            ++improvements;
+            roundsWithoutImprovement = 0;
+            improvements++;
         } else {
-            ++sinceImprove;
+            roundsWithoutImprovement++;
         }
 
-        removeStart += removeCount;
-        ++removeCount;
-        int smallest = std::max(1, search.smallestRouteSize());
-        removeStart %= smallest;
+        removeFrom += removeCount;
+        removeCount++;
+        removeFrom %= max(1, planner.shortestRouteLength());
         if (removeCount > maxRemove) removeCount = 1;
     }
-    if (stats) *stats = {iterations, improvements};
-    return best;
+
+    if (stats != nullptr) {
+        stats->iterations = iterations;
+        stats->improvements = improvements;
+    }
+    return bestPlan;
 }
