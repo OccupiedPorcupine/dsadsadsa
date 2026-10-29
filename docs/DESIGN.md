@@ -1,10 +1,13 @@
-# Design: Campaign routing with clash-free rallies
+# Design: Campaign routing with soft-clash rallies
 
 This document explains what the project solves and how: the problem, the data structures, the algorithms, their complexity, and how the results are checked. It follows the order the presentation needs (motivation → variant → redesign → complexity → trade-offs).
+
+It describes **v2** of the model. What changed from v1, and why, is in [CHANGES_V2.md](CHANGES_V2.md) and summarised in [section 11](#11-v2-changes).
 
 Related documents:
 - [ASSUMPTIONS.md](ASSUMPTIONS.md): every modelling assumption, with reasons.
 - [RESULTS.md](RESULTS.md): experiment results and how to reproduce them.
+- [CHANGES_V2.md](CHANGES_V2.md): everything that changed from v1 to v2.
 - [AI_USAGE.md](AI_USAGE.md): AI acknowledgement required by the brief.
 - [papers/README.md](papers/README.md): reading list.
 
@@ -12,154 +15,248 @@ Related documents:
 
 ## 1. The use case
 
-During a Malaysian general election, the official campaign period is short (about two weeks). A party's leader and deputy, and possibly more senior figures, all want to hold rallies in as many big towns as possible before polling day.
+During a Malaysian general election, the official campaign period is short (about two weeks). A party's leader and deputy, and possibly more senior figures, all want to hold rallies in as many big towns as possible before polling day. Each campaigns from their own base (constituency or regional office), and each must be back there for polling day.
 
-There is one hard rule: **two of them must never be holding a rally in the same town at the same time**. There are two reasons:
+Campaigning only happens in the daytime: rallies and driving run from 08:00 to 20:00, and nights are spent wherever the day ended.
+
+Two of them holding a rally **in the same town at the same time** is allowed, but it is costly:
 - **Security and continuity:** the party's top figures shouldn't all be in one place at once.
-- **Coverage:** two headline speakers in one town at the same time wastes one of them.
+- **Coverage:** two headline speakers in one town at the same time split the crowd.
+
+So each time a politician heads for a town that is already busy, they have three choices:
+- **Wait** until the other rally ends.
+- **Clash:** rally now and accept a smaller crowd for both.
+- **Go elsewhere.**
+
+The planner has to pick whichever is worth most.
 
 ### How we got to this problem
 1. We started from the brief's classic TSP and looked for an assumption that breaks in real life.
 2. First idea: two travellers on the same itinerary who never meet. This turned out to be trivial if they visit every city: one simply follows the other a step behind.
 3. To make it non-trivial we added a **time limit**. With a time limit, not every town can be visited, so the goal became **maximising population reached**.
 4. With a reach objective, a town that has been visited once is worth nothing the second time, so nobody would ever revisit and the clash rule would never matter. **Diminishing returns** fixed this: a second rally in a town still reaches a fraction `alpha` of the population, so politicians do compete for the big towns.
+5. **v2 made it realistic:**
+   - **Daily window:** in v1 there was always a free slot at 3 a.m., so the clash rule never bit. The window takes those slots away.
+   - **Separate home bases:** politicians start from, and return to, their own base.
+   - **Time decay:** voters forget, so *when* a rally happens matters, not just whether it happens.
+   - **Soft clash rule:** a clash becomes a cost to weigh rather than a ban.
 
 ## 2. Why classic TSP doesn't fit
 
 | Classic TSP assumes | Here |
 |---|---|
 | One traveller | k politicians whose plans affect each other |
-| Only the visiting order matters, with no clock | The clash rule depends on *when* each politician is in each town |
-| Any number of travellers can be in a city at once | Each town can host only one rally at a time |
-| Every city must be visited | There isn't time, so towns are *chosen* |
+| Only the visiting order matters, with no clock | Clashes, the daily window and reach all depend on *when* each rally happens |
+| Any number of travellers can be in a city at once | Rallies that overlap in one town both lose reach |
+| A city's value is fixed | A rally is worth more near polling day and less soon after another rally in the same town |
+| Travel can happen at any time | Only 12 hours a day are usable, and a rally can't run past 20:00 |
+| Every city must be visited, starting and ending at one depot | There isn't time, so towns are *chosen*; each politician has their own start and end |
 | Minimise distance | Maximise population reached within a time budget |
 
-The baseline shows this directly. Two politicians who each plan as if they were alone choose identical routes and clash in **every** town (45 out of 45 in the default run).
+The baseline shows this directly. Two politicians who each plan as if they were alone pick largely the same towns at the same times. They clash 28 times in the default run and reach 37% less than a coordinated plan.
 
 ## 3. The problem we solve
 
 **Input**
 - n towns, each with population `pop(c)` and rally length `rally(c)` hours.
-- Party HQ (Kuala Lumpur), where every route starts and ends.
-- Travel time `travel(a, b)` hours between any two places (HQ included).
-- k politicians, a time budget `T` hours, and a decay factor `alpha` in [0, 1].
+- k politicians, each with a home base `home(p)` where their route starts and ends.
+- Travel time `travel(a, b)` hours between any two places (homes included).
+- A campaign clock: D days of H campaigning hours (default 14 × 12, 08:00–20:00).
+- Reach parameters:
+  - `alpha` ∈ [0, 1]: repeat-rally discount.
+  - `tauRepeat`: how fast that discount fades.
+  - `tauPoll`: how fast early rallies are forgotten.
+  - `beta` ∈ [0, 1]: clash penalty.
+
+**The clock.** Times are in *active hours* `t ∈ [0, D·H]`, which count only campaigning time, so nights don't appear at all.
+- Active hour t falls on day `floor(t / H)`.
+- Travel can run across a night: a 5 h drive that starts at 18:00 is 2 h today and 3 h tomorrow morning.
+- A rally must fit inside one day.
 
 **Output**
 For each politician, a timed route: an ordered list of towns, each with arrive / start / finish times.
 
 **Constraints**
-1. Each route starts at HQ at time 0 and is back at HQ by time `T`.
+1. Politician p leaves `home(p)` at time 0 and is back there by `D·H`. They don't have to go home each night.
 2. Times are physically possible: `arrive ≥ previous finish + travel`, `start ≥ arrive`, `finish = start + rally(c)`.
-3. A politician visits a town at most once.
-4. **No clash:** for any two politicians' rallies in the same town, the intervals `[start, finish)` don't overlap.
+3. Every rally fits inside one day's window: `finish ≤ (day(start) + 1) · H`.
+4. A politician visits a town at most once.
+
+Clashes are **not** a constraint. They are allowed, and they cost reach.
 
 **Objective**
-Maximise total reach. In each town, the rallies are taken in time order: the first reaches `pop(c)`, the second `pop(c) × alpha`, the third `pop(c) × alpha²`, and so on.
+Maximise total reach. A rally r in town c reaches
 
-Total reach for a town depends only on *how many* rallies it had, not on who came first.
+```
+reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) / rally(c))
 
-**Name in the literature:** this is a **Team Orienteering Problem** (pick and route towns for a team within a time budget). It adds two things: **repeat visits with decaying reward** (as in the Travelling Politician Problem, which has one politician) and **mutual exclusion in time at each town** (an idea from multi-agent path finding). We did not find a paper that combines all three. See [papers/README.md](papers/README.md).
+E(r)       = Σ over rallies j that started earlier in c of exp(−(start_r − finish_j) / tauRepeat)   fading repeat count
+w(s)       = exp(−max(0, polling − s) / tauPoll)                                                 polling-day weight
+overlap(r) = hours of r that overlap other politicians' rallies in c, capped at rally(c)
+```
 
-It is NP-hard (it contains the orienteering problem as the special case k = 1), so we use heuristics.
+- **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again.
+- **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one.
+- **Clash penalty.** A 10-minute overlap costs little. A full overlap cuts both rallies by `beta`. The later of the two also pays the repeat penalty, because the other rally is happening at the same moment (E grows by 1).
+- **Time scale for decay.** Gaps in `E` and `w` are measured in **wall-clock hours** (nights included), because people forget overnight too. Everything else uses the active clock.
+
+A town's total reach therefore depends on *when* its rallies happen, not only on how many there are.
+
+**Name in the literature:** this is a **Team Orienteering Problem with Time Windows** (pick and route towns for a team within a time budget, with a daily window). It adds three things:
+- **Time-dependent rewards that depreciate with recency**, as in the Travelling Politician Problem (Shahmanzari et al. 2022), which has only one politician.
+- **Separate start and end depots** for each team member.
+- **Soft mutual exclusion in time at each town**, an idea from multi-agent path finding, where a conflict is priced rather than forbidden.
+
+We did not find a paper that combines these. See [papers/README.md](papers/README.md).
+
+It is NP-hard (it contains the orienteering problem as the special case k = 1, alpha = 1, no decay, one long day), so we use heuristics.
 
 ## 4. Data pipeline
 
-Details and reasons are in [ASSUMPTIONS.md](ASSUMPTIONS.md) (D1–D5, T1–T4). In short, `buildInstance` in [src/instance.cpp](../src/instance.cpp) does the following:
-1. Reads `MY.txt` and keeps populated places (`P`) with population ≥ 50,000, Peninsular Malaysia only by default.
-2. Uses the national capital (`PPLC`, Kuala Lumpur) as HQ.
-3. Merges places within 5 km of a larger one, because GeoNames lists districts inside cities separately.
+Details and reasons are in [ASSUMPTIONS.md](ASSUMPTIONS.md) (D1–D5, T1–T4, V1, V9). In short, `buildInstance` in [src/instance.cpp](../src/instance.cpp) does the following:
+1. Reads `MY.txt` and keeps populated places (`P`) with population ≥ 50,000, Peninsular Malaysia only by default. It also keeps every populated place with a known population, so that home bases can be looked up.
+2. Merges places within 5 km of a larger one, because GeoNames lists districts inside cities separately.
+3. Picks the home bases:
+   - the fixed list (`--starts fixed`, the default);
+   - k distinct random rally towns (`--starts random --seed N`);
+   - or the names given on the command line.
+
+   A name is matched to a rally town first, and otherwise to the most populous place in the file with that name.
 4. Works out a rally length per town and a full travel-time matrix (driving, or flying between the peninsula and Borneo).
 
-The default instance has 92 towns.
+The default instance has 92 towns. The default homes are Kuala Lumpur and George Town.
 
 ## 5. Data structures
 
 ### 5.1 Travel-time matrix (`Instance::travelHours`)
-An `(n+1) × (n+1)` table of hours. HQ is the extra index `n`.
+An `(n + k) × (n + k)` table of hours. Politician p's home is the extra index `homeIndex(p) = n + p`.
 - **Why:** both planners ask "how long from a to b?" constantly, so an O(1) lookup matters.
-- **Cost:** O(n²) memory, which is fine for n in the low hundreds (255 towns ≈ 0.5 MB).
+- **Cost:** O((n + k)²) memory, which is fine for n in the low hundreds (255 towns ≈ 0.5 MB).
 
-### 5.2 `BookingTable`: when is each town taken?
-[src/booking.hpp](../src/booking.hpp). For every town, a list of `Booking {start, end, politician}` sorted by start time.
+### 5.2 `Clock`: the daily window
+[src/instance.hpp](../src/instance.hpp). A tiny value type (`days`, `dayHours`, `dayStartHour`) with O(1) helpers:
+
+| Function | What it answers |
+|---|---|
+| `dayOf(t)` | Which day an activity starting at t is on. A start exactly at the boundary counts as the next morning |
+| `dayEnd(t)` | When that day's window closes |
+| `fitRally(t, d)` | Earliest start ≥ t at which a d-hour rally fits inside one day (t itself, or next morning) |
+| `wallHours(t)` | Real hours since the campaign opened, nights included (used for decay) |
+
+**Why an active clock:** the timeline stays one number line, so intervals, bookings and `maxShift` work as before. The only non-linear step is a rally that jumps to the next morning, and that happens in one place, `fitRally`.
+
+### 5.3 `BookingTable`: when is each town taken?
+[src/booking.hpp](../src/booking.hpp). For every town, a list of `Booking {start, end, politician}` sorted by start time. Under the soft clash rule, bookings may overlap.
 
 | Operation | What it answers | Cost |
 |---|---|---|
-| `earliestFreeTime(town, t, duration, p)` | Earliest start ≥ t at which p's rally wouldn't overlap anyone else's | O(k) |
+| `earliestFreeTime(town, t, duration, p)` | Earliest start ≥ t, inside one day's window, at which p's rally overlaps nobody else's | O(k²) worst case, O(k) typically |
 | `nextOtherBooking(town, t, p)` | When the next rally by someone else starts there | O(k) |
+| `overlapHours(town, start, end, p)` | How much of [start, end) overlaps others' rallies | O(k) |
+| `bookingsIn(town)` | The town's bookings, for the reach model | O(1) |
 | `book`, `cancel`, `rebook` | Keep the list sorted | O(k) |
 
-A town has at most k bookings, because each politician visits a town at most once, so a sorted vector is the simplest structure that is fast enough.
+- **Why `earliestFreeTime` is O(k²).** Because bookings can overlap one another, the list is no longer sorted by end time, so one pass isn't enough. After waiting for one rally to end, a longer one that started earlier may still be running. The scan repeats until nothing overlaps. Each repeat moves the start past at least one booking for good, so there are at most k + 1 passes.
+- **Why a sorted vector.** A town has at most k bookings, because each politician visits a town at most once, so a sorted vector is the simplest structure that is fast enough.
 
 Alternatives considered:
 - **Interval tree per town:** O(log k) queries, but k is 2 to 5, so it would be slower in practice and much more code.
 - **Time grid** (town × hour → taken?): simple, but needs O(n × T) memory and forces times onto whole hours.
 - **No table, check every other route each time:** O(total visits) per check instead of O(k).
 
-### 5.3 `PlannedVisit.maxShift` (Approach B's key idea)
-[src/ils.cpp](../src/ils.cpp). Each planned rally stores `{town, arrive, start, finish, maxShift}`. `maxShift` is how much later this rally could start without breaking anything further along the route.
+### 5.4 The reach model (`reach.hpp`)
+[src/reach.cpp](../src/reach.cpp). Three functions over one town's bookings:
+- `rallyReaches(town, rallies)`: each rally's reach under the §3 formula. O(m²) for m rallies in the town (m ≤ k).
+- `townReach(town, rallies)`: their sum.
+- `reachGain(town, rallies, added)`: how much the town's total changes if `added` joins. This is the new rally's own reach **minus** what it costs the others: overlap for anyone it clashes with, and a higher repeat count for any rally that comes after it.
+
+The validator, Approach A and Approach B all call these functions, so they can't disagree about what a plan is worth.
+
+### 5.5 `PlannedVisit.maxShift` (Approach B's key idea)
+[src/ils.cpp](../src/ils.cpp). Each planned rally stores `{town, arrive, start, finish, mode, maxShift}`.
+- `mode` is `wait` or `clash`: how the rally was timed.
+- `maxShift` is how much later this rally could start without breaking anything further along the route.
 
 It is computed backwards from the end of each route:
 
 ```
-delayNextCanTake = T - (time back at HQ)                  # slack before the campaign ends
+delayNextCanTake = D·H − (time back home)                  # slack before the campaign ends
 for each visit i from last to first:
-    slackBeforeClash = (next other-politician booking in visit.town) - visit.finish
-    visit.maxShift   = min(slackBeforeClash, delayNextCanTake)
+    slackBeforeClash = (next other-politician booking in visit.town) − visit.finish
+    slackInDay       = dayEnd(visit.start) − visit.finish      # don't run past 20:00
+    visit.maxShift   = max(0, min(slackBeforeClash, slackInDay, delayNextCanTake))
     delayNextCanTake = visit.waitTime + visit.maxShift
 ```
 
 **Why it is safe.** If visit i is pushed later by d ≤ maxShift(i), then:
-- It doesn't run into the next rally by someone else in its town, because d ≤ slackBeforeClash.
-- The next visit's arrival moves by d. Its start moves by max(0, d − wait), which is ≤ its own maxShift. By the same argument applied down the route (induction from the end), every later visit stays clash-free and the trip home still ends by T.
+- It doesn't run into the next rally by someone else in its town, because d ≤ slackBeforeClash. **No shift ever creates a new clash.** Clashes only happen where a planner chose one on purpose.
+- It still finishes before the window closes, because d ≤ slackInDay.
+- The next visit's arrival moves by d. Travel can run across nights on the active clock, so that is a plain shift. The next visit's start moves by max(0, d − wait), which is ≤ its own maxShift. By the same argument applied down the route (induction from the end), every later visit stays valid and the trip home still ends by D·H.
+- A visit that already overlaps a rally starting after it gets a negative `slackBeforeClash`, which is clamped to 0, so it never moves.
 
 So to check whether inserting a town is allowed, we only compare the delay it causes against `wait + maxShift` of the next visit. That is **O(1)** instead of re-simulating the rest of the route in O(L).
 
-This is the same idea as Vansteenwegen et al. (2009). Their slack only covers fixed opening hours. Ours also covers *other politicians' bookings*, which change as the plan changes, so after every insertion we recompute `maxShift` for all routes.
+This is the same idea as Vansteenwegen et al. (2009), whose time windows are fixed opening hours, like our daily window. Ours also covers *other politicians' bookings*, which change as the plan changes, so after every insertion we recompute `maxShift` for all routes.
 
-### 5.4 `Solution` and `Metrics`
-- `Solution` is just the timed routes, which is what the planners output and the validator checks.
-- `Metrics` holds reach, clashes, travel, wait, return times, fairness and any errors.
+### 5.6 `Solution` and `Metrics`
+- `Solution` is just the timed routes (`Visit {town, arrive, start, finish, clash}`), which is what the planners output and the validator checks.
+- `Metrics` holds:
+  - total reach, reach per politician, and reach per rally;
+  - clashes and clash hours;
+  - travel and wait hours;
+  - return times;
+  - fairness;
+  - any errors.
 
 ## 6. Algorithms
 
 ### 6.0 Benchmark: classic nearest neighbour (`solveNearestNeighbour`)
-[src/nearest.cpp](../src/nearest.cpp). The brief's nearest-neighbour TSP, unchanged:
+[src/nearest.cpp](../src/nearest.cpp). The brief's nearest-neighbour TSP, unchanged except for respecting the daily window:
 
 ```
-here = HQ;  t = 0;  tour = []
-repeat n times:
-    c = the unvisited town closest to here (by travel time)
-    arrive = t + travel(here, c);  start = arrive;  finish = start + rally(c)
-    append c;  t = finish;  here = c
-every politician gets this same tour, then returns to HQ
+for each politician p:
+    here = home(p);  t = 0;  tour = []
+    repeat n times:
+        c = the unvisited town closest to here (by travel time)
+        arrive = t + travel(here, c);  start = fitRally(arrive, rally(c));  finish = start + rally(c)
+        append c;  t = finish;  here = c
+    return home
 ```
 
-It visits every town, has no idea of population or the time budget, and every politician follows the same tour, so every rally clashes. It is here to show the starting point the redesigns improve on. The validator marks it invalid, and its reach figure counts rallies after the deadline, so that number can't be compared with the other approaches.
+It visits every town and has no idea of population, the time budget or the other politicians. It is here to show the starting point the redesigns improve on.
+- **Invalid:** the validator marks it invalid, because it gets home more than 100 h after the campaign ends.
+- **Reach not comparable:** its reach figure counts rallies after polling day, so it can't be compared with the other approaches.
 
 ### 6.1 Baseline: uncoordinated greedy
-Each politician runs the greedy builder (6.2) with an **empty** booking table, as if campaigning alone. Because the builder is deterministic, every politician picks the same route, which shows what goes wrong without coordination.
+Each politician runs the greedy builder (6.2) with an **empty** booking table, as if campaigning alone. It never sees the others, so it clashes freely. The validator then charges every clash at the beta penalty. The plan is valid, but it shows what the lack of coordination costs.
 
 ### 6.2 Approach A: plan one politician at a time (`solveSequential`)
 [src/sequential.cpp](../src/sequential.cpp).
 
 ```
-bookings = empty BookingTable;  ralliesInTown[c] = 0 for all towns
+bookings = empty BookingTable
 for politician p = 1..k:
-    t = 0;  here = HQ;  route = []
+    t = 0;  here = home(p);  route = []
     repeat:
         for each town c not yet in route:
-            arrive = t + travel(here, c)
-            start  = bookings.earliestFreeTime(c, arrive, rally(c), p)    # wait if taken
-            finish = start + rally(c)
-            skip c if finish + travel(c, HQ) > T                          # couldn't get home
-            score(c) = pop(c) * alpha^ralliesInTown[c] / (finish - t)     # reach per hour, waiting included
-        if no town fits: stop
-        append the best town;  t = its finish;  here = it
-    book all of p's rallies in the table;  update ralliesInTown
+            arrive    = t + travel(here, c)
+            waitStart = bookings.earliestFreeTime(c, arrive, rally(c), p)     # wait for it to be free
+            clashStart = fitRally(arrive, rally(c))                           # or start now and overlap
+            for start in {waitStart, clashStart (only if earlier)}:
+                finish = start + rally(c)
+                skip if finish + travel(c, home(p)) > D·H                     # couldn't get home
+                gain  = reachGain(c, bookings in c, {start, finish, p})       # includes cost to others
+                score = gain / (finish − t)                                   # reach per hour, waiting included
+        if no option has a positive score: stop                               # "go elsewhere" = another town wins
+        append the best (town, timing);  t = its finish;  here = it
+    book all of p's rallies in the table
 ```
 
-- **Redesign compared with Nearest Neighbour:** the choice is "most reach per hour", not "closest", and the hour count includes **waiting** caused by other politicians' bookings.
-- **Weaknesses:** politician 1 picks first and gets the best towns. It only ever appends, so early choices are never revisited.
+- **Redesign compared with Nearest Neighbour:** the choice is "most reach gained per hour", not "closest".
+  - The hour count includes **waiting**, both for another politician and for the next morning.
+  - The gain includes the **clash penalty**, both p's own and what p would cost the other politician.
+  - Wait, clash and go elsewhere are compared in the same score.
+- **Weaknesses:** politician 1 picks first and gets the best towns. It only ever appends, so early choices are never revisited. It can't plan to save a big town for late in the campaign, where the polling-day weight is highest.
 
 ### 6.3 Approach B: iterated local search (`solveIls`)
 [src/ils.cpp](../src/ils.cpp), based on Vansteenwegen, Souffriau, Vanden Berghe and Van Oudheusden (2009).
@@ -171,7 +268,7 @@ removeFrom = 0;  removeCount = 1
 while rounds < 5000 and roundsWithoutImprovement < 150:
     shake(plan, removeFrom, removeCount)       # drop removeCount visits in a row from every route
     insertUntilFull(plan)
-    if reach(plan) > reach(best): best = plan;  removeCount = 1
+    if reach(plan) > reach(best): best = plan;  removeCount = 1    # exact reach, from reach.cpp
     removeFrom += removeCount;  removeCount += 1
     removeFrom %= length of the shortest route
     if removeCount > n / (3k): removeCount = 1
@@ -180,19 +277,30 @@ return best
 insertUntilFull(plan):
     repeat:
         for every politician p, town c not in p's route, position i in p's route:
-            work out arrive/start/finish of c at position i (start = earliestFreeTime)
-            delay = how much later the next stop (rally or HQ) is now reached
-            if delay <= wait + maxShift of the next stop:                  # O(1) feasibility check
-                score = reach(c)^2 / delay
+            arrive = when p would reach c from stop i−1
+            for start in {earliestFreeTime(c, arrive, ...), fitRally(arrive, ...) if earlier}:
+                delay = how much later the next stop (rally or home) is now reached
+                if delay <= wait + maxShift of the next stop:                  # O(1) feasibility check
+                    if pop(c)^2 / delay <= best score so far: skip             # can't win, skip the exact reach
+                    score = reachGain(c, ...)^2 / delay
         if nothing fits: stop
-        insert the best (p, c, i);  push later rallies back;  update bookings
+        insert the best (p, c, i, timing);  push later rallies back;  update bookings
         recompute maxShift for all routes
 ```
 
 - **Insertion anywhere, in any route:** unlike A, a town can go between two existing rallies, and any politician can take it, so nobody gets first pick.
-- **`reach² / delay`:** the scoring rule from the paper. Squaring favours big towns.
-- **Shake:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from HQ. Rallies only ever move *earlier*, because each one's old start is still free, so re-timing cannot create a clash.
-- **Weaknesses:** slower, and the objective has no fairness term. At alpha = 0 it can give every town to one politician (see [RESULTS.md](RESULTS.md)).
+- **`gain² / delay`:** the scoring rule from the paper. Squaring favours big towns.
+- **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k²)) is only computed for candidates that could beat the best so far.
+- **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong.
+- **Shake and re-timing:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from home:
+  - a `clash` rally starts as early as the window allows;
+  - a `wait` rally starts when the town is free.
+
+  Neither can start later than before, because its old slot is still feasible. One exception: another politician's `clash` rally may have moved into a `wait` rally's old slot. That rally then keeps its old start and becomes a clash itself. Rallies therefore never move later, and every route still gets home in time.
+- **Weaknesses:**
+  - It is slower than A.
+  - The objective has no fairness term; at alpha = 0 it can give every town to one politician.
+  - The ranking above can misjudge time-dependent reach. With the polling-day weight off, B can lose to A (see [RESULTS.md](RESULTS.md) §5).
 
 ### 6.4 The two approaches side by side
 
@@ -200,47 +308,68 @@ insertUntilFull(plan):
 |---|---|---|
 | Who gets priority | Politician 1 first | Nobody; best move overall |
 | Where a town can go | End of the route only | Any position, any route |
+| Timing choices | Wait or clash | Wait or clash |
 | Revisits earlier choices | Never | Yes, via shake + re-insert |
-| Data structures | Booking table | Booking table + per-visit `maxShift` |
+| Data structures | Booking table, `Clock`, reach model | Booking table, `Clock`, reach model, per-visit `maxShift` |
 | Feasibility check | Simulate one step forward | O(1) comparison against `maxShift` |
-| Literature origin | Prioritised planning (Silver 2005) | ILS for team orienteering (Vansteenwegen 2009) |
+| Literature origin | Prioritised planning (Silver 2005) | ILS for team orienteering with time windows (Vansteenwegen 2009) |
 
 ## 7. Complexity
 
-Notation: n towns, k politicians, L = total rallies across all routes (L ≤ k·n), I = number of ILS rounds.
+Notation:
+- n towns, k politicians;
+- L = total rallies across all routes (L ≤ k·n);
+- I = number of ILS rounds.
+
+At most k rallies share a town, so one reach calculation for a town is O(k²).
 
 | Part | Time | Space |
 |---|---|---|
-| Read and filter `MY.txt` (N ≈ 71,709 lines) | O(N) | O(candidates) |
+| Read and filter `MY.txt` (N ≈ 71,709 lines) | O(N) | O(candidates + populated places) |
 | Merge nearby places (c candidates, m kept) | O(c · m) | O(c) |
-| Travel matrix | O(n²) | O(n²) |
-| Booking table query or update | O(k) | O(L) in total |
-| **Benchmark (nearest neighbour)** | n steps, each scanning up to n towns → **O(n²)**, then k copies → O(n² + k·n) | O(k · n) |
-| **Baseline** | Same loop as A, but every lookup is O(1) because the booking table is empty → **O(n · L)** | O(n) |
-| **Approach A** | each step scans n towns at O(k) each; L steps in total → **O(k · n · L)**, at most O(k² n²) | O(n + L) |
-| **Approach B**, one insertion | try n towns × (L + k) positions at O(k) each, then O(L · k) to update → **O(k · n · (L + k))** | O(n + L) |
-| **Approach B**, one round | a shake (O(L · k)) plus a few insertions | |
-| **Approach B**, total | O(I × insertions per round × k · n · L). Capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
-| Validator | O(L log L + L · k) | O(n + L) |
+| Choose homes | O(k · N_places) by name, O(n) random | O(n) |
+| Travel matrix | O((n + k)²) | O((n + k)²) |
+| `Clock` helpers | O(1) | O(1) |
+| Booking table: `earliestFreeTime` | O(k²) worst case | O(L) in total |
+| Booking table: other queries and updates | O(k) | |
+| `reachGain` for one town | O(k²) | O(k) |
+| **Benchmark (nearest neighbour)** | n steps, each scanning up to n towns, for each of k politicians → **O(k · n²)** | O(k · n) |
+| **Baseline** | Same loop as A, but the booking table is empty, so each lookup is O(1) → **O(n · L)** | O(n) |
+| **Approach A** | Each step scans n towns × 2 timings at O(k²) each; L steps in total → **O(k² · n · L)** | O(n + L) |
+| **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k²) each, then O(L · k) to update → **O(k² · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
+| **Approach B**, one round | A shake (O(L · k)), a few insertions, and an exact total reach (O(n · k²)) | |
+| **Approach B**, total | O(I × insertions per round × cost of one insertion). Capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
+| Validator | O(L + n · k²) | O(n + L) |
 
-Measured (see [RESULTS.md](RESULTS.md)): A takes under 1 ms on every instance. B takes 0.5 ms at 15 towns, 125 ms at 92, and about 1 s at 255. Over that range B grows roughly like n^2.7, because larger instances also mean longer routes and more rounds.
+Measured (see [RESULTS.md](RESULTS.md) §7):
+- **A** takes about 0.4 ms at 92 towns and 1.2 ms at 255.
+- **B** takes 2 ms at 15 towns, about 215 ms at 92, and about 0.8 s at 255.
+- **v1 comparison:** B is about 1.7× slower than in v1 at 92 towns. That comes from the two timings per candidate and the full reach model, with pruning keeping it far below the worst case.
 
 ## 8. How results are checked
 
 [src/solution.cpp](../src/solution.cpp) re-checks every plan **independently of the planner that produced it**:
 - **Timing:** each arrival is reachable from the previous finish, each start is after its arrival, and each rally has the right length.
-- **Rules:** nobody visits a town twice, and everyone is back at HQ by T.
-- **Clashes:** every pair of overlapping rallies in the same town is counted.
-- **Reach:** recomputed from scratch.
+- **Daily window:** every rally starts and finishes inside one day's window.
+- **Rules:** nobody visits a town twice, and every politician is back at **their own** home by the end of the campaign.
+- **Clashes:** every pair of overlapping rallies in the same town is counted, with its overlap in hours. They are reported but don't make a plan invalid.
+- **Reach:** recomputed from scratch with `reach.cpp`, per rally, per politician, and in total. The per-rally figures are written to the routes CSV, so the map shows exactly what the validator computed.
 
-A plan is reported as `valid` only if there are no errors and no clashes. Approaches A and B have been valid in every run so far: 81 stress-test settings across k, alpha, T and instance size, plus every run in [RESULTS.md](RESULTS.md). The baseline and the nearest-neighbour benchmark are invalid by design.
+A plan is reported as `valid` only if there are no errors.
+
+Checks run on v2:
+- **Stress test:** every baseline, A and B plan was valid in 576 stress-test settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × fixed/random homes × {default, Borneo, 15 towns, 8 h days}. The same holds for every run in [RESULTS.md](RESULTS.md). The nearest-neighbour benchmark is invalid by design.
+- **Reach consistency:** B's internal running total of reach matched the validator's figure exactly on the runs checked.
+- **Clash option:** checked by forcing it. With beta = 0, alpha = 1 and both politicians in KL, A chooses to clash 43 times; with any beta > 0 it never does.
 
 ## 9. Trade-offs and limitations
 
-- **A vs B:** A is more than 1,000× faster and simple to explain. B reaches more people in most settings, travels much less, and is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
+- **A vs B:** A is more than 100× faster and simple to explain. B reaches more people in 17 of 18 settings (by up to 24%) and is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
-- **No daytime schedule** (assumption T6). Rallies can happen at any hour, so the clash rule almost never forces anyone to wait. This is the most important realism gap.
-- **Straight-line travel × 1.3.** No real road network, traffic or terrain.
+- **The soft clash rule is rarely used.** The rally already running counts as a full repeat (ASSUMPTIONS V12), so with any beta > 0, waiting or going elsewhere always wins. If the rule should matter more, the repeat penalty between two simultaneous rallies could be dropped.
+- **B's ranking ignores time-dependent knock-on effects** (§6.3). It is the likely reason B can lose to A when the polling-day weight is off.
+- **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
+- **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
 - **The objective ignores fairness.** B can leave a politician idle when alpha = 0.
 - **Population ≠ voters**, and some duplicate towns survive merging.
 
@@ -248,9 +377,10 @@ A plan is reported as `valid` only if there are no errors and no clashes. Approa
 
 | File | What's in it | Main functions |
 |---|---|---|
-| [src/instance.hpp/.cpp](../src/instance.cpp) | `Town`, `Config`, `Instance`; loading and preprocessing | `buildInstance`, `readCandidateTowns`, `mergeNearbyPlaces`, `travelHoursBetween` |
+| [src/instance.hpp/.cpp](../src/instance.cpp) | `Town`, `Clock`, `Config`, `Instance`; loading, preprocessing and home bases | `buildInstance`, `readCandidateTowns`, `mergeNearbyPlaces`, `chooseHomes`, `findPlace`, `randomHomes`, `travelHoursBetween`, `Clock::fitRally` |
 | [src/geo.hpp](../src/geo.hpp) | Great-circle distance | `haversineKm` |
-| [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `book`, `cancel`, `rebook` |
+| [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `overlapHours`, `book`, `cancel`, `rebook` |
+| [src/reach.hpp/.cpp](../src/reach.cpp) | The reach model | `rallyReaches`, `townReach`, `reachGain` |
 | [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveIls` |
 | [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmark | `solveNearestNeighbour`, `buildNearestNeighbourTour` |
 | [src/sequential.cpp](../src/sequential.cpp) | Baseline and Approach A | `buildGreedyRoute` |
@@ -258,3 +388,23 @@ A plan is reported as `valid` only if there are no errors and no clashes. Approa
 | [src/solution.hpp/.cpp](../src/solution.cpp) | `Visit`, `Solution`, `Metrics`; the validator | `evaluate`, `checkRoute` |
 | [src/main.cpp](../src/main.cpp) | Command line, results table, CSV export | `parseOptions`, `runPlanner`, `writeRoutesCsv`, `writeInstanceCsv` |
 | [viz/](../viz/README.md) | Route map, separate from the solver | `make_map.py`, `map_template.html` |
+
+## 11. v2 changes
+
+v1 (commit `94aa4dd`) had:
+- one HQ in Kuala Lumpur;
+- 168 continuous hours with no nights;
+- `pop × alpha^(v−1)` reach;
+- a hard no-clash rule.
+
+On 2026-10-29 the model changed to what this document describes:
+
+| # | Change | Where it is described |
+|---|---|---|
+| 1 | Each politician has their own home base, either fixed or random with a seed | §3, §4, ASSUMPTIONS V1, V9, V10 |
+| 2 | Time decay: the fading repeat penalty and the polling-day weight | §3, §5.4, ASSUMPTIONS V4, V5 |
+| 3 | Everyone must be back at their own home by the end of the campaign | §3, §8, ASSUMPTIONS V2 |
+| 4 | Soft clash rule: wait, clash at an overlap-weighted penalty, or go elsewhere | §1, §3, §6, ASSUMPTIONS V6, V7, V12 |
+| 5 | 14 days × 12 active hours; rallies and travel only in the window | §3, §5.2, §5.5, ASSUMPTIONS V3, V8 |
+
+The full list (options, output files, every file in the code, and v1 vs v2 results) is in [CHANGES_V2.md](CHANGES_V2.md).

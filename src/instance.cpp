@@ -1,12 +1,15 @@
-// Turns the GeoNames file into a problem instance: picks the rally towns, finds HQ,
-// and works out the travel time between every pair of places.
+// Turns the GeoNames file into a problem instance: picks the rally towns, the politicians'
+// home bases, and works out the travel time between every pair of places.
 
 #include "instance.hpp"
 
 #include "geo.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
+#include <random>
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -17,7 +20,6 @@ const int COL_ASCII_NAME = 2;
 const int COL_LAT = 4;
 const int COL_LON = 5;
 const int COL_FEATURE_CLASS = 6;
-const int COL_FEATURE_CODE = 7;
 const int COL_POPULATION = 14;
 
 // Sabah, Sarawak and Labuan are east of this longitude; the peninsula is west of it.
@@ -57,13 +59,13 @@ static Town parseTown(const vector<string>& fields) {
     return town;
 }
 
-// Reads every populated place that passes the filters. Also finds the capital, which is used as HQ.
-static vector<Town> readCandidateTowns(const Config& config, Town& hq) {
+// Reads every populated place that passes the filters. Also keeps every populated place with a
+// known population in `allPlaces`, so a home base can be found even if it isn't a rally town.
+static vector<Town> readCandidateTowns(const Config& config, vector<Town>& allPlaces) {
     ifstream file(config.dataPath);
     if (!file) throw runtime_error("cannot open data file: " + config.dataPath);
 
     vector<Town> candidates;
-    bool foundHq = false;
     string line;
     while (getline(file, line)) {
         vector<string> fields = splitByTab(line);
@@ -71,15 +73,11 @@ static vector<Town> readCandidateTowns(const Config& config, Town& hq) {
         if (fields[COL_FEATURE_CLASS] != "P") continue;  // P = city, town or village
 
         Town town = parseTown(fields);
-        if (fields[COL_FEATURE_CODE] == "PPLC") {  // PPLC = national capital
-            hq = town;
-            foundHq = true;
-        }
+        if (town.population > 0) allPlaces.push_back(town);
         if (town.population < config.minPopulation) continue;
         if (town.inBorneo && !config.includeBorneo) continue;
         candidates.push_back(town);
     }
-    if (!foundHq) throw runtime_error("no capital (PPLC) found to use as HQ");
     return candidates;
 }
 
@@ -116,32 +114,101 @@ static double travelHoursBetween(const Town& a, const Town& b, const Config& con
     return km * config.roadFactor / config.driveSpeedKmh;
 }
 
-double Instance::maxPossibleReach() const {
-    double total = 0;
-    for (int town = 0; town < numTowns(); ++town) {
-        for (int rally = 0; rally < numPoliticians; ++rally) {
-            total += rallyReach(town, rally);
+static string lowercase(string text) {
+    for (char& ch : text) ch = (char)tolower((unsigned char)ch);
+    return text;
+}
+
+static string trim(const string& text) {
+    size_t first = text.find_first_not_of(' ');
+    size_t last = text.find_last_not_of(' ');
+    return first == string::npos ? "" : text.substr(first, last - first + 1);
+}
+
+// The town called `name`: a rally town if there is one, otherwise the most populous place
+// in the whole file with that name.
+static Town findPlace(const string& name, const vector<Town>& towns, const vector<Town>& allPlaces) {
+    string wanted = lowercase(name);
+    for (const Town& town : towns) {
+        if (lowercase(town.name) == wanted) return town;
+    }
+    const Town* best = nullptr;
+    for (const Town& place : allPlaces) {
+        if (lowercase(place.name) == wanted && (best == nullptr || place.population > best->population)) {
+            best = &place;
         }
     }
+    if (best == nullptr) throw runtime_error("no populated place called \"" + name + "\" for a home base");
+    return *best;
+}
+
+// k distinct rally towns, picked at random. Uses our own Fisher-Yates shuffle on mt19937's raw
+// output, because std::shuffle can give different orders on different compilers.
+static vector<Town> randomHomes(const vector<Town>& towns, int k, unsigned seed) {
+    vector<int> order(towns.size());
+    for (int i = 0; i < (int)order.size(); ++i) order[i] = i;
+    mt19937 random(seed);
+    for (int i = (int)order.size() - 1; i > 0; --i) {
+        int j = (int)(random() % (unsigned)(i + 1));
+        swap(order[i], order[j]);
+    }
+    vector<Town> homes;
+    for (int p = 0; p < k; ++p) homes.push_back(towns[order[p % order.size()]]);
+    return homes;
+}
+
+// Politician p's home is the p-th name in the list (starting again from the top if there are
+// more politicians than names).
+static vector<Town> homesFromNames(const vector<string>& names, int k, const vector<Town>& towns,
+                                   const vector<Town>& allPlaces) {
+    vector<Town> homes;
+    for (int p = 0; p < k; ++p) homes.push_back(findPlace(names[p % names.size()], towns, allPlaces));
+    return homes;
+}
+
+static vector<Town> chooseHomes(const Config& config, const vector<Town>& towns, const vector<Town>& allPlaces) {
+    if (config.starts == "random") return randomHomes(towns, config.numPoliticians, config.seed);
+    if (config.starts == "fixed") return homesFromNames(DEFAULT_HOMES, config.numPoliticians, towns, allPlaces);
+
+    vector<string> names;
+    stringstream list(config.starts);
+    string name;
+    while (getline(list, name, ',')) {
+        if (!trim(name).empty()) names.push_back(trim(name));
+    }
+    if (names.empty()) throw runtime_error("--starts needs fixed, random, or a list of town names");
+    return homesFromNames(names, config.numPoliticians, towns, allPlaces);
+}
+
+double Instance::maxPossibleReach() const {
+    double total = 0;
+    for (const Town& town : towns) total += (double)town.population * numPoliticians;
     return total;
 }
 
 Instance buildInstance(const Config& config) {
-    Town hq;
-    vector<Town> candidates = readCandidateTowns(config, hq);
+    vector<Town> allPlaces;
+    vector<Town> candidates = readCandidateTowns(config, allPlaces);
+    if (config.numPoliticians < 1) throw runtime_error("need at least one politician");
 
     Instance inst;
     inst.towns = mergeNearbyPlaces(candidates, config);
-    inst.hq = hq;
-    inst.hq.name = "HQ " + hq.name;
-    inst.hq.rallyHours = 0;
+    if (inst.towns.empty()) throw runtime_error("no towns pass the filters");
+    inst.homes = chooseHomes(config, inst.towns, allPlaces);
+    for (Town& home : inst.homes) {
+        home.name = "Home " + home.name;
+        home.rallyHours = 0;
+    }
     inst.numPoliticians = config.numPoliticians;
     inst.alpha = config.alpha;
-    inst.campaignHours = config.campaignHours;
+    inst.clock = config.clock;
+    inst.tauRepeatHours = config.tauRepeatHours;
+    inst.tauPollHours = config.tauPollHours;
+    inst.clashPenalty = config.clashPenalty;
 
-    // All towns plus HQ at the end.
+    // All towns, then one home base per politician.
     vector<Town> places = inst.towns;
-    places.push_back(inst.hq);
+    places.insert(places.end(), inst.homes.begin(), inst.homes.end());
     int numPlaces = places.size();
 
     inst.travelHours.assign(numPlaces, vector<double>(numPlaces, 0.0));

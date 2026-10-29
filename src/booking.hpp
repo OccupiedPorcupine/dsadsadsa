@@ -1,11 +1,10 @@
 #pragma once
 
+#include "instance.hpp"
+
 #include <vector>
 
-// Small tolerance for comparing times, so rounding errors don't count as clashes.
-const double EPS = 1e-9;
-
-// A scheduled rally: `politician` has the town from `start` until `end` (in hours).
+// A scheduled rally: `politician` has the town from `start` until `end` (in active hours).
 struct Booking {
     double start;
     double end;
@@ -14,20 +13,25 @@ struct Booking {
 
 // Keeps track of when each town is taken.
 //
-// Each town has a list of bookings sorted by start time. Two different politicians' bookings
-// never overlap, so the list is also sorted by end time. With k politicians a town has at
-// most k bookings, so going through the list is cheap.
+// Each town has a list of bookings sorted by start time. Under the soft clash rule two
+// politicians' bookings may overlap, so the list is not necessarily sorted by end time.
+// With k politicians a town has at most k bookings, so going through the list is cheap.
 class BookingTable {
 public:
-    explicit BookingTable(int numTowns);
+    BookingTable(int numTowns, const Clock& clock);
 
     // Earliest time at or after `arriveTime` when `politician` can hold a rally lasting
-    // `duration` hours in `town` without overlapping anyone else's rally.
+    // `duration` hours in `town` inside one day's window, without overlapping anyone else's rally.
     double earliestFreeTime(int town, double arriveTime, double duration, int politician) const;
 
     // When the next rally by another politician starts in `town`, at or after `time`.
     // Returns infinity if there isn't one.
     double nextOtherBooking(int town, double time, int politician) const;
+
+    // Hours of [start, end) that overlap other politicians' rallies in `town`.
+    double overlapHours(int town, double start, double end, int politician) const;
+
+    const std::vector<Booking>& bookingsIn(int town) const { return bookingsByTown[town]; }
 
     void book(int town, double start, double end, int politician);
     void cancel(int town, int politician);
@@ -35,4 +39,5 @@ public:
 
 private:
     std::vector<std::vector<Booking>> bookingsByTown;
+    Clock clock;
 };

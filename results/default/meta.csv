@@ -2,6 +2,10 @@ key,value
 politicians,2
 alpha,0.5
 campaign_hours,168
-hq_name,"HQ Kuala Lumpur"
-hq_lat,3.1412
-hq_lon,101.687
+days,14
+day_hours,12
+day_start,8
+tau_repeat,48
+tau_poll,336
+clash_penalty,0.5
+max_reach,4.79153e+07

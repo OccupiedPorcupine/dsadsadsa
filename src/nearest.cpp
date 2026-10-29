@@ -1,18 +1,19 @@
 // Benchmark: the classic nearest-neighbour heuristic for the TSP, as given in the brief.
 //
-// One tour: start at HQ, keep moving to the closest unvisited town until every town has been
-// visited, then go back to HQ. It knows nothing about population, the time budget or the other
-// politicians, so every politician is handed the same tour, and each rally starts the moment
-// they arrive. The validator then shows which of the problem's rules this breaks.
+// One tour per politician: start at their home base, keep moving to the closest unvisited town
+// until every town has been visited, then go home. It knows nothing about population, the time
+// budget or the other politicians. Each rally starts the moment they arrive, or the next morning
+// if it wouldn't finish before the day's window closes. The validator then shows which of the
+// problem's rules this breaks.
 
 #include "planners.hpp"
 
 using namespace std;
 
-static vector<Visit> buildNearestNeighbourTour(const Instance& inst) {
+static vector<Visit> buildNearestNeighbourTour(const Instance& inst, int politician) {
     vector<Visit> tour;
     vector<bool> visited(inst.numTowns(), false);
-    int currentPlace = inst.hqIndex();
+    int currentPlace = inst.homeIndex(politician);
     double currentTime = 0;
 
     for (int step = 0; step < inst.numTowns(); ++step) {
@@ -25,8 +26,9 @@ static vector<Visit> buildNearestNeighbourTour(const Instance& inst) {
         }
 
         double arrive = currentTime + inst.travelTime(currentPlace, nearest);
-        double finish = arrive + inst.rallyHours(nearest);
-        tour.push_back({nearest, arrive, arrive, finish});
+        double start = inst.clock.fitRally(arrive, inst.rallyHours(nearest));
+        double finish = start + inst.rallyHours(nearest);
+        tour.push_back({nearest, arrive, start, finish});
         visited[nearest] = true;
         currentPlace = nearest;
         currentTime = finish;
@@ -35,11 +37,9 @@ static vector<Visit> buildNearestNeighbourTour(const Instance& inst) {
 }
 
 Solution solveNearestNeighbour(const Instance& inst) {
-    vector<Visit> tour = buildNearestNeighbourTour(inst);
-
     Solution solution;
     for (int p = 0; p < inst.numPoliticians; ++p) {
-        solution.routes.push_back(tour);
+        solution.routes.push_back(buildNearestNeighbourTour(inst, p));
     }
     return solution;
 }

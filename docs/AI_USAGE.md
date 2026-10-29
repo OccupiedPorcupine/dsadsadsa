@@ -21,6 +21,7 @@ The brief (section 11.3) requires every project to state the AI tools used, how 
 | Code | Wrote the C++ solver in `src/` and the stress tests, then rewrote it for readability on request. | _TEAM_ |
 | Visualisation | Wrote `viz/make_map.py` and `viz/map_template.html`, and chose and validated the colours. | _TEAM_ |
 | Documentation | Drafted the README, [ASSUMPTIONS.md](ASSUMPTIONS.md), [DESIGN.md](DESIGN.md), [RESULTS.md](RESULTS.md) and this file. | _TEAM_ |
+| v2 model changes | Asked the team to decide on starting points, the time-decay function, how clash reach is shared, and night travel. Then implemented the agreed changes (own home bases, a 14 × 12 h daily window, time decay, the soft clash rule), re-ran every experiment, and wrote [CHANGES_V2.md](CHANGES_V2.md). | _TEAM_ (chose: fixed default + random homes, both decay types combined, the overlap-weighted penalty, no night travel) |
 | Experiments | Ran the parameter sweeps in [RESULTS.md](RESULTS.md). All numbers come from real runs and are reproducible with the commands given there. | _TEAM_ |
 
 ## Parts that are the team's own

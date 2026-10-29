@@ -8,12 +8,12 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | # | Assumption | Why |
 |---|---|---|
 | S1 | k politicians from the same party campaign during the official campaign period (default k = 2: party leader and deputy). | Malaysian general elections have a short, fixed campaign period. |
-| S2 | No two politicians may hold a rally in the same town at the same time. | Security (top leaders shouldn't be in one place at once) and coverage (two headline speakers in one town at once wastes one of them). |
-| S3 | Every politician starts and ends at party HQ in Kuala Lumpur. | One shared base. HQ is the GeoNames record with feature code `PPLC`. |
+| S2 | *(v1, replaced by V6)* No two politicians may hold a rally in the same town at the same time. | Security (top leaders shouldn't be in one place at once) and coverage (two headline speakers in one town at once wastes one of them). |
+| S3 | *(v1, replaced by V1, V2)* Every politician starts and ends at party HQ in Kuala Lumpur. | One shared base. HQ is the GeoNames record with feature code `PPLC`. |
 | S4 | The goal is to maximise total population reached, not to visit every town. | There isn't enough time to go everywhere, so towns have to be chosen. In the literature this is the Team Orienteering Problem. |
-| S5 | A repeat rally in a town still has value but less: the v-th rally there reaches `population × alpha^(v-1)`. Default alpha = 0.5. | Without this, sending two politicians to one town is pointless and the clash rule never matters. A second speaker draws a partly new crowd and reinforces the message. |
+| S5 | *(v1, replaced by V4)* A repeat rally in a town still has value but less: the v-th rally there reaches `population × alpha^(v-1)`. Default alpha = 0.5. | Without this, sending two politicians to one town is pointless and the clash rule never matters. A second speaker draws a partly new crowd and reinforces the message. |
 | S6 | Each politician holds at most one rally per town. | A politician returning to the same town is less useful than going somewhere new. It also keeps the model simple. |
-| S7 | Reach is shared fairly when reporting: in a town, the earliest rally gets the full population, the next gets alpha × that, and so on. | Only used for the per-politician fairness figure. It doesn't affect total reach. |
+| S7 | Each rally's reach is credited to the politician who held it, using the full v2 formula (V4–V6). In a town, a later rally is discounted for the earlier ones, so whoever goes first gets the bigger share. | Only used for the per-politician fairness figure. It doesn't affect total reach. |
 
 ## Data and preprocessing
 
@@ -35,25 +35,45 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | T2 | Travel between the peninsula and Borneo is by plane: 2.5 h overhead + distance ÷ 700 km/h. | The sea crossing can't be driven. The overhead covers getting to the airport, check-in and boarding. |
 | T3 | Travel times are fixed and the same in both directions. | No traffic or weather data. |
 | T4 | Rally length = `1 + log10(population / 10,000)` hours, between 1 and 3 hours. | Bigger towns get bigger events. This gives 1 h at 10k people, 2 h at 100k, and 3 h at 1M or more. |
-| T5 | The campaign is a single budget of continuous hours (default 168), and everyone must be back at HQ by the end. | Simplest first version. |
-| T6 | No daily schedule: rallies can happen at any hour, and there is no sleep or rest. | **Unrealistic, and the next thing to fix.** It also explains why the clash rule rarely forces anyone to wait: with 24-hour days there is always another free time slot. |
-| T7 | A politician who reaches a town while another politician is still holding a rally there waits until it ends. | This is how the clash rule is enforced. Waiting time is reported. |
+| T5 | *(v1, replaced by V2, V3, V8)* The campaign is a single budget of continuous hours (default 168), and everyone must be back at HQ by the end. | Simplest first version. |
+| T6 | *(v1, replaced by V3)* No daily schedule: rallies can happen at any hour, and there is no sleep or rest. | **Unrealistic, and the next thing to fix.** It also explains why the clash rule rarely forces anyone to wait: with 24-hour days there is always another free time slot. |
+| T7 | *(v1, replaced by V6)* A politician who reaches a town while another politician is still holding a rally there waits until it ends. | This is how the clash rule is enforced. Waiting time is reported. |
 
 ## Algorithms
 
 | # | Decision | Why |
 |---|---|---|
-| A0 | Benchmark: the brief's classic nearest-neighbour TSP. One tour through every town, closest (by travel time) first, given unchanged to every politician. Rallies start on arrival. | Shows how the unmodified classic algorithm does on this problem before any redesign. It breaks the time budget and the clash rule, so it is reported but never valid. |
-| A1 | Baseline: each politician plans greedily as if alone, which is the classic single-traveller view. | Shows what goes wrong without coordination: identical routes and a clash in every town. |
-| A2 | Approach A ranks towns by `reach / (travel + wait + rally hours)`. | Plain greedy "reach per hour". |
-| A3 | Approach B ranks insertions by `reach² / extra time`. | Taken from Vansteenwegen et al. (2009). Squaring favours big towns. |
+| A0 | Benchmark: the brief's classic nearest-neighbour TSP. One tour through every town, closest (by travel time) first, from each politician's own home. A rally starts on arrival, or the next morning if it wouldn't finish by 20:00. | Shows how the unmodified classic algorithm does on this problem before any redesign. It breaks the time budget, so it is reported but never valid. |
+| A1 | Baseline: each politician plans greedily as if alone, which is the classic single-traveller view. | Shows what goes wrong without coordination: largely the same towns at the same times, many clashes, and the reach they cost. |
+| A2 | Approach A ranks (town, timing) options by `reach gain / (travel + wait + rally hours)`, where the gain includes what a clash costs the other politician, and timing is wait or clash. | Plain greedy "reach per hour", which compares wait, clash and go elsewhere in one score. |
+| A3 | Approach B ranks insertions by `reach gain² / extra time`, trying both timings. The exact gain is only computed when `population² / extra time` could beat the best so far. | Taken from Vansteenwegen et al. (2009). Squaring favours big towns. The bound skips most of the O(k²) reach calculations. |
 | A4 | Approach B stops after 150 rounds without improvement or 5,000 rounds in total. | The paper's stopping rule is similar. Runs finish in well under a second. |
 | A5 | Approach B's shake rule: the removal point moves along the route, and the number removed grows by 1 each round, resetting after an improvement or once it exceeds `towns / (3k)`. | Follows the paper. |
 
+## v2 (agreed and implemented 2026-10-29)
+
+These replace the rows named in the last column. Rows that have been replaced are marked *(v1, replaced by …)* in the tables above. How they are modelled is in [DESIGN.md](DESIGN.md) §3 (problem and reach formula), §5 (data structures) and §6 (algorithms). The full list of changes is in [CHANGES_V2.md](CHANGES_V2.md).
+
+| # | Assumption | Why | Replaces |
+|---|---|---|---|
+| V1 | Each politician has their own home base. The default is a fixed list (KL, George Town, Johor Bahru, Kota Bharu, Ipoh, Kuantan, Alor Setar), set with `--starts`. `--starts random --seed N` picks k distinct random towns. | Senior figures campaign from their own constituencies and regional bases, not from one HQ. Random starts test whether the results depend on where politicians begin. | S3 |
+| V2 | Each politician must be back at their own home by the end of day 14, but not every night. | They need to be home for polling day. Overnight stays elsewhere are normal on a campaign. | S3, T5 |
+| V3 | Campaigning happens 08:00–20:00 for 14 days (168 active hours). Rallies **and** travel only happen in that window. A long drive can be split across a night; a rally can't. | The official campaign period is about two weeks, and rallies and driving at night are unrealistic. This also fixes T6. | T5, T6 |
+| V4 | The repeat penalty fades with time: reach = `pop × alpha^E`, where `E = Σ exp(−gap_j / tauRepeat)` over earlier rallies in the town (default tauRepeat = 48 h, wall clock). | A crowd that just heard a speech is mostly the same people, but a few days later the message needs reinforcing. It makes the *timing* of a revisit matter. | S5 |
+| V5 | Rallies closer to polling day are worth more: weight `w = exp(−(polling − start) / tauPoll)`, with default tauPoll = 336 h, so a day-1 rally is worth about 0.38 of a final-day one. Capped at 1, so a rally after polling day (only the benchmark makes these) is worth no more than one on the last day. | Voters forget early campaigning. Late rallies sway undecided voters. | (new) |
+| V6 | Soft clash rule: two politicians *may* rally in the same town at overlapping times. Each clashing rally's reach is multiplied by `1 − beta × overlap / rally length` (default beta = 0.5). The planner picks whichever is worth most: wait, clash, or go elsewhere. | A full ban is stricter than real campaigns. A partial overlap (one rally finishing as another starts) costs little; a full overlap splits the crowd. `beta = 1` is close to the old hard rule. | S2, T7 |
+| V7 | Clashes are reported but no longer make a plan invalid. | They are now a cost, not a violation. | — |
+| V8 | Planners work on an *active clock* that counts only campaigning hours (0 to 168). A rally that wouldn't finish by 20:00 starts at 08:00 the next day, and the time spent waiting counts as waiting. | Keeps the timeline as one number line, so the booking table and `maxShift` work almost unchanged. | T5 |
+| V9 | Home bases are matched to rally towns by name. A name that isn't a rally town (for example with `--max-towns 15`) is looked up among every populated place in the file. With more politicians than names, the list starts again from the top, so two politicians can share a home. | Lets any town be a base without changing the rally towns. | S3 |
+| V10 | `--starts random` uses its own Fisher-Yates shuffle on `mt19937`. | `std::shuffle` can give different orders with different standard libraries, which would make seeded results depend on the machine. | — |
+| V11 | The upper bound for `% max` is every politician reaching every town's full population once: `k × Σ population`. | With fading decay a late repeat rally can be worth almost a full crowd, so the v1 bound (`Σ pop × alpha^i`) is no longer a true upper bound. | — |
+| V12 | When a clashing rally starts, the one already running counts in full towards the repeat penalty (gap 0, so E += 1), on top of the overlap penalty. | The repeat penalty is about audiences already reached; beta is about the split crowd and the security cost. As a result, clashing is rarely chosen (see [RESULTS.md §3](RESULTS.md)). | — |
+
 ## Open questions
 
-- Daytime-only rallies (for example 08:00 to 23:00), with nights spent wherever the politician ends the day. See T6.
-- Should a politician be allowed to return to a town later in the campaign? See S6.
+- Should a politician be allowed to return to a town later in the campaign? See S6. This becomes more relevant under V4, because a revisit days later is worth almost the full population.
+- Default values for tauRepeat, tauPoll and beta (V4–V6) are first guesses. The first sensitivity sweeps are in [RESULTS.md](RESULTS.md) §3 and §5. tauPoll matters most, and needs a justification.
+- Should two simultaneous rallies skip the repeat penalty and pay only beta (V12)? As things stand, the soft clash rule is almost never chosen.
 - Exact solver for small instances (about 10 towns), to measure how far A and B are from the best possible plan.
 - Fix the duplicate towns that survive merging. See D3 and the known data issue.
 
@@ -61,3 +81,6 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 
 - 2026-10-21: First version. Model and defaults as above.
 - 2026-10-21: Added the classic nearest-neighbour benchmark (A0).
+- 2026-10-29: Agreed the v2 plan (V1–V7): separate home bases, return home by the end of the campaign, 14 × 12 h daily window, time decay (fading repeat penalty and polling-day weight), and a soft clash rule.
+- 2026-10-29: Implemented v2 (V1–V7), and added V8–V12 for decisions made while building it. Capped the polling-day weight at 1 (V5).
+- 2026-10-29: Updated S7 and A0–A3 for v2, and added the V12 open question.

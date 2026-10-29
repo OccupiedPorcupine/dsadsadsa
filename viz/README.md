@@ -18,16 +18,17 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 
 | File | What it does |
 |---|---|
-| `make_map.py` | Reads `meta.csv`, `towns.csv` and `<approach>_routes.csv` from a results folder, then puts the data into the template as JSON. |
+| `make_map.py` | Reads `meta.csv`, `towns.csv`, `homes.csv` and `<approach>_routes.csv` from a results folder, then puts the data into the template as JSON. |
 | `map_template.html` | The page: map, controls, legend, timeline and table. The data goes where the `/*DATA*/null` placeholder is. |
 
 ## Input files (written by `--routes-dir`)
 
 | File | Columns |
 |---|---|
-| `meta.csv` | `key,value`: politicians, alpha, campaign_hours, hq_name, hq_lat, hq_lon |
+| `meta.csv` | `key,value`: politicians, alpha, campaign_hours, days, day_hours, day_start, tau_repeat, tau_poll, clash_penalty, max_reach |
+| `homes.csv` | one row per politician: politician, name, lat, lon of their home base |
 | `towns.csv` | every town in the instance: geonameid, town, lat, lon, population, rally_h |
-| `<approach>_routes.csv` | one row per rally: politician, seq, geonameid, town, lat, lon, population, arrive_h, start_h, finish_h, return_h |
+| `<approach>_routes.csv` | one row per rally: politician, seq, geonameid, town, lat, lon, population, arrive_h, start_h, finish_h, day, clash, reach, return_h. Times are *active hours* (only the daily window counts); `reach` is the validator's figure for that rally |
 
 ## What the map shows
 
@@ -35,11 +36,11 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 |---|---|
 | Dot colour and size | Town population, in 5 bands. Lighter and smaller means fewer people. |
 | Faded dot | Town not visited by any shown politician |
-| Coloured line with arrows | A politician's route, in travel order, from HQ and back |
-| Dashed red ring | Clash: two rallies in this town overlap in time. Also counted in the ⚠ Clashes tile |
-| `HQ` badge | Party HQ, Kuala Lumpur |
+| Coloured line with arrows | A politician's route, in travel order, from their home and back |
+| Dashed red ring | Clash: two rallies in this town overlap in time. Allowed under the soft clash rule, but both lose reach. Also counted in the ⚠ Clashes tile |
+| `H` badge, in the politician's colour | A politician's home base, where they start and must end |
 | Numbered badges (optional) | Stop number in each politician's route |
-| `P1`, `P2` markers (timeline) | Where each politician is at the selected hour |
+| `P1`, `P2` markers (timeline) | Where each politician is at the selected time. The slider runs over active hours only, so it jumps from 20:00 to 08:00 the next day |
 
 **Controls**
 - Switch approach (baseline, A, B).
@@ -49,7 +50,7 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 - Hover over a town for its population and rally times.
 - Open **Route table** for every rally as text.
 
-**Stats tiles** are recomputed in the browser using the same rules as the solver's validator, so they should match the solver's output table.
+**Stats tiles** add up the per-rally `reach` the solver's validator wrote, so they match the solver's output table. The map has no copy of the reach model.
 
 ## Colour choices
 

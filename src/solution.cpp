@@ -3,6 +3,8 @@
 
 #include "solution.hpp"
 
+#include "reach.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -12,10 +14,10 @@ using namespace std;
 // Allowed rounding error when checking times.
 const double TOLERANCE = 1e-6;
 
+// A rally as the validator sees it: the booking, plus where it sits in its politician's route.
 struct Rally {
-    double start;
-    double finish;
-    int politician;
+    Booking booking;
+    int visitNumber;
 };
 
 static string describeError(int politician, int visitNumber, const string& problem) {
@@ -35,7 +37,8 @@ double Metrics::fairness() const {
 static void checkRoute(const Instance& inst, int politician, const vector<Visit>& route,
                        vector<vector<Rally>>& ralliesByTown, Metrics& metrics) {
     vector<bool> alreadyVisited(inst.numTowns(), false);
-    int currentPlace = inst.hqIndex();
+    int home = inst.homeIndex(politician);
+    int currentPlace = home;
     double currentTime = 0;
 
     for (int i = 0; i < (int)route.size(); ++i) {
@@ -55,24 +58,27 @@ static void checkRoute(const Instance& inst, int politician, const vector<Visit>
         if (fabs(visit.finish - visit.start - inst.rallyHours(visit.town)) > TOLERANCE) {
             metrics.errors.push_back(describeError(politician, i, "rally length is wrong"));
         }
+        if (visit.start < -TOLERANCE || visit.finish > inst.clock.dayEnd(visit.start) + TOLERANCE) {
+            metrics.errors.push_back(describeError(politician, i, "rally runs outside the day's campaigning window"));
+        }
 
         alreadyVisited[visit.town] = true;
         metrics.travelHours += travel;
         metrics.waitHours += visit.start - earliestArrival;
         metrics.visits++;
-        ralliesByTown[visit.town].push_back({visit.start, visit.finish, politician});
+        ralliesByTown[visit.town].push_back({{visit.start, visit.finish, politician}, i});
 
         currentPlace = visit.town;
         currentTime = visit.finish;
     }
 
-    double tripHome = inst.travelTime(currentPlace, inst.hqIndex());
+    double tripHome = inst.travelTime(currentPlace, home);
     metrics.travelHours += tripHome;
     metrics.returnTime[politician] = currentTime + tripHome;
-    if (metrics.returnTime[politician] > inst.campaignHours + TOLERANCE) {
-        char problem[100];
-        snprintf(problem, sizeof problem, "returns to HQ at %.1f h, after the campaign ends (%.0f h)",
-                 metrics.returnTime[politician], inst.campaignHours);
+    if (metrics.returnTime[politician] > inst.campaignHours() + TOLERANCE) {
+        char problem[160];
+        snprintf(problem, sizeof problem, "gets home to %s at %.1f h, after the campaign ends (%.0f h)",
+                 inst.homes[politician].name.c_str(), metrics.returnTime[politician], inst.campaignHours());
         metrics.errors.push_back(describeError(politician, -1, problem));
     }
 }
@@ -82,25 +88,36 @@ Metrics evaluate(const Instance& inst, const Solution& solution) {
     Metrics metrics;
     metrics.reachByPolitician.assign(numPoliticians, 0.0);
     metrics.returnTime.assign(numPoliticians, 0.0);
+    metrics.visitReach.assign(numPoliticians, {});
 
     vector<vector<Rally>> ralliesByTown(inst.numTowns());
     for (int p = 0; p < numPoliticians; ++p) {
         checkRoute(inst, p, solution.routes[p], ralliesByTown, metrics);
     }
 
-    // For each town, go through its rallies in time order: the first gets full reach, the next
-    // gets alpha times that, and so on. Any two that overlap in time are a clash.
+    // Reach is recomputed from scratch with the full model. Any two rallies in a town that
+    // overlap in time are a clash.
+    for (int p = 0; p < numPoliticians; ++p) metrics.visitReach[p].assign(solution.routes[p].size(), 0.0);
     for (int town = 0; town < inst.numTowns(); ++town) {
-        vector<Rally>& rallies = ralliesByTown[town];
-        sort(rallies.begin(), rallies.end(), [](const Rally& a, const Rally& b) { return a.start < b.start; });
+        const vector<Rally>& rallies = ralliesByTown[town];
+        vector<Booking> bookings;
+        for (const Rally& rally : rallies) bookings.push_back(rally.booking);
 
+        vector<double> reaches = rallyReaches(inst, town, bookings);
         for (int i = 0; i < (int)rallies.size(); ++i) {
-            double reach = inst.rallyReach(town, i);
-            metrics.reach += reach;
-            metrics.reachByPolitician[rallies[i].politician] += reach;
+            int p = rallies[i].booking.politician;
+            metrics.reach += reaches[i];
+            metrics.reachByPolitician[p] += reaches[i];
+            metrics.visitReach[p][rallies[i].visitNumber] = reaches[i];
 
             for (int j = i + 1; j < (int)rallies.size(); ++j) {
-                if (rallies[j].start < rallies[i].finish - TOLERANCE) metrics.clashes++;
+                const Booking& a = rallies[i].booking;
+                const Booking& b = rallies[j].booking;
+                double overlap = min(a.end, b.end) - max(a.start, b.start);
+                if (overlap > TOLERANCE) {
+                    metrics.clashes++;
+                    metrics.clashHours += overlap;
+                }
             }
         }
     }

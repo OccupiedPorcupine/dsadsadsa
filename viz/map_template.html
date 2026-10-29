@@ -245,8 +245,8 @@ const APPROACH_NAMES = {
 const MAX_POLITICIAN_COLOURS = 7;
 const PLAY_SECONDS = 20;  // the whole campaign plays in this many seconds
 
-const hq = DATA.meta.hq;
-const hqLatLng = [hq.lat, hq.lon];
+const homes = DATA.homes;
+const homeLatLng = p => [homes[p].lat, homes[p].lon];
 const numPoliticians = DATA.meta.politicians;
 
 let currentApproach = DATA.routes.ils ? "ils" : Object.keys(DATA.routes)[0];
@@ -268,9 +268,17 @@ function populationColour(pop) { return cssVar(`--pop-${populationBin(pop) + 1}`
 function politicianColour(p) { return cssVar(`--pol-${(p % MAX_POLITICIAN_COLOURS) + 1}`); }
 function politicianName(p) { return `P${p + 1}`; }
 function formatPopulation(pop) { return pop.toLocaleString("en-US"); }
-function formatHour(h) {
-  const day = Math.floor(h / 24) + 1;
-  return `h ${h.toFixed(1)} (day ${day})`;
+// Times are active hours: only the daily campaigning window counts. Turn one into "Day 3, 14:30".
+function formatHour(h, atEnd = false) {
+  const dayHours = DATA.meta.dayHours;
+  let day = Math.floor((atEnd ? h - 1e-9 : h + 1e-9) / dayHours);
+  day = Math.max(0, Math.min(day, DATA.meta.days - 1));
+  const clock = DATA.meta.dayStart + (h - day * dayHours);
+  const hours = Math.floor(clock + 1e-9);
+  const minutes = Math.round((clock - hours) * 60);
+  const hh = String(hours + Math.floor(minutes / 60)).padStart(2, "0");
+  const mm = String(minutes % 60).padStart(2, "0");
+  return `Day ${day + 1}, ${hh}:${mm}`;
 }
 function townLatLng(townIndex) {
   const t = DATA.towns[townIndex];
@@ -307,28 +315,16 @@ function findClashes(visits) {
   return clashes;
 }
 
-// Same reach rule as the solver: in each town, the k-th rally (by start time) reaches pop * alpha^(k-1).
+// Each rally's reach comes from the solver's validator (time decay and clash penalty included),
+// so the map doesn't need its own copy of the reach model.
 function computeStats(visits) {
-  const alpha = DATA.meta.alpha;
-  const byTown = new Map();
-  for (const v of visits) {
-    if (!byTown.has(v.town)) byTown.set(v.town, []);
-    byTown.get(v.town).push(v);
-  }
   let reach = 0;
   const reachByPolitician = new Array(numPoliticians).fill(0);
-  for (const [town, rallies] of byTown) {
-    rallies.sort((a, b) => a.start - b.start);
-    rallies.forEach((r, i) => {
-      const gain = DATA.towns[town].pop * Math.pow(alpha, i);
-      reach += gain;
-      reachByPolitician[r.p] += gain;
-    });
+  for (const v of visits) {
+    reach += v.reach;
+    reachByPolitician[v.p] += v.reach;
   }
-  let maxReach = 0;
-  for (const t of DATA.towns) {
-    for (let i = 0; i < numPoliticians; i++) maxReach += t.pop * Math.pow(alpha, i);
-  }
+  const maxReach = DATA.meta.maxReach;
   const highest = Math.max(...reachByPolitician);
   const fairness = highest > 0 ? Math.min(...reachByPolitician) / highest : 1;
   return { reach, maxReach, fairness, rallies: visits.length };
@@ -380,7 +376,7 @@ function drawRoutes(routes) {
   routes.forEach((route, p) => {
     if (!visiblePoliticians.has(p) || route.length === 0) return;
     const colour = politicianColour(p);
-    const points = [hqLatLng, ...route.map(v => townLatLng(v.town)), hqLatLng];
+    const points = [homeLatLng(p), ...route.map(v => townLatLng(v.town)), homeLatLng(p)];
     L.polyline(points, { color: colour, weight: 2.5, opacity: 0.9, interactive: false }).addTo(routeLayer);
     for (let i = 0; i + 1 < points.length; i++) {
       arrowMarker(points[i], points[i + 1], colour).addTo(routeLayer);
@@ -398,11 +394,11 @@ function townTooltip(townIndex, visitsHere, clashesHere) {
   for (const v of visitsHere) {
     const waited = v.start - v.arrive;
     html += `<br><b style="color:${politicianColour(v.p)}">&#9644;</b> ${politicianName(v.p)}, stop ${v.seq + 1}:
-             ${formatHour(v.start)} to h ${v.finish.toFixed(1)}`;
+             ${formatHour(v.start)} to ${formatHour(v.finish, true).split(", ")[1]}, reach ${formatPopulation(Math.round(v.reach))}`;
     if (waited > 0.01) html += `, waited ${waited.toFixed(1)} h`;
   }
   for (const c of clashesHere) {
-    html += `<br><span class="tip-clash">&#9888; Clash: ${politicianName(c.a.p)} and ${politicianName(c.b.p)} overlap</span>`;
+    html += `<br><span class="tip-clash">&#9888; Clash: ${politicianName(c.a.p)} and ${politicianName(c.b.p)} overlap (both lose reach)</span>`;
   }
   return html;
 }
@@ -470,18 +466,31 @@ function drawTowns(routes, clashes) {
     });
   }
 
-  L.marker(hqLatLng, {
-    icon: L.divIcon({ className: "", html: '<div class="hq-icon" style="width:22px;height:16px">HQ</div>', iconSize: [22, 16] }),
-    zIndexOffset: 1000,
-  }).bindTooltip(`<div class="tip-title">${escapeHtml(hq.name)}</div>Every route starts and ends here`, { direction: "top" })
-    .addTo(labelLayer);
+  // One home marker per place; politicians who share a home share a marker.
+  const homeGroups = new Map();
+  homes.forEach((h, p) => {
+    const key = `${h.lat},${h.lon}`;
+    if (!homeGroups.has(key)) homeGroups.set(key, { home: h, politicians: [] });
+    homeGroups.get(key).politicians.push(p);
+  });
+  for (const { home, politicians } of homeGroups.values()) {
+    const shown = politicians.filter(p => visiblePoliticians.has(p));
+    if (shown.length === 0) continue;
+    const who = shown.map(politicianName).join(", ");
+    L.marker([home.lat, home.lon], {
+      icon: L.divIcon({ className: "", html: `<div class="hq-icon" style="width:22px;height:16px;background:${politicianColour(shown[0])};color:#fff">H</div>`, iconSize: [22, 16] }),
+      zIndexOffset: 1000,
+    }).bindTooltip(`<div class="tip-title">${escapeHtml(home.name)}</div>${who} start${shown.length === 1 ? "s" : ""} here and must be back by the end of the campaign`, { direction: "top" })
+      .addTo(labelLayer);
+  }
 }
 
 // ---------- timeline ----------
 
 // Where politician p is at hour h, and what they are doing.
 function positionAt(route, p, h) {
-  let fromLatLng = hqLatLng;
+  const home = homeLatLng(p);
+  let fromLatLng = home;
   let leaveTime = 0;
   for (const v of route) {
     const town = DATA.towns[v.town];
@@ -495,12 +504,12 @@ function positionAt(route, p, h) {
     fromLatLng = here;
     leaveTime = v.finish;
   }
-  const backAtHq = DATA.returns[currentApproach][p] ?? 0;
-  if (h < backAtHq) {
-    const fraction = Math.min(1, Math.max(0, (h - leaveTime) / (backAtHq - leaveTime)));
-    return { latLng: lerp(fromLatLng, hqLatLng, fraction), status: "heading back to HQ" };
+  const backHome = DATA.returns[currentApproach][p] ?? 0;
+  if (h < backHome) {
+    const fraction = Math.min(1, Math.max(0, (h - leaveTime) / (backHome - leaveTime)));
+    return { latLng: lerp(fromLatLng, home, fraction), status: "heading home" };
   }
-  return { latLng: hqLatLng, status: "back at HQ" };
+  return { latLng: home, status: "back home" };
 }
 function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
 
@@ -524,7 +533,7 @@ function drawPositions(routes) {
     }).addTo(positionLayer);
     lines.push(`<b style="color:${politicianColour(p)}">${politicianName(p)}</b> ${escapeHtml(status)}`);
   });
-  document.getElementById("time-label").textContent = `${formatHour(currentHour)} of ${DATA.meta.campaignHours}`;
+  document.getElementById("time-label").textContent = `${formatHour(currentHour)} of ${DATA.meta.days} days`;
   document.getElementById("positions").innerHTML = lines.join(" &middot; ");
 }
 
@@ -572,7 +581,7 @@ function drawStats(clashes) {
     ["Reach", `${(s.reach / 1e6).toFixed(2)}M`],
     ["Share of maximum", `${(100 * s.reach / s.maxReach).toFixed(1)}%`],
     ["Rallies", `${s.rallies}`],
-    ["Clashes", `${clashes.length}`, clashes.length > 0],
+    ["Clashes (soft, cost reach)", `${clashes.length}`, clashes.length > 0],
     ["Fairness (lowest / highest)", s.fairness.toFixed(2)],
   ];
   document.getElementById("stats").innerHTML = stats.map(([label, value, bad]) =>
@@ -599,15 +608,16 @@ function drawLegend() {
 
 function drawTable(routes) {
   let html = "<thead><tr><th>Politician</th><th>Stop</th><th>Town</th><th>Population</th>"
-           + "<th>Arrive (h)</th><th>Start (h)</th><th>Finish (h)</th><th>Waited (h)</th></tr></thead><tbody>";
+           + "<th>Arrive</th><th>Start</th><th>Finish</th><th>Waited (h)</th><th>Reach</th></tr></thead><tbody>";
   routes.forEach((route, p) => {
     if (!visiblePoliticians.has(p)) return;
     for (const v of route) {
       const t = DATA.towns[v.town];
       html += `<tr><td>${politicianName(p)}</td><td class="num">${v.seq + 1}</td><td>${escapeHtml(t.name)}</td>
-               <td class="num">${formatPopulation(t.pop)}</td><td class="num">${v.arrive.toFixed(1)}</td>
-               <td class="num">${v.start.toFixed(1)}</td><td class="num">${v.finish.toFixed(1)}</td>
-               <td class="num">${(v.start - v.arrive).toFixed(1)}</td></tr>`;
+               <td class="num">${formatPopulation(t.pop)}</td><td class="num">${formatHour(v.arrive, true)}</td>
+               <td class="num">${formatHour(v.start)}</td><td class="num">${formatHour(v.finish, true)}</td>
+               <td class="num">${(v.start - v.arrive).toFixed(1)}</td>
+               <td class="num">${formatPopulation(Math.round(v.reach))}${v.clash ? " &#9888;" : ""}</td></tr>`;
     }
   });
   document.getElementById("route-table").innerHTML = html + "</tbody>";
@@ -656,11 +666,12 @@ function render() {
 
 document.getElementById("subtitle").textContent =
   `${DATA.towns.length} towns, ${numPoliticians} politicians, alpha = ${DATA.meta.alpha}, `
-  + `${DATA.meta.campaignHours} campaign hours. Every route starts and ends at ${hq.name}.`;
+  + `${DATA.meta.days} days of ${DATA.meta.dayHours} campaigning hours from `
+  + `${String(DATA.meta.dayStart).padStart(2, "0")}:00. Each politician starts and ends at their own home (H).`;
 
 buildControls();
 setBaseLayer();
-map.fitBounds([hqLatLng, ...DATA.towns.map(t => [t.lat, t.lon])], { padding: [24, 24] });
+map.fitBounds([...homes.map(h => [h.lat, h.lon]), ...DATA.towns.map(t => [t.lat, t.lon])], { padding: [24, 24] });
 render();
 
 // Follow the system theme if it changes while the page is open.

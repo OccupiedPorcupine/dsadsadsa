@@ -1,0 +1,9 @@
+approach,towns,k,alpha,days,day_hours,homes,tau_repeat,tau_poll,clash_penalty,reach,max_reach,visits,clashes,clash_h,travel_h,wait_h,fairness,valid,runtime_ms
+nearest,92,2,0.5,7,24,"Kuala Lumpur; George Town",48,336,0.5,3.59772e+07,4.79153e+07,184,1,2.29906,95.5017,19.0478,0.929282,0,0.027958
+uncoordinated,92,2,0.5,7,24,"Kuala Lumpur; George Town",48,336,0.5,1.66594e+07,4.79153e+07,87,27,63.1468,108.519,0.789344,0.951758,1,0.311625
+sequential,92,2,0.5,7,24,"Kuala Lumpur; George Town",48,336,0.5,2.37545e+07,4.79153e+07,89,0,0,107.153,0.325779,0.823901,1,0.368875
+ils,92,2,0.5,7,24,"Kuala Lumpur; George Town",48,336,0.5,2.58823e+07,4.79153e+07,76,0,0,136.407,0.68685,0.979719,1,118.843
+nearest,92,2,0.5,14,12,"Kuala Lumpur; George Town",48,336,0.5,3.36374e+07,4.79153e+07,184,1,0.537322,95.5017,43.7593,0.876708,0,0.028917
+uncoordinated,92,2,0.5,14,12,"Kuala Lumpur; George Town",48,336,0.5,1.20194e+07,4.79153e+07,85,28,69.4971,108.657,6.54405,0.634513,1,0.319042
+sequential,92,2,0.5,14,12,"Kuala Lumpur; George Town",48,336,0.5,1.90198e+07,4.79153e+07,84,0,0,113.535,4.07049,0.898204,1,0.414166
+ils,92,2,0.5,14,12,"Kuala Lumpur; George Town",48,336,0.5,2.20612e+07,4.79153e+07,79,0,0,121.993,7.71519,0.929292,1,214.119

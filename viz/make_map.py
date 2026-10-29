@@ -47,7 +47,7 @@ def load_run(run_dir):
         if not path.exists():
             continue
         visits = []
-        back_at_hq = {}
+        back_home = {}
         for row in read_csv(path):
             politician = int(row["politician"])
             visits.append({
@@ -57,18 +57,32 @@ def load_run(run_dir):
                 "arrive": float(row["arrive_h"]),
                 "start": float(row["start_h"]),
                 "finish": float(row["finish_h"]),
+                "clash": row["clash"] == "1",
+                "reach": float(row["reach"]),
             })
-            back_at_hq[politician] = float(row["return_h"])
+            back_home[politician] = float(row["return_h"])
         routes[approach] = visits
-        returns[approach] = back_at_hq
+        returns[approach] = back_home
+
+    homes = [
+        {"name": row["name"], "lat": float(row["lat"]), "lon": float(row["lon"])}
+        for row in sorted(read_csv(run_dir / "homes.csv"), key=lambda r: int(r["politician"]))
+    ]
 
     return {
         "meta": {
             "politicians": int(meta["politicians"]),
             "alpha": float(meta["alpha"]),
             "campaignHours": float(meta["campaign_hours"]),
-            "hq": {"name": meta["hq_name"], "lat": float(meta["hq_lat"]), "lon": float(meta["hq_lon"])},
+            "days": int(meta["days"]),
+            "dayHours": float(meta["day_hours"]),
+            "dayStart": float(meta["day_start"]),
+            "tauRepeat": float(meta["tau_repeat"]),
+            "tauPoll": float(meta["tau_poll"]),
+            "clashPenalty": float(meta["clash_penalty"]),
+            "maxReach": float(meta["max_reach"]),
         },
+        "homes": homes,
         "towns": towns,
         "routes": routes,
         "returns": returns,

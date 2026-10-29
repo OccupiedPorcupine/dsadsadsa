@@ -28,8 +28,15 @@ static void printUsage() {
     cerr << "usage: campaign [options]\n"
             "  --data PATH          GeoNames file (default CS201_2026_project/MY.txt)\n"
             "  --k N                number of politicians (default 2)\n"
-            "  --alpha A            reach of a repeat visit relative to the previous one (default 0.5)\n"
-            "  --hours H            campaign time budget in hours (default 168)\n"
+            "  --alpha A            reach of an immediate repeat rally relative to the one before (default 0.5)\n"
+            "  --days D             length of the campaign in days (default 14)\n"
+            "  --day-hours H        campaigning hours per day; rallies and travel only happen then (default 12)\n"
+            "  --day-start H        wall-clock hour the daily window opens (default 8, i.e. 08:00)\n"
+            "  --starts S           home bases: fixed (default list), random, or \"Town A,Town B,...\"\n"
+            "  --seed N             random seed for --starts random (default 1)\n"
+            "  --tau-repeat H       hours for the repeat penalty to fade (default 48)\n"
+            "  --tau-poll H         hours for early rallies to be forgotten by polling day (default 336)\n"
+            "  --clash-penalty B    share of reach a fully overlapped rally loses (default 0.5)\n"
             "  --min-pop P          smallest town population considered (default 50000)\n"
             "  --max-towns N        keep only the N most populous towns (default: all)\n"
             "  --merge-km D         merge places within D km of a bigger one (default 5)\n"
@@ -58,7 +65,14 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--data") config.dataPath = nextValue(i, argc, argv);
         else if (option == "--k") config.numPoliticians = stoi(nextValue(i, argc, argv));
         else if (option == "--alpha") config.alpha = stod(nextValue(i, argc, argv));
-        else if (option == "--hours") config.campaignHours = stod(nextValue(i, argc, argv));
+        else if (option == "--days") config.clock.days = stoi(nextValue(i, argc, argv));
+        else if (option == "--day-hours") config.clock.dayHours = stod(nextValue(i, argc, argv));
+        else if (option == "--day-start") config.clock.dayStartHour = stod(nextValue(i, argc, argv));
+        else if (option == "--starts") config.starts = nextValue(i, argc, argv);
+        else if (option == "--seed") config.seed = (unsigned)stoul(nextValue(i, argc, argv));
+        else if (option == "--tau-repeat") config.tauRepeatHours = stod(nextValue(i, argc, argv));
+        else if (option == "--tau-poll") config.tauPollHours = stod(nextValue(i, argc, argv));
+        else if (option == "--clash-penalty") config.clashPenalty = stod(nextValue(i, argc, argv));
         else if (option == "--min-pop") config.minPopulation = stol(nextValue(i, argc, argv));
         else if (option == "--max-towns") config.maxTowns = stoi(nextValue(i, argc, argv));
         else if (option == "--merge-km") config.mergeKm = stod(nextValue(i, argc, argv));
@@ -71,43 +85,50 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--list-towns") options.listTowns = true;
         else throw runtime_error("unknown option " + option);
     }
+    if (config.clock.days < 1 || config.clock.dayHours < 3 || config.clock.dayHours > 24) {
+        throw runtime_error("need at least 1 day, and between 3 and 24 campaigning hours a day");
+    }
+    if (config.tauRepeatHours <= 0 || config.tauPollHours <= 0) throw runtime_error("tau values must be positive");
     return true;
 }
 
 static void printTowns(const Instance& inst) {
     for (int town = 0; town < inst.numTowns(); ++town) {
-        printf("  %3d  %-30s pop %8ld  rally %.1fh  %.1fh from HQ\n", town, inst.towns[town].name.c_str(),
-               inst.towns[town].population, inst.rallyHours(town), inst.travelTime(inst.hqIndex(), town));
+        printf("  %3d  %-30s pop %8ld  rally %.1fh  %.1fh from P1's home\n", town, inst.towns[town].name.c_str(),
+               inst.towns[town].population, inst.rallyHours(town), inst.travelTime(inst.homeIndex(0), town));
     }
     printf("\n");
 }
 
 static void printTableHeader() {
-    printf("%-14s %12s %7s %7s %8s %9s %8s %9s %10s %6s\n", "approach", "reach", "%max", "visits", "clashes",
-           "travel_h", "wait_h", "fairness", "runtime_ms", "valid");
+    printf("%-14s %12s %7s %7s %8s %8s %9s %8s %9s %10s %6s\n", "approach", "reach", "%max", "visits", "clashes",
+           "clash_h", "travel_h", "wait_h", "fairness", "runtime_ms", "valid");
 }
 
 static void printTableRow(const string& approach, const Instance& inst, const Metrics& m, double runtimeMs) {
     double percentOfMax = 100 * m.reach / inst.maxPossibleReach();
-    printf("%-14s %12.0f %6.1f%% %7d %8d %9.1f %8.1f %9.2f %10.1f %6s\n", approach.c_str(), m.reach, percentOfMax,
-           m.visits, m.clashes, m.travelHours, m.waitHours, m.fairness(), runtimeMs, m.valid() ? "yes" : "NO");
+    printf("%-14s %12.0f %6.1f%% %7d %8d %8.1f %9.1f %8.1f %9.2f %10.1f %6s\n", approach.c_str(), m.reach,
+           percentOfMax, m.visits, m.clashes, m.clashHours, m.travelHours, m.waitHours, m.fairness(), runtimeMs,
+           m.valid() ? "yes" : "NO");
     for (const string& error : m.errors) {
         printf("    ! %s\n", error.c_str());
     }
 }
 
-// One row per rally. return_h (when that politician gets back to HQ) repeats on each of their rows.
+// One row per rally. Times are active hours; day is 1-based. return_h (when that politician gets
+// back home) repeats on each of their rows. clash is 1 if the rally overlaps someone else's.
 static void writeRoutesCsv(const string& path, const Instance& inst, const Solution& solution,
                            const Metrics& metrics) {
     ofstream out(path);
-    out << "politician,seq,geonameid,town,lat,lon,population,arrive_h,start_h,finish_h,return_h\n";
+    out << "politician,seq,geonameid,town,lat,lon,population,arrive_h,start_h,finish_h,day,clash,reach,return_h\n";
     for (int p = 0; p < (int)solution.routes.size(); ++p) {
         for (int i = 0; i < (int)solution.routes[p].size(); ++i) {
             const Visit& visit = solution.routes[p][i];
             const Town& town = inst.towns[visit.town];
             out << p << ',' << i << ',' << town.geonameId << ",\"" << town.name << "\"," << town.lat << ','
                 << town.lon << ',' << town.population << ',' << visit.arrive << ',' << visit.start << ','
-                << visit.finish << ',' << metrics.returnTime[p] << '\n';
+                << visit.finish << ',' << inst.clock.dayOf(visit.start) + 1 << ',' << (visit.clash ? 1 : 0) << ','
+                << metrics.visitReach[p][i] << ',' << metrics.returnTime[p] << '\n';
         }
     }
 }
@@ -126,10 +147,30 @@ static void writeInstanceCsv(const string& dir, const Instance& inst) {
     meta << "key,value\n";
     meta << "politicians," << inst.numPoliticians << '\n';
     meta << "alpha," << inst.alpha << '\n';
-    meta << "campaign_hours," << inst.campaignHours << '\n';
-    meta << "hq_name,\"" << inst.hq.name << "\"\n";
-    meta << "hq_lat," << inst.hq.lat << '\n';
-    meta << "hq_lon," << inst.hq.lon << '\n';
+    meta << "campaign_hours," << inst.campaignHours() << '\n';
+    meta << "days," << inst.clock.days << '\n';
+    meta << "day_hours," << inst.clock.dayHours << '\n';
+    meta << "day_start," << inst.clock.dayStartHour << '\n';
+    meta << "tau_repeat," << inst.tauRepeatHours << '\n';
+    meta << "tau_poll," << inst.tauPollHours << '\n';
+    meta << "clash_penalty," << inst.clashPenalty << '\n';
+    meta << "max_reach," << inst.maxPossibleReach() << '\n';
+
+    ofstream homes(dir + "/homes.csv");
+    homes << "politician,name,lat,lon\n";
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        const Town& home = inst.homes[p];
+        homes << p << ",\"" << home.name << "\"," << home.lat << ',' << home.lon << '\n';
+    }
+}
+
+static string homeNames(const Instance& inst) {
+    string names;
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        if (p > 0) names += "; ";
+        names += inst.homes[p].name.substr(5);  // drop the "Home " prefix
+    }
+    return names;
 }
 
 static void appendSummaryCsv(const string& path, const string& approach, const Instance& inst, const Metrics& m,
@@ -137,13 +178,15 @@ static void appendSummaryCsv(const string& path, const string& approach, const I
     bool isNewFile = !ifstream(path).good();
     ofstream out(path, ios::app);
     if (isNewFile) {
-        out << "approach,towns,k,alpha,hours,reach,max_reach,visits,clashes,travel_h,wait_h,fairness,valid,"
-               "runtime_ms\n";
+        out << "approach,towns,k,alpha,days,day_hours,homes,tau_repeat,tau_poll,clash_penalty,reach,max_reach,"
+               "visits,clashes,clash_h,travel_h,wait_h,fairness,valid,runtime_ms\n";
     }
     out << approach << ',' << inst.numTowns() << ',' << inst.numPoliticians << ',' << inst.alpha << ','
-        << inst.campaignHours << ',' << m.reach << ',' << inst.maxPossibleReach() << ',' << m.visits << ','
-        << m.clashes << ',' << m.travelHours << ',' << m.waitHours << ',' << m.fairness() << ','
-        << (m.valid() ? 1 : 0) << ',' << runtimeMs << '\n';
+        << inst.clock.days << ',' << inst.clock.dayHours << ",\"" << homeNames(inst) << "\","
+        << inst.tauRepeatHours << ',' << inst.tauPollHours << ',' << inst.clashPenalty << ',' << m.reach << ','
+        << inst.maxPossibleReach() << ',' << m.visits << ',' << m.clashes << ',' << m.clashHours << ','
+        << m.travelHours << ',' << m.waitHours << ',' << m.fairness() << ',' << (m.valid() ? 1 : 0) << ','
+        << runtimeMs << '\n';
 }
 
 static Solution runPlanner(const string& approach, const Instance& inst, const Options& options,
@@ -169,9 +212,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    printf("Instance: %d towns, %d politicians, alpha=%.2f, %.0f campaign hours, HQ=%s\n", inst.numTowns(),
-           inst.numPoliticians, inst.alpha, inst.campaignHours, inst.hq.name.c_str());
-    printf("Upper bound on reach (everyone visits everywhere): %.0f\n\n", inst.maxPossibleReach());
+    printf("Instance: %d towns, %d politicians, alpha=%.2f, %d days x %.0f h (from %02.0f:00) = %.0f active hours\n",
+           inst.numTowns(), inst.numPoliticians, inst.alpha, inst.clock.days, inst.clock.dayHours,
+           inst.clock.dayStartHour, inst.campaignHours());
+    printf("Homes: %s\n", homeNames(inst).c_str());
+    printf("Decay: tauRepeat=%.0f h, tauPoll=%.0f h; clash penalty beta=%.2f\n", inst.tauRepeatHours,
+           inst.tauPollHours, inst.clashPenalty);
+    printf("Upper bound on reach (everyone rallies everywhere, full crowd): %.0f\n\n", inst.maxPossibleReach());
     if (options.listTowns) printTowns(inst);
     if (!options.routesDir.empty()) writeInstanceCsv(options.routesDir, inst);
 
