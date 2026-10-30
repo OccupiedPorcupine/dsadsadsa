@@ -80,6 +80,7 @@ What the map shows:
 | `viz/` | Route map: `make_map.py` turns a results folder into an interactive HTML map (`map_template.html`) |
 | `results/` | Solver output (CSVs) and generated maps |
 | `CS201_2026_project/` | Provided GeoNames dataset (`MY.txt`) |
+| `notebooks/explore_geonames.ipynb` | First look at the GeoNames spreadsheet with pandas |
 | `docs/ASSUMPTIONS.md` | Every modelling assumption and decision, with reasons |
 | `docs/papers/` | Reference papers and reading list |
 
