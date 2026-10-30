@@ -42,7 +42,7 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 | `P1`, `P2` markers (timeline) | Where each politician is at the selected time. The slider runs over active hours only, so it jumps from 20:00 to 08:00 the next day |
 
 **Controls**
-- Switch approach (baseline, A, B).
+- Switch approach (budgeted nearest neighbour, baseline, A, B).
 - Show or hide each politician.
 - Turn visit numbers on or off.
 - Play the timeline, or drag the slider.

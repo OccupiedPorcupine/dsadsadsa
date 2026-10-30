@@ -7,6 +7,10 @@
 // handed to every politician. Ignores population, the time budget and the clash rule.
 Solution solveNearestNeighbour(const Instance& inst);
 
+// Benchmark: the same nearest-neighbour rule, but it only goes to towns whose rally still leaves
+// time to get home, and stops when none is left. Valid, so it can be compared with A and B.
+Solution solveBudgetedNearestNeighbour(const Instance& inst);
+
 // Baseline: each politician plans as if campaigning alone, the way a classic single-traveller
 // planner would. It ignores the clash rule, so it shows what goes wrong without coordination.
 Solution solveUncoordinated(const Instance& inst);

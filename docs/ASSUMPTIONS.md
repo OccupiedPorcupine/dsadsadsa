@@ -45,7 +45,8 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 
 | # | Decision | Why |
 |---|---|---|
-| A0 | Benchmark: the brief's classic nearest-neighbour TSP. One tour through every town, closest (by travel time) first, from each politician's own home. A rally starts on arrival, or the next morning if it wouldn't finish by 20:00. | Shows how the unmodified classic algorithm does on this problem before any redesign. It breaks the time budget, so it is reported but never valid. |
+| A0 | Benchmark: the brief's classic nearest-neighbour TSP. One tour through every town, closest (by travel time) first, from each politician's own home. A rally starts on arrival, or the next morning if it wouldn't finish by 20:00. | Shows how the unmodified classic algorithm does on this problem before any redesign. It breaks the time budget, so it is reported but never valid. The output states how long the full tour really needs. |
+| A7 | Second benchmark: the same nearest-neighbour rule, but only towns whose rally still leaves time to get home are candidates, and it stops when none is left. | The smallest change that makes the classic heuristic valid, so the redesigns can be compared with a recognisably TSP plan on equal terms (#12). |
 | A1 | Baseline: each politician plans greedily as if alone, which is the classic single-traveller view. | Shows what goes wrong without coordination: largely the same towns at the same times, many clashes, and the reach they cost. |
 | A2 | Approach A ranks (town, timing) options by `reach gain / (travel + wait + rally hours)`, where the gain includes what a clash costs the other politician, and timing is wait or clash. | Plain greedy "reach per hour", which compares wait, clash and go elsewhere in one score. |
 | A3 | Approach B ranks insertions by `reach gain² / extra time`, trying both timings. The exact gain is only computed when `population² / extra time` could beat the best so far. | Taken from Vansteenwegen et al. (2009). Squaring favours big towns. The bound skips most of the O(k³) reach calculations. |
@@ -94,3 +95,4 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-31: Changed V6 so the clash penalty depends on how many politicians overlap at once. At beta = 0.5 any number of them reach one crowd between them (#2).
 - 2026-10-31: Added A6 (B runs from two starts, #7). A3's reach calculation is now O(k³), because of the crowd split in V6. Brought S7, V4 and A4 up to date.
 - 2026-10-31: Added D6: five places that double-count a city are dropped before merging (#11). The default instance has 90 towns.
+- 2026-10-31: Added A7, the budgeted nearest-neighbour benchmark (#12).

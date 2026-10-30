@@ -214,7 +214,7 @@ This is the same idea as Vansteenwegen et al. (2009), whose time windows are fix
 
 ## 6. Algorithms
 
-### 6.0 Benchmark: classic nearest neighbour (`solveNearestNeighbour`)
+### 6.0 Benchmarks: classic nearest neighbour (`solveNearestNeighbour`, `solveBudgetedNearestNeighbour`)
 [src/nearest.cpp](../src/nearest.cpp). The brief's nearest-neighbour TSP, unchanged except for respecting the daily window:
 
 ```
@@ -230,6 +230,16 @@ for each politician p:
 It visits every town and has no idea of population, the time budget or the other politicians. It is here to show the starting point the redesigns improve on.
 - **Invalid:** the validator marks it invalid, because about a third of its rallies run past the end of the campaign and it gets home more than 100 h late.
 - **Reach counts only the rallies before polling day.** The later ones reach nobody (ASSUMPTIONS V5).
+- **How long it really takes:** the output prints the active hours the full tour needs to get everyone home, and the equivalent number of days.
+
+**Budgeted version** (`nearest-budget`, #12). The same loop, with one extra test on each candidate:
+
+```
+        skip c if fitRally(arrive, rally(c)) + rally(c) + travel(c, home(p)) > D·H     # no time to get home after it
+    stop when no unvisited town passes the test
+```
+
+It is the smallest change that makes the classic heuristic valid. It still ignores population and the other politicians, so it measures what picking towns by distance alone achieves within the budget, and it is the fair benchmark for A and B.
 
 ### 6.1 Baseline: uncoordinated greedy
 Each politician runs the greedy builder (6.2) with an **empty** booking table, as if campaigning alone. It never sees the others, so it clashes freely. The validator then charges every clash at the beta penalty. The plan is valid, but it shows what the lack of coordination costs.
@@ -345,7 +355,7 @@ At most k rallies share a town, so one reach calculation for a town is O(k³) (�
 | Booking table: `earliestFreeTime` | O(k²) worst case | O(L) in total |
 | Booking table: other queries and updates | O(k) | |
 | `reachGain` for one town | O(k³) | O(k) |
-| **Benchmark (nearest neighbour)** | n steps, each scanning up to n towns, for each of k politicians → **O(k · n²)** | O(k · n) |
+| **Benchmarks (nearest neighbour, full tour and budgeted)** | Up to n steps, each scanning up to n towns, for each of k politicians → **O(k · n²)** | O(k · n) |
 | **Baseline** | Same loop as A, but the booking table is empty, so each lookup is O(1) → **O(n · L)** | O(n) |
 | **Approach A** | Each step scans n towns × 2 timings at O(k³) each; L steps in total → **O(k³ · n · L)** | O(n + L) |
 | **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k³) each, then O(L · k) to update → **O(k³ · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
@@ -396,8 +406,8 @@ Checks run on v2:
 | [src/geo.hpp](../src/geo.hpp) | Great-circle distance | `haversineKm` |
 | [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `overlapHours`, `book`, `cancel`, `rebook` |
 | [src/reach.hpp/.cpp](../src/reach.cpp) | The reach model | `rallyReaches`, `townReach`, `reachGain` |
-| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveIls` |
-| [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmark | `solveNearestNeighbour`, `buildNearestNeighbourTour` |
+| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveIls` |
+| [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmarks | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `buildNearestNeighbourTour` |
 | [src/sequential.cpp](../src/sequential.cpp) | Baseline and Approach A | `buildGreedyRoute` |
 | [src/ils.cpp](../src/ils.cpp) | Approach B | `IlsPlanner::insertUntilFull`, `tryInsertion`, `applyInsertion`, `updateMaxShifts`, `shake`, `recalculateTimes` |
 | [src/solution.hpp/.cpp](../src/solution.cpp) | `Visit`, `Solution`, `Metrics`; the validator | `evaluate`, `checkRoute` |

@@ -16,7 +16,7 @@ import json
 import sys
 from pathlib import Path
 
-APPROACHES = ["uncoordinated", "sequential", "ils"]
+APPROACHES = ["nearest-budget", "uncoordinated", "sequential", "ils"]
 TEMPLATE = Path(__file__).parent / "map_template.html"
 
 

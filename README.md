@@ -28,7 +28,7 @@ make                      # builds build/campaign
 ./build/campaign --help   # all options
 ```
 
-Folders for `--routes-dir` and `--summary` are created if they don't exist. `--alpha` and `--clash-penalty` must be between 0 and 1, and `--approach` must be `nearest`, `uncoordinated`, `sequential`, `ils` or `all`. Anything else prints an error and exits with code 1.
+Folders for `--routes-dir` and `--summary` are created if they don't exist. `--alpha` and `--clash-penalty` must be between 0 and 1, and `--approach` must be `nearest`, `nearest-budget`, `uncoordinated`, `sequential`, `ils` or `all`. Anything else prints an error and exits with code 1.
 
 Example: 3 politicians, no repeat penalty, a 6-day campaign, write routes and a summary row:
 
@@ -74,7 +74,7 @@ What the map shows:
 | `src/booking.*` | `BookingTable`: per-town sorted rally bookings, aware of the daily window; finds free slots and measures overlaps |
 | `src/reach.*` | The reach model: fading repeat penalty, polling-day weight, crowd share when rallies overlap |
 | `src/planners.hpp` | The four planners' interface |
-| `src/nearest.cpp` | Benchmark: classic nearest-neighbour TSP tour |
+| `src/nearest.cpp` | Benchmarks: classic nearest-neighbour TSP, as a full tour and budgeted |
 | `src/sequential.cpp` | Baseline (uncoordinated) and Approach A (sequential greedy with booking table) |
 | `src/ils.cpp` | Approach B (iterated local search with clash-aware `maxShift`, run from two starts) |
 | `src/solution.*` | Independent validator: timing, daily window, rallies after polling day, return home, repeat visits, clashes, reach |
@@ -92,7 +92,8 @@ What the map shows:
 
 | | What it does | Data structures |
 |---|---|---|
-| **Benchmark: classic nearest neighbour** | The brief's textbook TSP heuristic: a tour through every town, closest first, from each politician's home. Ignores population, the time budget and other politicians, so it is never valid: rallies after polling day reach nobody and are flagged. | Visited flags |
+| **Benchmark: classic nearest neighbour, full tour** (`nearest`) | The brief's textbook TSP heuristic: a tour through every town, closest first, from each politician's home. Ignores population, the time budget and other politicians, so it is never valid: rallies after polling day reach nobody and are flagged. The output says how long the full tour really needs. | Visited flags |
+| **Benchmark: budgeted nearest neighbour** (`nearest-budget`) | The same rule, but it only goes to the nearest town whose rally still leaves time to get home, and stops when none is left. The smallest change that makes the classic heuristic valid, so it can be compared directly with A and B. | Visited flags |
 | **Baseline: uncoordinated** | Each politician plans greedily as if alone, which is classic single-traveller thinking. Clashes freely and pays the penalty. | Visited flags |
 | **A: sequential greedy** | Politicians are planned one after another. Each appends the town and timing (wait or clash) with the best `reach gain / (travel + wait + rally hours)`. | `BookingTable` (per-town sorted intervals) |
 | **B: iterated local search** | All politicians at once. Insert the best `(town, politician, position, timing)` by `gain^2 / extra time`, then shake (remove runs of visits) and repeat. Based on Vansteenwegen et al. (2009). Runs twice, from empty routes and from A's plan, and keeps the better plan, so it never ends below A. | `BookingTable` + per-visit `{arrive, start, finish, mode, maxShift}`. `maxShift` includes the slack before the next clash and before the day's window closes, so each insertion is checked in O(1) |

@@ -5,6 +5,7 @@
 #include "planners.hpp"
 #include "solution.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <filesystem>
@@ -44,7 +45,7 @@ static void printUsage() {
             "  --max-towns N        keep only the N most populous towns (default: all)\n"
             "  --merge-km D         merge places within D km of a bigger one (default 5)\n"
             "  --borneo             include Sabah, Sarawak and Labuan (reached by flight)\n"
-            "  --approach NAME      nearest | uncoordinated | sequential | ils | all (default all)\n"
+            "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
@@ -98,7 +99,8 @@ static bool parseOptions(int argc, char** argv, Options& options) {
     if (config.alpha < 0 || config.alpha > 1) throw runtime_error("--alpha must be between 0 and 1");
     if (config.clashPenalty < 0 || config.clashPenalty > 1) throw runtime_error("--clash-penalty must be between 0 and 1");
     const string& a = options.approach;
-    if (a != "all" && a != "nearest" && a != "uncoordinated" && a != "sequential" && a != "ils") {
+    if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
+        a != "ils") {
         throw runtime_error("unknown approach " + a);
     }
     return true;
@@ -205,6 +207,7 @@ static void appendSummaryCsv(const string& path, const string& approach, const I
 static Solution runPlanner(const string& approach, const Instance& inst, const Options& options,
                            IlsStats& ilsStats) {
     if (approach == "nearest") return solveNearestNeighbour(inst);
+    if (approach == "nearest-budget") return solveBudgetedNearestNeighbour(inst);
     if (approach == "uncoordinated") return solveUncoordinated(inst);
     if (approach == "sequential") return solveSequential(inst);
     return solveIls(inst, options.ilsParams, &ilsStats);
@@ -245,7 +248,7 @@ int main(int argc, char** argv) {
 
     printTableHeader();
     IlsStats ilsStats;
-    vector<string> approaches = {"nearest", "uncoordinated", "sequential", "ils"};
+    vector<string> approaches = {"nearest", "nearest-budget", "uncoordinated", "sequential", "ils"};
     for (const string& approach : approaches) {
         if (options.approach != "all" && options.approach != approach) continue;
 
@@ -256,6 +259,13 @@ int main(int argc, char** argv) {
 
         Metrics metrics = evaluate(inst, solution);
         printTableRow(approach, inst, metrics, runtimeMs);
+        if (approach == "nearest") {
+            // The full tour ignores the campaign length, so say how long it actually needs.
+            double longest = *max_element(metrics.returnTime.begin(), metrics.returnTime.end());
+            printf("    full tour needs %.1f active hours (%.1f days of %.0f h) to get everyone home; the campaign "
+                   "has %.0f\n",
+                   longest, longest / inst.clock.dayHours, inst.clock.dayHours, inst.campaignHours());
+        }
 
         if (!options.routesDir.empty()) {
             writeRoutesCsv(options.routesDir + "/" + approach + "_routes.csv", inst, solution, metrics);
