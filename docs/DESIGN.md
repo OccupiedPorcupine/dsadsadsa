@@ -2,7 +2,7 @@
 
 This document explains what the project solves and how: the problem, the data structures, the algorithms, their complexity, and how the results are checked. It follows the order the presentation needs (motivation → variant → redesign → complexity → trade-offs).
 
-It describes **v2** of the model. What changed from v1, and why, is in [CHANGES_V2.md](CHANGES_V2.md) and summarised in [section 11](#11-v2-changes).
+It describes **v2** of the model, including the fixes made since (GitHub issues #2–#9). What changed from v1, and why, is in [CHANGES_V2.md](CHANGES_V2.md) and summarised in [section 11](#11-v2-changes).
 
 Related documents:
 - [ASSUMPTIONS.md](ASSUMPTIONS.md): every modelling assumption, with reasons.
@@ -55,7 +55,7 @@ The planner has to pick whichever is worth most.
 | Every city must be visited, starting and ending at one depot | There isn't time, so towns are *chosen*; each politician has their own start and end |
 | Minimise distance | Maximise population reached within a time budget |
 
-The baseline shows this directly. Two politicians who each plan as if they were alone pick largely the same towns at the same times. They clash 28 times in the default run and reach 37% less than a coordinated plan.
+The baseline shows this directly. Two politicians who each plan as if they were alone pick largely the same towns at the same times. They clash 28 times in the default run and reach 28% less than A's coordinated plan.
 
 ## 3. The problem we solve
 
@@ -170,7 +170,7 @@ Alternatives considered:
 
 ### 5.4 The reach model (`reach.hpp`)
 [src/reach.cpp](../src/reach.cpp). Three functions over one town's bookings:
-- `rallyReaches(town, rallies)`: each rally's reach under the §3 formula. O(m²) for m rallies in the town (m ≤ k).
+- `rallyReaches(town, rallies)`: each rally's reach under the §3 formula. O(m³) for m rallies in the town (m ≤ k): for each rally, the repeat count is O(m), and the crowd share cuts the rally at up to 2m start and end times and counts who is present in each piece, O(m²).
 - `townReach(town, rallies)`: their sum.
 - `reachGain(town, rallies, added)`: how much the town's total changes if `added` joins. This is the new rally's own reach **minus** what it costs the others: overlap for anyone it clashes with, and a higher repeat count for any rally that comes after it.
 
@@ -300,7 +300,7 @@ insertUntilFull(plan):
 
 - **Insertion anywhere, in any route:** unlike A, a town can go between two existing rallies, and any politician can take it, so nobody gets first pick.
 - **`gain² / delay`:** the scoring rule from the paper. Squaring favours big towns.
-- **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k²)) is only computed for candidates that could beat the best so far.
+- **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k³)) is only computed for candidates that could beat the best so far.
 - **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong. Counting the knock-on change exactly was tried (#7) and didn't help: B still lost to A in the same settings, did worse on the default run, and took about twice as long.
 - **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 3 of 27 settings, by up to 5% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 8 of the same 27 settings (30.97M from empty vs 30.10M from A's plan at k = 3, alpha = 0.5, 14 days). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
 - **Shake and re-timing:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from home:
@@ -333,7 +333,7 @@ Notation:
 - L = total rallies across all routes (L ≤ k·n);
 - I = number of ILS rounds.
 
-At most k rallies share a town, so one reach calculation for a town is O(k²).
+At most k rallies share a town, so one reach calculation for a town is O(k³) (§5.4). k is 2 to 5, so this is a small constant in practice.
 
 | Part | Time | Space |
 |---|---|---|
@@ -344,14 +344,14 @@ At most k rallies share a town, so one reach calculation for a town is O(k²).
 | `Clock` helpers | O(1) | O(1) |
 | Booking table: `earliestFreeTime` | O(k²) worst case | O(L) in total |
 | Booking table: other queries and updates | O(k) | |
-| `reachGain` for one town | O(k²) | O(k) |
+| `reachGain` for one town | O(k³) | O(k) |
 | **Benchmark (nearest neighbour)** | n steps, each scanning up to n towns, for each of k politicians → **O(k · n²)** | O(k · n) |
 | **Baseline** | Same loop as A, but the booking table is empty, so each lookup is O(1) → **O(n · L)** | O(n) |
-| **Approach A** | Each step scans n towns × 2 timings at O(k²) each; L steps in total → **O(k² · n · L)** | O(n + L) |
-| **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k²) each, then O(L · k) to update → **O(k² · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
-| **Approach B**, one round | A shake (O(L · k)), a few insertions, and an exact total reach (O(n · k²)) | |
+| **Approach A** | Each step scans n towns × 2 timings at O(k³) each; L steps in total → **O(k³ · n · L)** | O(n + L) |
+| **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k³) each, then O(L · k) to update → **O(k³ · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
+| **Approach B**, one round | A shake (O(L · k)), a few insertions, and an exact total reach (O(n · k³)) | |
 | **Approach B**, total | 2 runs (from empty, from A's plan) × O(I × insertions per round × cost of one insertion), plus one run of A. Each run is capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
-| Validator | O(L + n · k²) | O(n + L) |
+| Validator | O(L + n · k³) | O(n + L) |
 
 Measured (see [RESULTS.md](RESULTS.md) §7):
 - **A** takes about 0.5 ms at 92 towns and 1.2 ms at 255.
@@ -363,6 +363,7 @@ Measured (see [RESULTS.md](RESULTS.md) §7):
 [src/solution.cpp](../src/solution.cpp) re-checks every plan **independently of the planner that produced it**:
 - **Timing:** each arrival is reachable from the previous finish, each start is after its arrival, and each rally has the right length.
 - **Daily window:** every rally starts and finishes inside one day's window.
+- **Campaign end:** no rally runs past the end of the campaign. Any that do are listed as errors, and they reach nobody (#4).
 - **Rules:** nobody visits a town twice, and every politician is back at **their own** home by the end of the campaign.
 - **Clashes:** every pair of overlapping rallies in the same town is counted, with its overlap in hours. They are reported but don't make a plan invalid.
 - **Reach:** recomputed from scratch with `reach.cpp`, per rally, per politician, and in total. The per-rally figures are written to the routes CSV, so the map shows exactly what the validator computed.
@@ -372,7 +373,9 @@ A plan is reported as `valid` only if there are no errors.
 Checks run on v2:
 - **Stress test:** every baseline, A and B plan was valid in 576 stress-test settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × fixed/random homes × {default, Borneo, 15 towns, 8 h days}. The same holds for every run in [RESULTS.md](RESULTS.md). B also reached at least as many people as A in all 576. The nearest-neighbour benchmark is invalid by design.
 - **Reach consistency:** B's internal running total of reach matched the validator's figure in all 576 stress-test settings.
-- **Clash option:** checked by forcing it. With beta = 0, alpha = 1 and both politicians in KL, A chooses to clash 43 times; with any beta > 0 it never does.
+- **Clash option:** with both politicians in KL and alpha = 0.5, A chooses to clash 43 times at beta = 0 and once at beta = 0.25, and never above the threshold `(1 − alpha) / 2` (RESULTS §3).
+- **Reach model:** the overlap rules (#2, #3) were checked against hand-worked examples, for instance any number of fully overlapping rallies reaching exactly one crowd at beta = 0.5. #2 was also compared against a build with the old rule over 72 settings: every k = 2 result was unchanged.
+- **Options:** `--alpha` and `--clash-penalty` outside [0, 1], or an unknown `--approach`, are rejected (#6), because they would break the reach bound that B's pruning relies on.
 
 ## 9. Trade-offs and limitations
 
@@ -420,3 +423,18 @@ On 2026-10-29 the model changed to what this document describes:
 | 5 | 14 days × 12 active hours; rallies and travel only in the window | §3, §5.2, §5.5, ASSUMPTIONS V3, V8 |
 
 The full list (options, output files, every file in the code, and v1 vs v2 results) is in [CHANGES_V2.md](CHANGES_V2.md).
+
+### Changes since v2
+
+Made on 2026-10-30 and 2026-10-31 through GitHub issues, after a review of v2:
+
+| Issue | Change | Where it is described |
+|---|---|---|
+| #3 | A rally still running counts towards a later rally's repeat penalty only for the part that doesn't overlap, so clashing can pay off | §3, ASSUMPTIONS V12, RESULTS §3 |
+| #4 | Rallies after polling day reach nobody, and the validator flags them | §3, §6.0, §8, ASSUMPTIONS V5 |
+| #5 | The repeat penalty is `alpha^E` at whole E and linear in between, so it fades at alpha = 0 too | §3, ASSUMPTIONS V13 |
+| #6 | Out-of-range `--alpha` and `--clash-penalty`, and unknown approaches, are rejected | §8, README |
+| #7 | B runs its search from empty routes and from A's plan, and keeps the better plan | §6.3, §7, ASSUMPTIONS A6 |
+| #8 | The politicians are teammates planned together, not rival parties | §1, ASSUMPTIONS S8 |
+| #2 | The crowd is split by how many politicians overlap at once | §3, §5.4, §7, ASSUMPTIONS V6 |
+| #9 | Stray files removed, notebook renamed | README |

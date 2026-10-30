@@ -2,9 +2,11 @@
 
 What changed between v1 (commit `94aa4dd`, "Tidy docs and update map colours") and v2, and why. Implemented on 2026-10-29.
 
+Sections 1–10 record v2 as it was first built. Fixes made since, through GitHub issues #2–#9, are marked *after v2* where they change something, and listed in full in [section 11](#11-fixes-since-v2).
+
 Related documents:
 - [DESIGN.md](DESIGN.md): the v2 design in full (problem §3, data structures §5, algorithms §6, complexity §7). §11 maps each change to the section that describes it.
-- [ASSUMPTIONS.md](ASSUMPTIONS.md): assumptions V1–V12. The v1 rows they replace are marked.
+- [ASSUMPTIONS.md](ASSUMPTIONS.md): assumptions V1–V13. The v1 rows they replace are marked.
 - [RESULTS.md](RESULTS.md): all experiments re-run on v2.
 
 ## 1. The five requested changes
@@ -14,7 +16,7 @@ Related documents:
 | 1 | Different starting points, random or fixed | Each politician has their own home base. `--starts fixed` (the default) uses KL, George Town, Johor Bahru, Kota Bharu, Ipoh, Kuantan, Alor Setar in that order. `--starts random --seed N` picks k distinct towns reproducibly. `--starts "A,B,..."` names them. | Everyone started at one HQ in Kuala Lumpur |
 | 2 | Time decay function | Both kinds combined. The **repeat penalty fades**: `alpha^E` with `E = Σ exp(−gap / tauRepeat)`. A **polling-day weight** `w = exp(−(polling − start) / tauPoll)` makes rallies closer to polling day worth more. | `alpha^(number of earlier rallies)`, no matter when they happened |
 | 3 | Must return to their starting point by the end of the campaign | Each politician must be back at **their own** home by the end of day 14. They don't have to go home each night: overnight they stay wherever the day ended. | Back at KL HQ by hour T |
-| 4 | Soft clash rule: wait, clash and share the reach, or go elsewhere | Both planners score every town with two timings, **wait** (until it's free) and **clash** (start now and overlap), and pick whichever adds the most reach per hour. "Go elsewhere" is another town scoring higher. A clashing rally's reach is multiplied by `1 − beta × overlap / rally length` (beta = 0.5). | Clashes were forbidden; a politician always waited |
+| 4 | Soft clash rule: wait, clash and share the reach, or go elsewhere | Both planners score every town with two timings, **wait** (until it's free) and **clash** (start now and overlap), and pick whichever adds the most reach per hour. "Go elsewhere" is another town scoring higher. A clashing rally's reach is multiplied by `1 − beta × overlap / rally length` (beta = 0.5). *Changed after v2 in #3 and #2:* see section 2. | Clashes were forbidden; a politician always waited |
 | 5 | Rallies only in 12 active hours a day, over 2 weeks | 14 days × 12 h (08:00–20:00) = 168 active hours. **Rallies and travel** only happen in the window. A drive can be split across a night; a rally must fit inside one day. | 168 continuous hours, day and night |
 
 ## 2. Reach model
@@ -33,6 +35,8 @@ v2:  reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) 
 - The upper bound behind `% max` changed from `Σ pop × alpha^i` to `k × Σ pop`. With fading decay, the old figure was no longer a true bound (V11).
 - `w` is capped at 1. Only the nearest-neighbour benchmark rallies after polling day, and those rallies can't be worth more than a full crowd. *Replaced after v2 in #4:* a rally after polling day now reaches nobody, and the validator flags it (ASSUMPTIONS V5).
 - *Changed after v2 in #5:* `alpha^E` is now `alpha^E` only at whole E, with straight lines in between. Plain `alpha^E` never fades at alpha = 0, so those results jumped compared with any alpha > 0 (ASSUMPTIONS V13).
+- *Changed after v2 in #3:* a rally still running counts towards a later rally's `E` only for the part that doesn't overlap, `(1 − overlap / rally) × exp(−gap / tauRepeat)`. Before, clashing paid both penalties in full and was never worth choosing (ASSUMPTIONS V12).
+- *Changed after v2 in #2:* `(1 − beta × overlap / rally)` is replaced by a crowd share. While m others rally in the town at the same time, a rally keeps `(1 − beta) / (1 − beta + m × beta)`. With one other this is the same as before; at beta = 0.5 any number of rallies at once reach one crowd between them (ASSUMPTIONS V6).
 
 ## 3. Command-line options
 
@@ -50,9 +54,11 @@ v2:  reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) 
 
 The 7 × 24 h setting (`--days 7 --day-hours 24`) gives v1's 168 continuous hours, but uses v2's reach model.
 
+*Added after v2 in #6:* `--alpha` and `--clash-penalty` must be between 0 and 1, and `--approach` must be a known name. Anything else is an error (exit code 1).
+
 ## 4. Output
 
-**Console table:** a new `clash_h` column (total overlapping hours). `valid` now means "no rule broken". Clashes alone don't make a plan invalid. The header shows the home bases, the window and the decay settings.
+**Console table:** a new `clash_h` column (total overlapping hours). `valid` now means "no rule broken". Clashes alone don't make a plan invalid. The header shows the home bases, the window and the decay settings. *Changed after v2:* rallies after polling day are listed as errors (#4), and the `ILS:` line gives the reach of both of B's runs (#7).
 
 **Files written by `--routes-dir`:**
 
@@ -101,9 +107,11 @@ Code size: about 1,130 lines of C++ (sources and headers) in v1, about 1,460 in 
 | B / A | 1.047 | 1.160 |
 | Waiting | about 0 h | 4–8 h |
 
+These are the figures when v2 was first built. With the fixes since, the default run is now: baseline 13.83M, A 19.33M (fairness 0.91), B 22.30M (fairness 0.87), B / A 1.154 (RESULTS §1).
+
 Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 rally counts for about 0.38). They measure something different from v1's, so the two columns can't be compared directly. The main new findings are in [RESULTS.md §8](RESULTS.md):
 - B's lead over A grew.
-- A and B almost never choose to clash. With beta > 0 they always wait or go elsewhere.
+- A and B almost never choose to clash. With beta > 0 they always wait or go elsewhere. *Changed after v2 in #3:* they now clash when beta < (1 − alpha) / 2, which is 0.25 at the default alpha.
 - The daily window makes waiting matter.
 - The decay settings affect reach more than the choice of algorithm does.
 
@@ -129,3 +137,18 @@ Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 
 - **B's ranking ignores time-dependent knock-on effects.** A ranking that accounts for the whole route, or a final local-search pass on exact reach, could fix the cases where B loses to A. *Addressed after v2 in #7:* exact ranking was tried and didn't stop B losing to A. Instead, B now runs a second time from A's plan and keeps the better plan, so it never ends below A.
 - **Starting-point and decay defaults are first guesses.** RESULTS.md §4–5 shows how sensitive the results are to them.
 - **No fairness term yet.** With alpha = 0 and long campaigns, fairness still drops to 0.00 (RESULTS.md §2). *Changed after v2 in #5:* that came from alpha = 0 never fading. It now drops only as low as 0.38 for A and 0.47 for B (k = 5, alpha = 0, 6 days).
+
+## 11. Fixes since v2
+
+After v2 was built, a review raised the problems below as GitHub issues. Each was fixed in its own commit, and RESULTS.md and every CSV in `results/` were re-run afterwards.
+
+| Issue | Problem | Fix | Commit |
+|---|---|---|---|
+| #3 | Clashing paid the repeat penalty and the overlap penalty in full, so it was never worth choosing | A rally still running counts as a repeat only for the part that doesn't overlap (ASSUMPTIONS V12) | `9637f8c` |
+| #6 | Out-of-range `--alpha` or `--clash-penalty` and misspelt approaches were accepted silently | Rejected with an error and exit code 1 | `a60c584` |
+| #9 | Stray files in the repo | Empty root `main.cpp` deleted, `.DS_Store` and `.ipynb_checkpoints/` untracked, notebook moved to `notebooks/explore_geonames.ipynb` | `848f9f3` |
+| #4 | Rallies after polling day counted at full weight, so the invalid benchmark topped the reach table | They reach nobody, and the validator flags each one (ASSUMPTIONS V5) | `a1e581b` |
+| #8 | Were the politicians teammates or rival parties? | Teammates, planned together (ASSUMPTIONS S8, DESIGN §1) | `fb0e66b` |
+| #7 | B could lose to A | B runs from empty routes and from A's plan, and keeps the better plan (ASSUMPTIONS A6, DESIGN §6.3) | `47ff952` |
+| #2 | Three or more overlapping rallies reached more than one crowd | Crowd share `(1 − beta) / (1 − beta + m × beta)` with m others present (ASSUMPTIONS V6) | `5514bdb` |
+| #5 | At alpha = 0 the repeat penalty never faded, so results jumped compared with any alpha > 0 | `alpha^E` at whole E, linear in between (ASSUMPTIONS V13) | `158d1db` |

@@ -23,6 +23,7 @@ The brief (section 11.3) requires every project to state the AI tools used, how 
 | Documentation | Drafted the README, [ASSUMPTIONS.md](ASSUMPTIONS.md), [DESIGN.md](DESIGN.md), [RESULTS.md](RESULTS.md) and this file. | _TEAM_ |
 | v2 model changes | Asked the team to decide on starting points, the time-decay function, how clash reach is shared, and night travel. Then implemented the agreed changes (own home bases, a 14 × 12 h daily window, time decay, the soft clash rule), re-ran every experiment, and wrote [CHANGES_V2.md](CHANGES_V2.md). | _TEAM_ (chose: fixed default + random homes, both decay types combined, the overlap-weighted penalty, no night travel) |
 | Experiments | Ran the parameter sweeps in [RESULTS.md](RESULTS.md). All numbers come from real runs and are reproducible with the commands given there. | _TEAM_ |
+| Review and fixes after v2 | Reviewed the v2 code and model, drafted GitHub issues #2–#10 for the team to approve, implemented the agreed fixes one commit per issue, checked each against the validator and the old behaviour, and documented the results in the issues and in [CHANGES_V2.md](CHANGES_V2.md) §11. | _TEAM_ (chose: teammates rather than rivals, the overlap-scaled repeat penalty, the crowd split for several overlapping rallies, which issues to fix) |
 
 ## Parts that are the team's own
 

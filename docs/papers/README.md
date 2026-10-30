@@ -1,8 +1,8 @@
 # Reading list: Campaign routing with k politicians
 
-Problem: k politicians, a limited campaign time, maximise population reach with diminishing returns for repeat visits, and no two politicians in the same town at the same time.
+Problem: k politicians from one party, a limited campaign time, maximise population reach with diminishing returns for repeat visits, and a penalty (not a ban) when two or more politicians rally in the same town at the same time.
 
-Literature name: **Team Orienteering Problem (TOP)** + **repeat visits with decaying reward** + **time-based mutual exclusion at vertices**.
+Literature name: **Team Orienteering Problem (TOP)** + **repeat visits with decaying reward** + **soft (priced) time-based mutual exclusion at vertices**.
 We found no paper that combines all three. That gap is the novelty claim.
 
 ## Downloaded (in this folder)
