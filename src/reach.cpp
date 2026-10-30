@@ -28,13 +28,15 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
         for (int j = 0; j < (int)rallies.size(); ++j) {
             if (j == r) continue;
             const Booking& other = rallies[j];
+            double together = max(0.0, min(rally.end, other.end) - max(rally.start, other.start));
             if (startedBefore(other, rally)) {
+                // While both run, the crowd is split (beta) rather than already reached, so an
+                // earlier rally only counts as a repeat for the part of r that doesn't overlap it.
+                double notTogether = 1.0 - min(together, length) / length;
                 double gap = max(0.0, startWall - clock.wallHours(other.end, true));
-                repeats += exp(-gap / inst.tauRepeatHours);
+                repeats += notTogether * exp(-gap / inst.tauRepeatHours);
             }
-            if (other.politician != rally.politician) {
-                overlap += max(0.0, min(rally.end, other.end) - max(rally.start, other.start));
-            }
+            if (other.politician != rally.politician) overlap += together;
         }
         overlap = min(overlap, length);
 

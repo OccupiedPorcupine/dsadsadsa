@@ -2,6 +2,8 @@
 
 All numbers below come from `build/campaign` runs of **v2** of the model: own home bases, a 14 × 12 h daily window, time decay and the soft clash rule (see [CHANGES_V2.md](CHANGES_V2.md)). The raw CSVs are in [results/sweep/](../results/sweep/). The v1 results are in git history (commit `94aa4dd`). They used a different reach model, so they can't be compared number for number.
 
+**Note (2026-10-31):** the overlap rule changed after these results were produced (#3, ASSUMPTIONS V12). Section 3 has been re-run. Elsewhere, A's figures are unchanged, but B's and the baseline's are out of date: the default run is now 13.68M (baseline), 19.02M (A) and 22.67M (B, fairness 0.99). The other sections will be re-run once the remaining model fixes are in.
+
 Runtimes are from a single run on an Apple Silicon Mac (Apple clang 21, `-O2`). They will differ on other machines and vary a little between runs. The other numbers are deterministic.
 
 Column meanings:
@@ -63,17 +65,17 @@ k = 2, alpha = 0.5, 14 days. Shared home (both in KL, the case most likely to cl
 
 | beta | Homes | Baseline reach (clashes) | A reach | A clashes | A wait (h) | B reach | B clashes | B wait (h) |
 |---|---|---|---|---|---|---|---|---|
-| 0 | KL, KL | 16.13 (43) | 19.05 | **2** | 9.1 | 23.42 | 0 | 1.6 |
-| 0 | KL, George Town | 17.00 (28) | 19.02 | 0 | 4.1 | 21.79 | 0 | 1.6 |
-| 0.25 | KL, KL | 12.10 (43) | 19.20 | 0 | 7.8 | 22.78 | 0 | 3.3 |
-| 0.25 | KL, George Town | 14.51 (28) | 19.02 | 0 | 4.1 | 22.67 | 0 | 2.1 |
-| 0.5 | KL, KL | 8.06 (43) | 19.20 | 0 | 7.8 | 22.78 | 0 | 3.3 |
-| 0.5 | KL, George Town | 12.02 (28) | 19.02 | 0 | 4.1 | 22.06 | 0 | 7.7 |
+| 0 | KL, KL | 21.50 (43) | 21.50 | **43** | 6.5 | 22.75 | **1** | 3.9 |
+| 0 | KL, George Town | 20.32 (28) | 19.74 | **6** | 9.2 | 22.05 | **2** | 5.8 |
+| 0.25 | KL, KL | 16.13 (43) | 19.05 | **2** | 9.1 | 23.42 | 0 | 1.6 |
+| 0.25 | KL, George Town | 17.00 (28) | 19.02 | 0 | 4.1 | 21.79 | 0 | 1.6 |
+| 0.5 | KL, KL | 10.75 (43) | 19.20 | 0 | 7.8 | 22.78 | 0 | 3.3 |
+| 0.5 | KL, George Town | 13.68 (28) | 19.02 | 0 | 4.1 | 22.67 | 0 | 2.1 |
 | 1 | KL, KL | 0.00 (43) | 19.20 | 0 | 7.8 | 22.78 | 0 | 3.3 |
-| 1 | KL, George Town | 7.04 (28) | 19.02 | 0 | 4.1 | 22.10 | 0 | 3.5 |
+| 1 | KL, George Town | 7.05 (28) | 19.02 | 0 | 4.1 | 22.10 | 0 | 3.5 |
 
-- **Clashing is almost never worth it.** Even at beta = 0, a clash only saves the waiting time, and the clashing rally still pays the full repeat penalty, because the other rally is happening at that moment. With beta > 0, A and B always wait or go elsewhere.
-- **The exception:** with alpha = 1 and beta = 0, clashing is free. Both homes in KL then gives 43 clashes for A (k = 2). With k = 5 and everyone in KL, A clashes 430 times and B only twice.
+- **Clashing is a real trade-off.** While two rallies overlap, the crowd is split (beta) instead of counted as already reached (ASSUMPTIONS V12). A full overlap reaches `2 × (1 − beta)` crowds in total, against `1 + alpha` for two rallies one after the other, so on reach alone clashing wins when beta < (1 − alpha) / 2 (0.25 at the default alpha). At or below that, A clashes; above it, A and B wait or go elsewhere.
+- **At beta = 0 a full overlap costs nothing**, so A with both homes in KL follows the same route as the baseline (43 clashes). B still finds a better plan with almost no clashes, by spreading the two politicians out.
 - **The baseline shows what coordination is worth.** At beta = 1 with a shared home, both uncoordinated politicians follow identical routes, overlap completely, and reach nobody.
 
 ## 4. Starting points
@@ -137,7 +139,7 @@ B is about 1.7× slower than in v1 at 92 towns, because each candidate now tries
 
 1. **Classic single-traveller planning still fails.** Nearest neighbour overruns the budget by more than 100 h. The uncoordinated baseline is now *valid*, but it reaches 37% less than A at the default settings, mostly because of its 28 clashes. At beta = 1 with a shared home it reaches nobody.
 2. **B beats A in 17 of 18 settings** (by 2–24%). It loses only at k = 5, alpha = 0.5, 6 days (−3.8%). Its biggest wins come with alpha = 0 and long campaigns, where *when* each town is visited matters most.
-3. **The soft clash rule is almost never used** by A or B, except when clashing is free (beta = 0 and alpha = 1). The repeat penalty already applies in full to two simultaneous rallies, so waiting a little, or going elsewhere and coming back days later, is nearly always worth more. This supports the original hard rule as a good approximation.
+3. **The soft clash rule is used when the overlap penalty is mild.** A clashes when beta < (1 − alpha) / 2 (beta ≤ 0.25 at the default alpha); above that, A and B wait or go elsewhere. B clashes far less than A at the same settings, because it can spread politicians out instead.
 4. **The daily window makes coordination matter.** Waiting goes from about 0 in v1 to as much as 27 h (4–8 h at the default settings), because every evening blocks out the late slots.
 5. **Where politicians start barely matters** for total reach (±3%), but it does help fairness. With separate homes, A's fairness rises from 0.68 (v1) to 0.90.
 6. **Maximising reach still isn't fair.** With alpha = 0 and a long campaign, fairness drops to 0.00–0.06 at k = 3 and 5. Nothing in the objective rewards using every politician.

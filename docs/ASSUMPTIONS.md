@@ -67,13 +67,12 @@ These replace the rows named in the last column. Rows that have been replaced ar
 | V9 | Home bases are matched to rally towns by name. A name that isn't a rally town (for example with `--max-towns 15`) is looked up among every populated place in the file. With more politicians than names, the list starts again from the top, so two politicians can share a home. | Lets any town be a base without changing the rally towns. | S3 |
 | V10 | `--starts random` uses its own Fisher-Yates shuffle on `mt19937`. | `std::shuffle` can give different orders with different standard libraries, which would make seeded results depend on the machine. | — |
 | V11 | The upper bound for `% max` is every politician reaching every town's full population once: `k × Σ population`. | With fading decay a late repeat rally can be worth almost a full crowd, so the v1 bound (`Σ pop × alpha^i`) is no longer a true upper bound. | — |
-| V12 | When a clashing rally starts, the one already running counts in full towards the repeat penalty (gap 0, so E += 1), on top of the overlap penalty. | The repeat penalty is about audiences already reached; beta is about the split crowd and the security cost. As a result, clashing is rarely chosen (see [RESULTS.md §3](RESULTS.md)). | — |
+| V12 | An earlier rally counts towards a later one's repeat penalty only for the part of the later rally that doesn't overlap it: `E += (1 − overlap / rally length) × exp(−gap / tauRepeat)`. A full overlap pays only beta; no overlap pays the full repeat penalty. | While both rallies run, the crowd is split between them (beta), not already reached. Counting it in full as well (the first v2 rule) made clashing always worse than waiting, so the soft clash rule never fired (#3). Scaling by overlap keeps the score continuous, so a 1-minute overlap can't dodge the repeat penalty. Clashing now wins on reach when beta < (1 − alpha) / 2 (see [RESULTS.md §3](RESULTS.md)). | — |
 
 ## Open questions
 
 - Should a politician be allowed to return to a town later in the campaign? See S6. This becomes more relevant under V4, because a revisit days later is worth almost the full population.
 - Default values for tauRepeat, tauPoll and beta (V4–V6) are first guesses. The first sensitivity sweeps are in [RESULTS.md](RESULTS.md) §3 and §5. tauPoll matters most, and needs a justification.
-- Should two simultaneous rallies skip the repeat penalty and pay only beta (V12)? As things stand, the soft clash rule is almost never chosen.
 - Exact solver for small instances (about 10 towns), to measure how far A and B are from the best possible plan.
 - Fix the duplicate towns that survive merging. See D3 and the known data issue.
 
@@ -84,3 +83,4 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-29: Agreed the v2 plan (V1–V7): separate home bases, return home by the end of the campaign, 14 × 12 h daily window, time decay (fading repeat penalty and polling-day weight), and a soft clash rule.
 - 2026-10-29: Implemented v2 (V1–V7), and added V8–V12 for decisions made while building it. Capped the polling-day weight at 1 (V5).
 - 2026-10-29: Updated S7 and A0–A3 for v2, and added the V12 open question.
+- 2026-10-31: Changed V12 so overlapping rallies only count as repeats for their non-overlapping part (#3). Closed the V12 open question.

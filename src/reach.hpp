@@ -9,7 +9,8 @@
 //
 //   reach(r) = pop(c) * alpha^E(r) * w(start) * (1 - beta * overlap(r) / rally(c))
 //
-//   E(r)       sum over rallies j that started earlier in c of exp(-(start_r - finish_j) / tauRepeat)
+//   E(r)       sum over rallies j that started earlier in c of
+//              (1 - overlap(r, j) / rally(c)) * exp(-(start_r - finish_j) / tauRepeat)
 //   w(s)       exp(-(polling day - s) / tauPoll)
 //   overlap(r) hours of r that overlap other politicians' rallies in c, at most rally(c)
 //

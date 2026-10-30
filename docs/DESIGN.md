@@ -90,14 +90,15 @@ Maximise total reach. A rally r in town c reaches
 ```
 reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) / rally(c))
 
-E(r)       = Σ over rallies j that started earlier in c of exp(−(start_r − finish_j) / tauRepeat)   fading repeat count
+E(r)       = Σ over rallies j that started earlier in c of
+             (1 − overlap(r, j) / rally(c)) × exp(−(start_r − finish_j) / tauRepeat)             fading repeat count
 w(s)       = exp(−max(0, polling − s) / tauPoll)                                                 polling-day weight
 overlap(r) = hours of r that overlap other politicians' rallies in c, capped at rally(c)
 ```
 
 - **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again.
 - **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one.
-- **Clash penalty.** A 10-minute overlap costs little. A full overlap cuts both rallies by `beta`. The later of the two also pays the repeat penalty, because the other rally is happening at the same moment (E grows by 1).
+- **Clash penalty.** A 10-minute overlap costs little. A full overlap cuts both rallies by `beta`. While two rallies overlap, the crowd is split rather than already reached, so the earlier one only counts towards the later one's repeat penalty for the part that doesn't overlap (ASSUMPTIONS V12). A full overlap pays only `beta`; a rally that starts just as the other ends pays the full repeat penalty, and everything in between is in proportion. On reach alone, a full overlap beats waiting when `beta < (1 − alpha) / 2`.
 - **Time scale for decay.** Gaps in `E` and `w` are measured in **wall-clock hours** (nights included), because people forget overnight too. Everything else uses the active clock.
 
 A town's total reach therefore depends on *when* its rallies happen, not only on how many there are.
@@ -366,7 +367,7 @@ Checks run on v2:
 
 - **A vs B:** A is more than 100× faster and simple to explain. B reaches more people in 17 of 18 settings (by up to 24%) and is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
-- **The soft clash rule is rarely used.** The rally already running counts as a full repeat (ASSUMPTIONS V12), so with any beta > 0, waiting or going elsewhere always wins. If the rule should matter more, the repeat penalty between two simultaneous rallies could be dropped.
+- **The soft clash rule only matters when beta is small.** Planners clash when `beta < (1 − alpha) / 2` (0.25 at the default alpha); at the default beta = 0.5 they always wait or go elsewhere (RESULTS §3).
 - **B's ranking ignores time-dependent knock-on effects** (§6.3). It is the likely reason B can lose to A when the polling-day weight is off.
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
