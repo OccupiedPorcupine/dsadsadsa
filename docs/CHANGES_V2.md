@@ -107,7 +107,7 @@ Code size: about 1,130 lines of C++ (sources and headers) in v1, about 1,460 in 
 | B / A | 1.047 | 1.160 |
 | Waiting | about 0 h | 4–8 h |
 
-These are the figures when v2 was first built. With the fixes since, the default run is now: baseline 13.83M, A 19.33M (fairness 0.91), B 22.30M (fairness 0.87), B / A 1.154 (RESULTS §1).
+These are the figures when v2 was first built. With the fixes since, the default run (now 90 towns) is: budgeted nearest neighbour 16.89M, baseline 15.03M, A 17.06M (fairness 0.91), B 19.96M (fairness 0.90), B / A 1.170 (RESULTS §1).
 
 Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 rally counts for about 0.38). They measure something different from v1's, so the two columns can't be compared directly. The main new findings are in [RESULTS.md §8](RESULTS.md):
 - B's lead over A grew.
@@ -140,7 +140,7 @@ Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 
 
 ## 11. Fixes since v2
 
-After v2 was built, a review raised the problems below as GitHub issues. Each was fixed in its own commit, and RESULTS.md and every CSV in `results/` were re-run afterwards.
+After v2 was built, a review raised the problems below as GitHub issues. Each was fixed in its own commit, and RESULTS.md and every CSV in `results/` were re-run after the last one.
 
 | Issue | Problem | Fix | Commit |
 |---|---|---|---|
@@ -152,3 +152,7 @@ After v2 was built, a review raised the problems below as GitHub issues. Each wa
 | #7 | B could lose to A | B runs from empty routes and from A's plan, and keeps the better plan (ASSUMPTIONS A6, DESIGN §6.3) | `47ff952` |
 | #2 | Three or more overlapping rallies reached more than one crowd | Crowd share `(1 − beta) / (1 − beta + m × beta)` with m others present (ASSUMPTIONS V6) | `5514bdb` |
 | #5 | At alpha = 0 the repeat penalty never faded, so results jumped compared with any alpha > 0 | `alpha^E` at whole E, linear in between (ASSUMPTIONS V13) | `158d1db` |
+| — | The `clash` column in the routes CSV missed overlaps the planner didn't choose (the baseline's) | Written from the validator | `7ab845b` |
+| — | `--routes-dir` and `--summary` into a missing folder wrote nothing, silently | Folders are created, or the run stops with an error | `8ce405e` |
+| #11 | Five places carried a district's population on top of their city, inflating the JB area to 4.0M and the total to 24.0M | Dropped via `data/excluded_places.csv` (ASSUMPTIONS D6); 90 towns | `98dff91` |
+| #12 | The nearest-neighbour benchmark visits every town, so it's never valid and can't be compared | Kept as the full tour (which now reports it needs 22 days), plus a budgeted version that stops when it must head home (ASSUMPTIONS A7) | `50e401f` |
