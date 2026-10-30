@@ -110,7 +110,11 @@ Metrics evaluate(const Instance& inst, const Solution& solution) {
 
     // Reach is recomputed from scratch with the full model. Any two rallies in a town that
     // overlap in time are a clash.
-    for (int p = 0; p < numPoliticians; ++p) metrics.visitReach[p].assign(solution.routes[p].size(), 0.0);
+    metrics.visitClash.assign(numPoliticians, {});
+    for (int p = 0; p < numPoliticians; ++p) {
+        metrics.visitReach[p].assign(solution.routes[p].size(), 0.0);
+        metrics.visitClash[p].assign(solution.routes[p].size(), false);
+    }
     for (int town = 0; town < inst.numTowns(); ++town) {
         const vector<Rally>& rallies = ralliesByTown[town];
         vector<Booking> bookings;
@@ -130,6 +134,8 @@ Metrics evaluate(const Instance& inst, const Solution& solution) {
                 if (overlap > TOLERANCE) {
                     metrics.clashes++;
                     metrics.clashHours += overlap;
+                    metrics.visitClash[a.politician][rallies[i].visitNumber] = true;
+                    metrics.visitClash[b.politician][rallies[j].visitNumber] = true;
                 }
             }
         }

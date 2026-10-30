@@ -124,7 +124,8 @@ static void printTableRow(const string& approach, const Instance& inst, const Me
 }
 
 // One row per rally. Times are active hours; day is 1-based. return_h (when that politician gets
-// back home) repeats on each of their rows. clash is 1 if the rally overlaps someone else's.
+// back home) repeats on each of their rows. clash is 1 if the rally overlaps someone else's, as
+// found by the validator: a planner's own flag misses overlaps it didn't plan, like the baseline's.
 static void writeRoutesCsv(const string& path, const Instance& inst, const Solution& solution,
                            const Metrics& metrics) {
     ofstream out(path);
@@ -135,7 +136,7 @@ static void writeRoutesCsv(const string& path, const Instance& inst, const Solut
             const Town& town = inst.towns[visit.town];
             out << p << ',' << i << ',' << town.geonameId << ",\"" << town.name << "\"," << town.lat << ','
                 << town.lon << ',' << town.population << ',' << visit.arrive << ',' << visit.start << ','
-                << visit.finish << ',' << inst.clock.dayOf(visit.start) + 1 << ',' << (visit.clash ? 1 : 0) << ','
+                << visit.finish << ',' << inst.clock.dayOf(visit.start) + 1 << ',' << (metrics.visitClash[p][i] ? 1 : 0) << ','
                 << metrics.visitReach[p][i] << ',' << metrics.returnTime[p] << '\n';
         }
     }

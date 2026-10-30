@@ -25,6 +25,7 @@ struct Metrics {
     double reach = 0;
     std::vector<double> reachByPolitician;
     std::vector<std::vector<double>> visitReach;  // visitReach[p][i]: reach of politician p's i-th rally
+    std::vector<std::vector<bool>> visitClash;    // visitClash[p][i]: that rally overlaps someone else's
     std::vector<double> returnTime;         // when each politician gets back to their home base
     int visits = 0;
     int clashes = 0;                        // pairs of rallies in the same town at overlapping times
