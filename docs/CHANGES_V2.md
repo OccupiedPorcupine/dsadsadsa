@@ -86,7 +86,7 @@ Code size: about 1,130 lines of C++ (sources and headers) in v1, about 1,460 in 
 
 - **Approach A** still only appends to the end of a route. It now chooses a timing (wait or clash) as well as a town, and its score is the change in total reach, which includes the penalty a clash puts on the other politician's rally.
 - **Approach B** keeps the O(1) feasibility check. `maxShift = max(0, min(slack before next other booking, slack before 20:00, what the next visit can absorb))`. Clashes are only created on purpose, at the visit being inserted. A later visit is never pushed into one.
-- **Approach B, ranking:** candidates are ranked using the reach change in the inserted town only. The small change in reach of the later rallies it pushes back (through `w` and `E`) is ignored when ranking. Each round's total reach is always exact. One consequence is in [RESULTS.md §5](RESULTS.md): with the polling-day weight turned off, B can lose to A.
+- **Approach B, ranking:** candidates are ranked using the reach change in the inserted town only. The small change in reach of the later rallies it pushes back (through `w` and `E`) is ignored when ranking. Each round's total reach is always exact. One consequence is in [RESULTS.md §5](RESULTS.md): with the polling-day weight turned off, B can lose to A. *Addressed after v2 in #7:* B now also runs from A's plan and keeps the better result (DESIGN §6.3).
 - **The baseline** is now valid in every run. Its clashes cost it reach instead of making the plan invalid.
 
 ## 7. Effect on the results (default run)
@@ -125,6 +125,6 @@ Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 
 ## 10. Known gaps and next steps
 
 - **Clashes are rarely chosen** (V12). *Addressed after v2 in #3:* an overlapping rally now only counts as a repeat for its non-overlapping part, so a full overlap pays only `beta`. See ASSUMPTIONS V12 and RESULTS §3.
-- **B's ranking ignores time-dependent knock-on effects.** A ranking that accounts for the whole route, or a final local-search pass on exact reach, could fix the cases where B loses to A.
+- **B's ranking ignores time-dependent knock-on effects.** A ranking that accounts for the whole route, or a final local-search pass on exact reach, could fix the cases where B loses to A. *Addressed after v2 in #7:* exact ranking was tried and didn't stop B losing to A. Instead, B now runs a second time from A's plan and keeps the better plan, so it never ends below A.
 - **Starting-point and decay defaults are first guesses.** RESULTS.md §4–5 shows how sensitive the results are to them.
 - **No fairness term yet.** With alpha = 0 and long campaigns, fairness still drops to 0.00 (RESULTS.md §2).

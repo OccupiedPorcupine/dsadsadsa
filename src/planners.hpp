@@ -21,9 +21,12 @@ struct IlsParams {
 };
 
 struct IlsStats {
-    int iterations = 0;
+    int iterations = 0;    // over both runs
     int improvements = 0;
+    double reachFromEmpty = 0;  // best reach of the run that starts from empty routes
+    double reachFromA = 0;      // best reach of the run that starts from Approach A's plan
 };
 
-// Approach B: iterated local search over all politicians together (see ils.cpp).
+// Approach B: iterated local search over all politicians together (see ils.cpp). It runs twice,
+// once from empty routes and once from Approach A's plan, and returns the better plan.
 Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats = nullptr);

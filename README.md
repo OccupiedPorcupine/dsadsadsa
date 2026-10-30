@@ -91,7 +91,7 @@ What the map shows:
 | **Benchmark: classic nearest neighbour** | The brief's textbook TSP heuristic: a tour through every town, closest first, from each politician's home. Ignores population, the time budget and other politicians. | Visited flags |
 | **Baseline: uncoordinated** | Each politician plans greedily as if alone, which is classic single-traveller thinking. Clashes freely and pays the penalty. | Visited flags |
 | **A: sequential greedy** | Politicians are planned one after another. Each appends the town and timing (wait or clash) with the best `reach gain / (travel + wait + rally hours)`. | `BookingTable` (per-town sorted intervals) |
-| **B: iterated local search** | All politicians at once. Insert the best `(town, politician, position, timing)` by `gain^2 / extra time`, then shake (remove runs of visits) and repeat. Based on Vansteenwegen et al. (2009). | `BookingTable` + per-visit `{arrive, start, finish, mode, maxShift}`. `maxShift` includes the slack before the next clash and before the day's window closes, so each insertion is checked in O(1) |
+| **B: iterated local search** | All politicians at once. Insert the best `(town, politician, position, timing)` by `gain^2 / extra time`, then shake (remove runs of visits) and repeat. Based on Vansteenwegen et al. (2009). Runs twice, from empty routes and from A's plan, and keeps the better plan, so it never ends below A. | `BookingTable` + per-visit `{arrive, start, finish, mode, maxShift}`. `maxShift` includes the slack before the next clash and before the day's window closes, so each insertion is checked in O(1) |
 
 ## Data and preprocessing
 

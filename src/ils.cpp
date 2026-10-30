@@ -6,6 +6,9 @@
 //   2. Shake:   remove a few visits from every route, so the next round can try other choices.
 // The best plan seen in any round is the answer.
 //
+// The search runs twice: from empty routes, as in the paper, and from Approach A's plan. Neither
+// start is always better (#7), so the better of the two plans is returned.
+//
 // What makes insertion fast is maxShift. For every planned visit we store how much later it
 // could start without causing trouble further along the route (running into another politician's
 // rally, running past the end of the day's window, or getting home too late). Checking whether
@@ -50,6 +53,7 @@ class IlsPlanner {
 public:
     explicit IlsPlanner(const Instance& instance);
 
+    void load(const Solution& plan);
     void insertUntilFull();
     void shake(int firstPosition, int howMany);
 
@@ -149,6 +153,19 @@ void IlsPlanner::tryInsertion(int politician, int town, int position, Insertion&
             best = {politician, position, town, arrive, start, clash, score};
         }
     }
+}
+
+// Starts from an existing valid plan instead of empty routes. Its rallies keep their times and
+// timing modes; only maxShift has to be worked out.
+void IlsPlanner::load(const Solution& plan) {
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        for (const Visit& visit : plan.routes[p]) {
+            routes[p].push_back({visit.town, visit.arrive, visit.start, visit.finish, visit.clash, 0});
+            bookings.book(visit.town, visit.start, visit.finish, p);
+            inRoute[p][visit.town] = true;
+        }
+    }
+    updateMaxShifts();
 }
 
 void IlsPlanner::insertUntilFull() {
@@ -284,11 +301,19 @@ Solution IlsPlanner::currentPlan() const {
     return plan;
 }
 
-Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats) {
-    IlsPlanner planner(inst);
-    planner.insertUntilFull();
+// One run of the search, from whatever `planner` holds now. Returns the best plan seen and sets
+// `bestReach` to its reach. Adds its rounds and improvements to `stats`.
+static Solution search(const Instance& inst, IlsPlanner& planner, const IlsParams& params,
+                       double& bestReach, IlsStats& stats) {
+    // The starting plan counts too. Filling it up can lower its reach, because insertions are
+    // ranked on the inserted town alone, and a run from A's plan must never end below A.
     Solution bestPlan = planner.currentPlan();
-    double bestReach = planner.totalReach();
+    bestReach = planner.totalReach();
+    planner.insertUntilFull();
+    if (planner.totalReach() > bestReach + EPS) {
+        bestPlan = planner.currentPlan();
+        bestReach = planner.totalReach();
+    }
 
     // Shake schedule from the paper: the removal point moves along the route and the number
     // removed grows by one each round. It goes back to 1 after an improvement, or once it
@@ -298,7 +323,6 @@ Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats
     int removeCount = 1;
     int roundsWithoutImprovement = 0;
     int iterations = 0;
-    int improvements = 0;
 
     while (iterations < params.maxIterations && roundsWithoutImprovement < params.maxNoImprove) {
         iterations++;
@@ -311,7 +335,7 @@ Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats
             bestReach = reach;
             removeCount = 1;
             roundsWithoutImprovement = 0;
-            improvements++;
+            stats.improvements++;
         } else {
             roundsWithoutImprovement++;
         }
@@ -322,9 +346,21 @@ Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats
         if (removeCount > maxRemove) removeCount = 1;
     }
 
-    if (stats != nullptr) {
-        stats->iterations = iterations;
-        stats->improvements = improvements;
-    }
+    stats.iterations += iterations;
     return bestPlan;
+}
+
+Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats) {
+    IlsStats counts;
+
+    IlsPlanner fromEmpty(inst);
+    Solution planFromEmpty = search(inst, fromEmpty, params, counts.reachFromEmpty, counts);
+
+    // Starting from A's plan means B can never end up below A.
+    IlsPlanner fromA(inst);
+    fromA.load(solveSequential(inst));
+    Solution planFromA = search(inst, fromA, params, counts.reachFromA, counts);
+
+    if (stats != nullptr) *stats = counts;
+    return counts.reachFromA > counts.reachFromEmpty + EPS ? planFromA : planFromEmpty;
 }

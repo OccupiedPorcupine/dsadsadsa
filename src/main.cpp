@@ -253,7 +253,9 @@ int main(int argc, char** argv) {
     }
 
     if (options.approach == "all" || options.approach == "ils") {
-        printf("\nILS: %d iterations, %d improvements\n", ilsStats.iterations, ilsStats.improvements);
+        printf("\nILS: %d iterations, %d improvements over two runs. Best reach from empty routes %.0f, "
+               "from A's plan %.0f\n",
+               ilsStats.iterations, ilsStats.improvements, ilsStats.reachFromEmpty, ilsStats.reachFromA);
     }
     return 0;
 }

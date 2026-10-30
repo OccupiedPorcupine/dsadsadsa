@@ -265,17 +265,23 @@ for politician p = 1..k:
 [src/ils.cpp](../src/ils.cpp), based on Vansteenwegen, Souffriau, Vanden Berghe and Van Oudheusden (2009).
 
 ```
-plan = empty routes for every politician
-insertUntilFull(plan);  best = plan
-removeFrom = 0;  removeCount = 1
-while rounds < 5000 and roundsWithoutImprovement < 150:
-    shake(plan, removeFrom, removeCount)       # drop removeCount visits in a row from every route
-    insertUntilFull(plan)
-    if reach(plan) > reach(best): best = plan;  removeCount = 1    # exact reach, from reach.cpp
-    removeFrom += removeCount;  removeCount += 1
-    removeFrom %= length of the shortest route
-    if removeCount > n / (3k): removeCount = 1
-return best
+solveIls:
+    best1 = search(empty routes for every politician)
+    best2 = search(A's plan)
+    return whichever reaches more
+
+search(plan):
+    best = plan;  insertUntilFull(plan)
+    if reach(plan) > reach(best): best = plan
+    removeFrom = 0;  removeCount = 1
+    while rounds < 5000 and roundsWithoutImprovement < 150:
+        shake(plan, removeFrom, removeCount)       # drop removeCount visits in a row from every route
+        insertUntilFull(plan)
+        if reach(plan) > reach(best): best = plan;  removeCount = 1    # exact reach, from reach.cpp
+        removeFrom += removeCount;  removeCount += 1
+        removeFrom %= length of the shortest route
+        if removeCount > n / (3k): removeCount = 1
+    return best
 
 insertUntilFull(plan):
     repeat:
@@ -294,16 +300,17 @@ insertUntilFull(plan):
 - **Insertion anywhere, in any route:** unlike A, a town can go between two existing rallies, and any politician can take it, so nobody gets first pick.
 - **`gain² / delay`:** the scoring rule from the paper. Squaring favours big towns.
 - **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k²)) is only computed for candidates that could beat the best so far.
-- **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong.
+- **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong. Counting the knock-on change exactly was tried (#7) and didn't help: B still lost to A in the same settings, did worse on the default run, and took about twice as long.
+- **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 3 of 27 settings, by up to 6% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 11 of the same 27 settings (22.67M from empty vs 21.65M from A's plan in the default run). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
 - **Shake and re-timing:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from home:
   - a `clash` rally starts as early as the window allows;
   - a `wait` rally starts when the town is free.
 
   Neither can start later than before, because its old slot is still feasible. One exception: another politician's `clash` rally may have moved into a `wait` rally's old slot. That rally then keeps its old start and becomes a clash itself. Rallies therefore never move later, and every route still gets home in time.
 - **Weaknesses:**
-  - It is slower than A.
+  - It is slower than A, and running it twice doubles that.
   - The objective has no fairness term; at alpha = 0 it can give every town to one politician.
-  - The ranking above can misjudge time-dependent reach. With the polling-day weight off, B can lose to A (see [RESULTS.md](RESULTS.md) §5).
+  - From empty routes, the search is weakest when the polling-day weight is off. There B ends up only 0.4–2.8% above A, and in two of those three settings that comes from the run seeded with A's plan (see [RESULTS.md](RESULTS.md) §5).
 
 ### 6.4 The two approaches side by side
 
@@ -313,6 +320,7 @@ insertUntilFull(plan):
 | Where a town can go | End of the route only | Any position, any route |
 | Timing choices | Wait or clash | Wait or clash |
 | Revisits earlier choices | Never | Yes, via shake + re-insert |
+| Starting point | Empty routes | Two runs: empty routes, and A's plan |
 | Data structures | Booking table, `Clock`, reach model | Booking table, `Clock`, reach model, per-visit `maxShift` |
 | Feasibility check | Simulate one step forward | O(1) comparison against `maxShift` |
 | Literature origin | Prioritised planning (Silver 2005) | ILS for team orienteering with time windows (Vansteenwegen 2009) |
@@ -341,13 +349,13 @@ At most k rallies share a town, so one reach calculation for a town is O(k²).
 | **Approach A** | Each step scans n towns × 2 timings at O(k²) each; L steps in total → **O(k² · n · L)** | O(n + L) |
 | **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k²) each, then O(L · k) to update → **O(k² · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
 | **Approach B**, one round | A shake (O(L · k)), a few insertions, and an exact total reach (O(n · k²)) | |
-| **Approach B**, total | O(I × insertions per round × cost of one insertion). Capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
+| **Approach B**, total | 2 runs (from empty, from A's plan) × O(I × insertions per round × cost of one insertion), plus one run of A. Each run is capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
 | Validator | O(L + n · k²) | O(n + L) |
 
 Measured (see [RESULTS.md](RESULTS.md) §7):
 - **A** takes about 0.4 ms at 92 towns and 1.2 ms at 255.
-- **B** takes 2 ms at 15 towns, about 215 ms at 92, and about 0.8 s at 255.
-- **v1 comparison:** B is about 1.7× slower than in v1 at 92 towns. That comes from the two timings per candidate and the full reach model, with pruning keeping it far below the worst case.
+- **B** takes 2 ms at 15 towns, about 290 ms at 92, and about 1.8 s at 255.
+- **v1 comparison:** B is about 2.3× slower than in v1 at 92 towns. That comes from the two timings per candidate, the full reach model, and (since #7) running the search twice. Pruning keeps it far below the worst case.
 
 ## 8. How results are checked
 
@@ -361,16 +369,16 @@ Measured (see [RESULTS.md](RESULTS.md) §7):
 A plan is reported as `valid` only if there are no errors.
 
 Checks run on v2:
-- **Stress test:** every baseline, A and B plan was valid in 576 stress-test settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × fixed/random homes × {default, Borneo, 15 towns, 8 h days}. The same holds for every run in [RESULTS.md](RESULTS.md). The nearest-neighbour benchmark is invalid by design.
-- **Reach consistency:** B's internal running total of reach matched the validator's figure exactly on the runs checked.
+- **Stress test:** every baseline, A and B plan was valid in 576 stress-test settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × fixed/random homes × {default, Borneo, 15 towns, 8 h days}. The same holds for every run in [RESULTS.md](RESULTS.md). B also reached at least as many people as A in all 576. The nearest-neighbour benchmark is invalid by design.
+- **Reach consistency:** B's internal running total of reach matched the validator's figure in all 576 stress-test settings.
 - **Clash option:** checked by forcing it. With beta = 0, alpha = 1 and both politicians in KL, A chooses to clash 43 times; with any beta > 0 it never does.
 
 ## 9. Trade-offs and limitations
 
-- **A vs B:** A is more than 100× faster and simple to explain. B reaches more people in 17 of 18 settings (by up to 24%) and is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
+- **A vs B:** A is more than 100× faster and simple to explain. B reaches at least as many people as A in every setting, because one of its two runs starts from A's plan (#7). It is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
 - **The soft clash rule only matters when beta is small.** Planners clash when `beta < (1 − alpha) / 2` (0.25 at the default alpha); at the default beta = 0.5 they always wait or go elsewhere (RESULTS §3).
-- **B's ranking ignores time-dependent knock-on effects** (§6.3). It is the likely reason B can lose to A when the polling-day weight is off.
+- **B's search from empty routes can still lose to A** (§6.3), by up to 6% when the polling-day weight is off. The run from A's plan covers this, but the gain over A in those settings is small (0.4–2.8%). Ranking on the exact knock-on reach was tried and was not the fix.
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
 - **The objective ignores fairness.** B can leave a politician idle when alpha = 0.
