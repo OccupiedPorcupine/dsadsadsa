@@ -4,6 +4,8 @@ All numbers below come from `build/campaign` runs of **v2** of the model: own ho
 
 **Note (2026-10-31):** the overlap rule changed after these results were produced (#3, ASSUMPTIONS V12). Section 3 has been re-run. Elsewhere, A's figures are unchanged, but B's and the baseline's are out of date: the default run is now 13.68M (baseline), 19.02M (A) and 22.67M (B, fairness 0.99). The other sections will be re-run once the remaining model fixes are in.
 
+**Note (2026-10-31):** rallies after polling day now reach nobody (#4, ASSUMPTIONS V5). This only changes the nearest-neighbour benchmark. Its row in section 1 has been updated; its rows in the sweep CSVs are out of date.
+
 Runtimes are from a single run on an Apple Silicon Mac (Apple clang 21, `-O2`). They will differ on other machines and vary a little between runs. The other numbers are deterministic.
 
 Column meanings:
@@ -20,12 +22,12 @@ Column meanings:
 
 | Approach | Reach | % max | Rallies | Clashes | Travel (h) | Wait (h) | Fairness | Valid | Runtime |
 |---|---|---|---|---|---|---|---|---|---|
-| Classic nearest neighbour (benchmark) | *33.64M* | *70.2%* | 184 | 1 | 95.5 | 43.8 | 0.88 | **no** | < 0.1 ms |
+| Classic nearest neighbour (benchmark) | 18.64M | 38.9% | 184 | 1 | 95.5 | 43.8 | 0.95 | **no** | < 0.1 ms |
 | Uncoordinated (baseline) | 12.02M | 25.1% | 85 | **28** (69.5 h) | 108.7 | 6.5 | 0.63 | yes | 0.3 ms |
 | A: one at a time | 19.02M | 39.7% | 84 | 0 | 113.5 | 4.1 | 0.90 | yes | 0.4 ms |
 | B: iterated local search | **22.06M** | **46.0%** | 79 | 0 | 122.0 | 7.7 | **0.93** | yes | ~215 ms |
 
-- **Classic nearest neighbour:** invalid. Each tour visits all 92 towns, and politicians get home at 269 h and 283 h against a 168 h budget. Its reach is in italics because it counts rallies held after polling day. Because the politicians now start from different homes, their tours hardly ever coincide (1 clash instead of 92 in v1).
+- **Classic nearest neighbour:** invalid. Each tour visits all 92 towns, and politicians get home at 269 h and 283 h against a 168 h budget. 67 of its 184 rallies are after polling day and reach nobody (#4), so its reach comes from the first 117 alone. That is close to A's, because it holds every rally it can, but it ignores population and the time budget. Because the politicians now start from different homes, their tours hardly ever coincide (1 clash instead of 92 in v1).
 - **Baseline:** both politicians plan as if alone and end up on largely the same big towns at the same times. Under the soft rule this is no longer invalid, but the 28 clashes cost a lot: the baseline reaches only **63% of A's figure**.
 - **A:** valid, never chooses to clash, and fairness is 0.90. Fairness is much better than v1's 0.68, because separate homes stop P1 from taking every nearby town first.
 - **B:** reaches 16% more people than A. It travels a little more than A (122 h vs 114 h), which reverses v1. The polling-day weight rewards rallying in big towns late, and B is better at fitting those in.

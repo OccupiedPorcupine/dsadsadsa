@@ -92,12 +92,12 @@ reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) / ral
 
 E(r)       = Σ over rallies j that started earlier in c of
              (1 − overlap(r, j) / rally(c)) × exp(−(start_r − finish_j) / tauRepeat)             fading repeat count
-w(s)       = exp(−max(0, polling − s) / tauPoll)                                                 polling-day weight
+w(s)       = exp(−(polling − s) / tauPoll)                                                       polling-day weight
 overlap(r) = hours of r that overlap other politicians' rallies in c, capped at rally(c)
 ```
 
 - **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again.
-- **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one.
+- **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one. A rally that runs past the end of the campaign is after polling day and reaches nobody (only the benchmark makes these).
 - **Clash penalty.** A 10-minute overlap costs little. A full overlap cuts both rallies by `beta`. While two rallies overlap, the crowd is split rather than already reached, so the earlier one only counts towards the later one's repeat penalty for the part that doesn't overlap (ASSUMPTIONS V12). A full overlap pays only `beta`; a rally that starts just as the other ends pays the full repeat penalty, and everything in between is in proportion. On reach alone, a full overlap beats waiting when `beta < (1 − alpha) / 2`.
 - **Time scale for decay.** Gaps in `E` and `w` are measured in **wall-clock hours** (nights included), because people forget overnight too. Everything else uses the active clock.
 
@@ -225,8 +225,8 @@ for each politician p:
 ```
 
 It visits every town and has no idea of population, the time budget or the other politicians. It is here to show the starting point the redesigns improve on.
-- **Invalid:** the validator marks it invalid, because it gets home more than 100 h after the campaign ends.
-- **Reach not comparable:** its reach figure counts rallies after polling day, so it can't be compared with the other approaches.
+- **Invalid:** the validator marks it invalid, because about a third of its rallies run past the end of the campaign and it gets home more than 100 h late.
+- **Reach counts only the rallies before polling day.** The later ones reach nobody (ASSUMPTIONS V5).
 
 ### 6.1 Baseline: uncoordinated greedy
 Each politician runs the greedy builder (6.2) with an **empty** booking table, as if campaigning alone. It never sees the others, so it clashes freely. The validator then charges every clash at the beta penalty. The plan is valid, but it shows what the lack of coordination costs.

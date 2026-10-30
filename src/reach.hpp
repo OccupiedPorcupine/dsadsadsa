@@ -15,6 +15,7 @@
 //   overlap(r) hours of r that overlap other politicians' rallies in c, at most rally(c)
 //
 // Gaps in E and w are in wall-clock hours, because people forget overnight too.
+// A rally that runs past the end of the campaign (after polling day) reaches 0.
 
 // Reach of each rally in `rallies` (all in `town`), in the same order.
 std::vector<double> rallyReaches(const Instance& inst, int town, const std::vector<Booking>& rallies);

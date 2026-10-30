@@ -40,6 +40,7 @@ static void checkRoute(const Instance& inst, int politician, const vector<Visit>
     int home = inst.homeIndex(politician);
     int currentPlace = home;
     double currentTime = 0;
+    vector<int> lateRallies;  // visits that finish after the campaign ends (and so reach nobody)
 
     for (int i = 0; i < (int)route.size(); ++i) {
         const Visit& visit = route[i];
@@ -61,6 +62,9 @@ static void checkRoute(const Instance& inst, int politician, const vector<Visit>
         if (visit.start < -TOLERANCE || visit.finish > inst.clock.dayEnd(visit.start) + TOLERANCE) {
             metrics.errors.push_back(describeError(politician, i, "rally runs outside the day's campaigning window"));
         }
+        if (visit.finish > inst.campaignHours() + TOLERANCE) {
+            lateRallies.push_back(i);
+        }
 
         alreadyVisited[visit.town] = true;
         metrics.travelHours += travel;
@@ -70,6 +74,15 @@ static void checkRoute(const Instance& inst, int politician, const vector<Visit>
 
         currentPlace = visit.town;
         currentTime = visit.finish;
+    }
+
+    // One error for all of them, so the benchmark's dozens of late rallies don't flood the output.
+    // Routes run in time order, so the late ones are always the last visits.
+    if (!lateRallies.empty()) {
+        char problem[160];
+        snprintf(problem, sizeof problem, "%d rallies run past the end of the campaign (visits %d to %d)",
+                 (int)lateRallies.size(), lateRallies.front(), lateRallies.back());
+        metrics.errors.push_back(describeError(politician, -1, problem));
     }
 
     double tripHome = inst.travelTime(currentPlace, home);

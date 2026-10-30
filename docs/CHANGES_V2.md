@@ -31,7 +31,7 @@ v2:  reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) 
 - Gaps in E and w are in **wall-clock hours** (nights count), because people forget overnight too.
 - In v2 a town's total reach depends on **when** its rallies happen, not just how many there are.
 - The upper bound behind `% max` changed from `Σ pop × alpha^i` to `k × Σ pop`. With fading decay, the old figure was no longer a true bound (V11).
-- `w` is capped at 1. Only the nearest-neighbour benchmark rallies after polling day, and those rallies can't be worth more than a full crowd.
+- `w` is capped at 1. Only the nearest-neighbour benchmark rallies after polling day, and those rallies can't be worth more than a full crowd. *Replaced after v2 in #4:* a rally after polling day now reaches nobody, and the validator flags it (ASSUMPTIONS V5).
 
 ## 3. Command-line options
 

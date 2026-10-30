@@ -21,6 +21,9 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
     vector<double> reaches(rallies.size(), 0.0);
     for (int r = 0; r < (int)rallies.size(); ++r) {
         const Booking& rally = rallies[r];
+        // A rally that runs past the end of the campaign is after polling day, so it reaches nobody.
+        // Only the benchmark makes these; the validator also flags them as errors.
+        if (rally.end > clock.end() + EPS) continue;
         double startWall = clock.wallHours(rally.start);
 
         double repeats = 0;  // E(r): earlier rallies here, each fading with time since it ended
@@ -41,8 +44,7 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
         overlap = min(overlap, length);
 
         double repeatFactor = repeats > 0 ? pow(inst.alpha, repeats) : 1.0;
-        // Capped at 1: a rally after polling day (only the benchmark does this) is worth no more than one on the last day.
-        double pollingWeight = exp(-max(0.0, pollingDay - startWall) / inst.tauPollHours);
+        double pollingWeight = exp(-(pollingDay - startWall) / inst.tauPollHours);
         double clashFactor = max(0.0, 1.0 - inst.clashPenalty * overlap / length);
         reaches[r] = population * repeatFactor * pollingWeight * clashFactor;
     }
