@@ -14,6 +14,7 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | S5 | *(v1, replaced by V4)* A repeat rally in a town still has value but less: the v-th rally there reaches `population × alpha^(v-1)`. Default alpha = 0.5. | Without this, sending two politicians to one town is pointless and the clash rule never matters. A second speaker draws a partly new crowd and reinforces the message. |
 | S6 | Each politician holds at most one rally per town. | A politician returning to the same town is less useful than going somewhere new. It also keeps the model simple. |
 | S7 | Each rally's reach is credited to the politician who held it, using the full v2 formula (V4–V6). In a town, a later rally is discounted for the earlier ones, so whoever goes first gets the bigger share. | Only used for the per-politician fairness figure. It doesn't affect total reach. |
+| S8 | The k politicians are teammates from one party, planned together by one planner to maximise the party's combined reach. They are not rival parties. | A party under a time crunch can't send its whole team to every town, so it has to split its people across the country and coordinate where each one goes. With rival parties, nobody would be trying to maximise the combined reach of both, so a single plan for everyone wouldn't make sense (#8). |
 
 ## Data and preprocessing
 
@@ -85,3 +86,4 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-29: Updated S7 and A0–A3 for v2, and added the V12 open question.
 - 2026-10-31: Changed V12 so overlapping rallies only count as repeats for their non-overlapping part (#3). Closed the V12 open question.
 - 2026-10-31: Rallies after polling day now reach nobody instead of being capped at a final-day weight, and the validator flags them (V5, #4).
+- 2026-10-31: Added S8: the politicians are teammates planned together, not rival parties (#8).

@@ -17,6 +17,8 @@ Related documents:
 
 During a Malaysian general election, the official campaign period is short (about two weeks). A party's leader and deputy, and possibly more senior figures, all want to hold rallies in as many big towns as possible before polling day. Each campaigns from their own base (constituency or regional office), and each must be back there for polling day.
 
+The politicians are **teammates, planned together** (ASSUMPTIONS S8). Under a time crunch the party can't send its whole team on a tour of every town, so it has to split its people up and decide centrally who goes where. We don't model rival parties: nobody would be trying to maximise the combined reach of both, so a single plan for everyone wouldn't make sense.
+
 Campaigning only happens in the daytime: rallies and driving run from 08:00 to 20:00, and nights are spent wherever the day ended.
 
 Two of them holding a rally **in the same town at the same time** is allowed, but it is costly:
