@@ -5,7 +5,6 @@ An interactive map of the planned routes. It is kept separate from the solver: i
 ## Make a map
 
 ```sh
-mkdir -p results/default
 ./build/campaign --routes-dir results/default      # solver writes the CSVs
 python3 viz/make_map.py results/default            # writes results/default/campaign_map.html
 ```

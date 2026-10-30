@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -215,6 +216,14 @@ int main(int argc, char** argv) {
             return 0;
         }
         inst = buildInstance(options.config);
+
+        // Create the output folders up front. Otherwise the CSV writers fail silently and the
+        // run looks fine but leaves no files.
+        if (!options.routesDir.empty()) filesystem::create_directories(options.routesDir);
+        if (!options.summaryFile.empty()) {
+            filesystem::path folder = filesystem::path(options.summaryFile).parent_path();
+            if (!folder.empty()) filesystem::create_directories(folder);
+        }
     } catch (const exception& e) {
         cerr << e.what() << "\n";
         printUsage();

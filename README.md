@@ -28,12 +28,11 @@ make                      # builds build/campaign
 ./build/campaign --help   # all options
 ```
 
-`--alpha` and `--clash-penalty` must be between 0 and 1, and `--approach` must be `nearest`, `uncoordinated`, `sequential`, `ils` or `all`. Anything else prints an error and exits with code 1.
+Folders for `--routes-dir` and `--summary` are created if they don't exist. `--alpha` and `--clash-penalty` must be between 0 and 1, and `--approach` must be `nearest`, `uncoordinated`, `sequential`, `ils` or `all`. Anything else prints an error and exits with code 1.
 
 Example: 3 politicians, no repeat penalty, a 6-day campaign, write routes and a summary row:
 
 ```sh
-mkdir -p results/k3
 ./build/campaign --k 3 --alpha 1 --days 6 --routes-dir results/k3 --summary results/summary.csv
 ```
 
@@ -51,7 +50,6 @@ Other examples:
 The visualisation is kept separate from the solver, in `viz/`. It reads the CSVs that `--routes-dir` writes and needs only Python 3, with no extra packages.
 
 ```sh
-mkdir -p results/default
 ./build/campaign --routes-dir results/default
 python3 viz/make_map.py results/default      # writes results/default/campaign_map.html
 ```

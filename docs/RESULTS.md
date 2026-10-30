@@ -149,7 +149,6 @@ B is about 1.8× slower than in v1 at 92 towns (225 ms vs 125 ms), but no slower
 
 ```sh
 make
-mkdir -p results/sweep
 # Section 2
 for k in 2 3 5; do for a in 0 0.5 1; do for d in 6 14; do
   ./build/campaign --k $k --alpha $a --days $d --summary results/sweep/settings.csv > /dev/null
