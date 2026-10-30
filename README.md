@@ -110,9 +110,10 @@ The full list, with the reasoning behind each one, is in [docs/ASSUMPTIONS.md](d
 | Travel time (same landmass) | Great-circle km × 1.3 road factor ÷ 70 km/h |
 | Travel time (peninsula ↔ Borneo) | 2.5 h airport overhead + km ÷ 700 km/h |
 | Rally length | `1 + log10(population / 10,000)` hours, clamped to [1, 3] |
-| Reach of a rally | `population × alpha^E × w(start) × (1 − beta × overlap / rally length)` |
+| Reach of a rally | `population × alpha^E × w(start) × share` |
 | `E` (fading repeat count) | `Σ exp(−gap / tauRepeat)` over earlier rallies in the town (default tauRepeat = 48 h) |
 | `w` (polling-day weight) | `exp(−(polling − start) / tauPoll)` (default tauPoll = 336 h) |
+| `share` (crowd share) | While m other politicians rally in the town at the same time, the rally keeps `(1 − beta) / (1 − beta + m × beta)` of its crowd, averaged over the rally: `1 − beta` with one other, `1 / (m + 1)` at beta = 0.5 |
 | Clash penalty `beta` | 0.5: a fully overlapped rally loses half its reach |
 
 - Each politician rallies in a town at most once.

@@ -7,12 +7,13 @@
 
 // The reach model (see docs/DESIGN.md section 11.4). For a rally r in town c:
 //
-//   reach(r) = pop(c) * alpha^E(r) * w(start) * (1 - beta * overlap(r) / rally(c))
+//   reach(r) = pop(c) * alpha^E(r) * w(start) * share(r)
 //
 //   E(r)       sum over rallies j that started earlier in c of
 //              (1 - overlap(r, j) / rally(c)) * exp(-(start_r - finish_j) / tauRepeat)
 //   w(s)       exp(-(polling day - s) / tauPoll)
-//   overlap(r) hours of r that overlap other politicians' rallies in c, at most rally(c)
+//   share(r)   average over r of (1 - beta) / (1 - beta + m * beta), where m is how many other
+//              politicians are rallying in c at that moment (no loss while m = 0)
 //
 // Gaps in E and w are in wall-clock hours, because people forget overnight too.
 // A rally that runs past the end of the campaign (after polling day) reaches 0.

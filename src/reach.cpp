@@ -12,6 +12,36 @@ static bool startedBefore(const Booking& a, const Booking& b) {
     return a.politician < b.politician;
 }
 
+// Share of the crowd rally r keeps, averaged over its length. While m other politicians are
+// rallying in the town at the same time, r keeps (1 - beta) / (1 - beta + m * beta) of it:
+// 1 - beta when one other is there (the plain clash penalty), and 1 / (m + 1) at beta = 0.5,
+// so any number of teammates speaking at once reach one crowd between them (#2).
+static double crowdShare(const Instance& inst, const vector<Booking>& rallies, int r) {
+    const Booking& rally = rallies[r];
+    double beta = inst.clashPenalty;
+
+    vector<double> cuts = {rally.start, rally.end};
+    for (const Booking& other : rallies) {
+        if (other.politician == rally.politician) continue;
+        if (other.start > rally.start && other.start < rally.end) cuts.push_back(other.start);
+        if (other.end > rally.start && other.end < rally.end) cuts.push_back(other.end);
+    }
+    sort(cuts.begin(), cuts.end());
+
+    double kept = 0;
+    for (int i = 0; i + 1 < (int)cuts.size(); ++i) {
+        double middle = (cuts[i] + cuts[i + 1]) / 2;
+        int others = 0;
+        for (const Booking& other : rallies) {
+            if (other.politician != rally.politician && other.start < middle && middle < other.end) others++;
+        }
+        double share = 1.0;
+        if (others > 0) share = beta >= 1 ? 0.0 : (1 - beta) / (1 - beta + others * beta);
+        kept += (cuts[i + 1] - cuts[i]) * share;
+    }
+    return kept / (rally.end - rally.start);
+}
+
 vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking>& rallies) {
     const Clock& clock = inst.clock;
     double population = inst.towns[town].population;
@@ -27,7 +57,6 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
         double startWall = clock.wallHours(rally.start);
 
         double repeats = 0;  // E(r): earlier rallies here, each fading with time since it ended
-        double overlap = 0;
         for (int j = 0; j < (int)rallies.size(); ++j) {
             if (j == r) continue;
             const Booking& other = rallies[j];
@@ -39,14 +68,11 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
                 double gap = max(0.0, startWall - clock.wallHours(other.end, true));
                 repeats += notTogether * exp(-gap / inst.tauRepeatHours);
             }
-            if (other.politician != rally.politician) overlap += together;
         }
-        overlap = min(overlap, length);
 
         double repeatFactor = repeats > 0 ? pow(inst.alpha, repeats) : 1.0;
         double pollingWeight = exp(-(pollingDay - startWall) / inst.tauPollHours);
-        double clashFactor = max(0.0, 1.0 - inst.clashPenalty * overlap / length);
-        reaches[r] = population * repeatFactor * pollingWeight * clashFactor;
+        reaches[r] = population * repeatFactor * pollingWeight * crowdShare(inst, rallies, r);
     }
     return reaches;
 }

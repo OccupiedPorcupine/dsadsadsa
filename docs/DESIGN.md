@@ -90,17 +90,17 @@ Clashes are **not** a constraint. They are allowed, and they cost reach.
 Maximise total reach. A rally r in town c reaches
 
 ```
-reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) / rally(c))
+reach(r) = pop(c) × alpha^E(r) × w(start_r) × share(r)
 
 E(r)       = Σ over rallies j that started earlier in c of
              (1 − overlap(r, j) / rally(c)) × exp(−(start_r − finish_j) / tauRepeat)             fading repeat count
 w(s)       = exp(−(polling − s) / tauPoll)                                                       polling-day weight
-overlap(r) = hours of r that overlap other politicians' rallies in c, capped at rally(c)
+share(r)   = average over r of (1 − beta) / (1 − beta + m × beta),  m = others in c then         crowd share
 ```
 
 - **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again.
 - **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one. A rally that runs past the end of the campaign is after polling day and reaches nobody (only the benchmark makes these).
-- **Clash penalty.** A 10-minute overlap costs little. A full overlap cuts both rallies by `beta`. While two rallies overlap, the crowd is split rather than already reached, so the earlier one only counts towards the later one's repeat penalty for the part that doesn't overlap (ASSUMPTIONS V12). A full overlap pays only `beta`; a rally that starts just as the other ends pays the full repeat penalty, and everything in between is in proportion. On reach alone, a full overlap beats waiting when `beta < (1 − alpha) / 2`.
+- **Clash penalty.** A 10-minute overlap costs little. A full overlap with one other rally cuts both by `beta`. With m others at once, a rally keeps `(1 − beta) / (1 − beta + m × beta)` of its crowd while they overlap, so at the default beta = 0.5 any number of teammates speaking at once reach exactly one crowd between them (#2). Adding up the overlaps instead, as the first v2 rule did, let three at once reach 1.5 crowds. While two rallies overlap, the crowd is split rather than already reached, so the earlier one only counts towards the later one's repeat penalty for the part that doesn't overlap (ASSUMPTIONS V12). A full overlap pays only `beta`; a rally that starts just as the other ends pays the full repeat penalty, and everything in between is in proportion. On reach alone, a full overlap beats waiting when `beta < (1 − alpha) / 2`.
 - **Time scale for decay.** Gaps in `E` and `w` are measured in **wall-clock hours** (nights included), because people forget overnight too. Everything else uses the active clock.
 
 A town's total reach therefore depends on *when* its rallies happen, not only on how many there are.
