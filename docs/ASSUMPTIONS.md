@@ -21,12 +21,13 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | # | Assumption | Why |
 |---|---|---|
 | D1 | Only records with feature class `P` (populated places) are used. | Rallies happen in towns, not at rivers, hills or hotels. |
-| D2 | Only towns with population ≥ 50,000 are considered (`--min-pop`). | Only 791 of 71,709 records have a population at all. Campaigns target large towns. This gives about 92 Peninsular towns after merging, which is enough to be realistic and small enough to run quickly. |
+| D2 | Only towns with population ≥ 50,000 are considered (`--min-pop`). | Only 791 of 71,709 records have a population at all. Campaigns target large towns. This gives 90 Peninsular towns after merging and exclusions (D6), which is enough to be realistic and small enough to run quickly. |
 | D3 | Places within 5 km of a larger kept place are dropped (`--merge-km`). | GeoNames lists cities and their districts separately, each with its own population, so summing them would count people twice. |
 | D4 | Peninsular Malaysia only by default. Sabah, Sarawak and Labuan (longitude > 109°E) are added with `--borneo`. | Keeps the first version simple. Borneo needs flights (see T2). |
 | D5 | Population figures are used as given by GeoNames. They are not real voter numbers and may be out of date. | No better source is in the provided data. |
+| D6 | Five places listed in `data/excluded_places.csv` are dropped before merging (`--exclude`; `--exclude none` keeps them): Pelentong, Mukim Pulai, Kampung Kangkar Teberau, Kota Kuala Muda and Kampung Baru Subang. | Each carries a district's or subdistrict's population on top of the city it sits in, 7–17 km away, too far for the 5 km merge. GeoNames tags them as ordinary towns (`PPL`), so no filter on feature code catches them. They made the 11 places within 25 km of Johor Bahru add up to 4.0M (Johor Bahru district had about 1.7M at the 2020 census), and the 92 towns 24.0M, close to the whole Peninsular population. Without them, the JB area is 2.8M and the 90 towns 21.4M. The reason for each is in the CSV (#11). |
 
-**Known data issue:** some duplicates survive the 5 km merge. For example, "Kota Kuala Muda" (544,984) and "Sungai Petani" (544,851) are almost certainly the same population counted twice. Not fixed yet.
+**Still in, flagged:** Bukit Rahman Putra (607,000) and a few other round-number figures (Kota Damansara 500,000, Bukit Jalil 200,000) look like estimates, but the evidence is weaker, so they are kept. Add a row to the CSV to drop one.
 
 ## Travel and time
 
@@ -77,7 +78,7 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - Should a politician be allowed to return to a town later in the campaign? See S6. This becomes more relevant under V4, because a revisit days later is worth almost the full population.
 - Default values for tauRepeat, tauPoll and beta (V4–V6) are first guesses. The first sensitivity sweeps are in [RESULTS.md](RESULTS.md) §3 and §5. tauPoll matters most, and needs a justification.
 - Exact solver for small instances (about 10 towns), to measure how far A and B are from the best possible plan.
-- Fix the duplicate towns that survive merging. See D3 and the known data issue.
+- Should the round-number places flagged under D6 be excluded too?
 
 ## Change log
 
@@ -92,3 +93,4 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-31: Added V13: the repeat penalty is `alpha^E` at whole E and linear in between, so it fades at alpha = 0 too (#5).
 - 2026-10-31: Changed V6 so the clash penalty depends on how many politicians overlap at once. At beta = 0.5 any number of them reach one crowd between them (#2).
 - 2026-10-31: Added A6 (B runs from two starts, #7). A3's reach calculation is now O(k³), because of the crowd split in V6. Brought S7, V4 and A4 up to date.
+- 2026-10-31: Added D6: five places that double-count a city are dropped before merging (#11). The default instance has 90 towns.

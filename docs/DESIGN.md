@@ -119,7 +119,7 @@ It is NP-hard (it contains the orienteering problem as the special case k = 1, a
 
 Details and reasons are in [ASSUMPTIONS.md](ASSUMPTIONS.md) (D1–D5, T1–T4, V1, V9). In short, `buildInstance` in [src/instance.cpp](../src/instance.cpp) does the following:
 1. Reads `MY.txt` and keeps populated places (`P`) with population ≥ 50,000, Peninsular Malaysia only by default. It also keeps every populated place with a known population, so that home bases can be looked up.
-2. Merges places within 5 km of a larger one, because GeoNames lists districts inside cities separately.
+2. Drops the places in `data/excluded_places.csv` (ASSUMPTIONS D6), which carry a district's population on top of the city they sit in, then merges places within 5 km of a larger one, because GeoNames lists districts inside cities separately.
 3. Picks the home bases:
    - the fixed list (`--starts fixed`, the default);
    - k distinct random rally towns (`--starts random --seed N`);
@@ -128,7 +128,7 @@ Details and reasons are in [ASSUMPTIONS.md](ASSUMPTIONS.md) (D1–D5, T1–T4, V
    A name is matched to a rally town first, and otherwise to the most populous place in the file with that name.
 4. Works out a rally length per town and a full travel-time matrix (driving, or flying between the peninsula and Borneo).
 
-The default instance has 92 towns. The default homes are Kuala Lumpur and George Town.
+The default instance has 90 towns. The default homes are Kuala Lumpur and George Town.
 
 ## 5. Data structures
 
@@ -386,7 +386,7 @@ Checks run on v2:
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
 - **The objective ignores fairness.** At k = 5, alpha = 0 and 6 days, fairness is 0.38 for A and 0.47 for B.
-- **Population ≠ voters**, and some duplicate towns survive merging.
+- **Population ≠ voters.** Five places that double-count a city are excluded by hand (ASSUMPTIONS D6); a few round-number figures remain.
 
 ## 10. Code map
 

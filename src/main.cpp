@@ -28,6 +28,8 @@ struct Options {
 static void printUsage() {
     cerr << "usage: campaign [options]\n"
             "  --data PATH          GeoNames file (default CS201_2026_project/MY.txt)\n"
+            "  --exclude PATH       places to drop because they double-count a city (default\n"
+            "                       data/excluded_places.csv; none to keep every place)\n"
             "  --k N                number of politicians (default 2)\n"
             "  --alpha A            reach of an immediate repeat rally relative to the one before (default 0.5)\n"
             "  --days D             length of the campaign in days (default 14)\n"
@@ -64,6 +66,7 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         string option = argv[i];
         if (option == "--help" || option == "-h") return false;
         else if (option == "--data") config.dataPath = nextValue(i, argc, argv);
+        else if (option == "--exclude") config.excludePath = nextValue(i, argc, argv);
         else if (option == "--k") config.numPoliticians = stoi(nextValue(i, argc, argv));
         else if (option == "--alpha") config.alpha = stod(nextValue(i, argc, argv));
         else if (option == "--days") config.clock.days = stoi(nextValue(i, argc, argv));

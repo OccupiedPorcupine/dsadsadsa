@@ -53,6 +53,7 @@ struct Clock {
 // Settings for which towns to use, where politicians start, and how reach is worked out.
 struct Config {
     std::string dataPath = "CS201_2026_project/MY.txt";
+    std::string excludePath = "data/excluded_places.csv";  // places that double-count a city; "none" to keep all
     int numPoliticians = 2;
     double alpha = 0.5;          // an immediate repeat rally in a town reaches alpha times as many people
     long minPopulation = 50000;

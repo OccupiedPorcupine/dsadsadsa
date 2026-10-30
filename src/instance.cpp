@@ -9,6 +9,7 @@
 #include <cctype>
 #include <fstream>
 #include <random>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 
@@ -59,11 +60,29 @@ static Town parseTown(const vector<string>& fields) {
     return town;
 }
 
+// The geonameids in the exclusion list (first column; the header row is skipped).
+static set<long> readExcludedIds(const string& path) {
+    set<long> ids;
+    if (path == "none") return ids;
+    ifstream file(path);
+    if (!file) throw runtime_error("cannot open exclusion list: " + path + " (use --exclude none to keep every place)");
+
+    string line;
+    getline(file, line);
+    while (getline(file, line)) {
+        string id = line.substr(0, line.find(','));
+        if (!id.empty()) ids.insert(stol(id));
+    }
+    return ids;
+}
+
 // Reads every populated place that passes the filters. Also keeps every populated place with a
 // known population in `allPlaces`, so a home base can be found even if it isn't a rally town.
+// Excluded places are dropped before merging, as if GeoNames didn't list them.
 static vector<Town> readCandidateTowns(const Config& config, vector<Town>& allPlaces) {
     ifstream file(config.dataPath);
     if (!file) throw runtime_error("cannot open data file: " + config.dataPath);
+    set<long> excluded = readExcludedIds(config.excludePath);
 
     vector<Town> candidates;
     string line;
@@ -76,6 +95,7 @@ static vector<Town> readCandidateTowns(const Config& config, vector<Town>& allPl
         if (town.population > 0) allPlaces.push_back(town);
         if (town.population < config.minPopulation) continue;
         if (town.inBorneo && !config.includeBorneo) continue;
+        if (excluded.count(town.geonameId)) continue;
         candidates.push_back(town);
     }
     return candidates;

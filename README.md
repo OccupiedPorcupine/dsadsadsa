@@ -83,6 +83,7 @@ What the map shows:
 | `results/default/` | Routes, settings and map for the default run |
 | `results/sweep/` | Summary CSVs behind every table in [docs/RESULTS.md](docs/RESULTS.md) |
 | `CS201_2026_project/` | Provided GeoNames dataset (`MY.txt`) |
+| `data/excluded_places.csv` | Places dropped because they double-count a city, with the reason for each |
 | `notebooks/explore_geonames.ipynb` | First look at the GeoNames spreadsheet with pandas |
 | `docs/` | Design, results, assumptions, change history, AI acknowledgement (see [Documentation](#documentation)), and the project brief (`Project_2627T1.pdf`) |
 | `docs/papers/` | Reference papers and reading list |
@@ -102,7 +103,7 @@ What the map shows:
 - **Columns used:** geonameid, asciiname, latitude, longitude, feature class, population.
 - **Records:** feature class `P` (populated places) with population ≥ `--min-pop` (default 50,000). Peninsular Malaysia only unless `--borneo` is given.
 - **Home bases:** by default KL, George Town, Johor Bahru, Kota Bharu, Ipoh, Kuantan, Alor Setar, in that order (`--starts`). `--starts random --seed N` picks random towns.
-- **Merging:** GeoNames lists cities and their districts separately, each with a population. Places are sorted by population, and any place within `--merge-km` (default 5 km) of a larger kept place is dropped. Some duplicates still survive, for example Kota Kuala Muda and Sungai Petani (see [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md)).
+- **Merging:** GeoNames lists cities and their districts separately, each with a population. Places are sorted by population, and any place within `--merge-km` (default 5 km) of a larger kept place is dropped. Five places that carry a district's population on top of the city they sit in are dropped first, using [data/excluded_places.csv](data/excluded_places.csv), which gives each one's reason (`--exclude PATH`, or `--exclude none` to keep them). See ASSUMPTIONS D6.
 
 ## Derived attributes and assumptions
 
