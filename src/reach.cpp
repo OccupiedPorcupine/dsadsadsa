@@ -70,7 +70,10 @@ vector<double> rallyReaches(const Instance& inst, int town, const vector<Booking
             }
         }
 
-        double repeatFactor = repeats > 0 ? pow(inst.alpha, repeats) : 1.0;
+        // alpha^E at whole E, straight lines in between. Plain alpha^E never fades at alpha = 0,
+        // because 0^E is 0 for any E > 0 (#5).
+        double whole = floor(repeats);
+        double repeatFactor = pow(inst.alpha, whole) * (1.0 - (1.0 - inst.alpha) * (repeats - whole));
         double pollingWeight = exp(-(pollingDay - startWall) / inst.tauPollHours);
         reaches[r] = population * repeatFactor * pollingWeight * crowdShare(inst, rallies, r);
     }

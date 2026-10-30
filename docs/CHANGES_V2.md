@@ -32,6 +32,7 @@ v2:  reach(r) = pop(c) × alpha^E(r) × w(start_r) × (1 − beta × overlap(r) 
 - In v2 a town's total reach depends on **when** its rallies happen, not just how many there are.
 - The upper bound behind `% max` changed from `Σ pop × alpha^i` to `k × Σ pop`. With fading decay, the old figure was no longer a true bound (V11).
 - `w` is capped at 1. Only the nearest-neighbour benchmark rallies after polling day, and those rallies can't be worth more than a full crowd. *Replaced after v2 in #4:* a rally after polling day now reaches nobody, and the validator flags it (ASSUMPTIONS V5).
+- *Changed after v2 in #5:* `alpha^E` is now `alpha^E` only at whole E, with straight lines in between. Plain `alpha^E` never fades at alpha = 0, so those results jumped compared with any alpha > 0 (ASSUMPTIONS V13).
 
 ## 3. Command-line options
 
@@ -127,4 +128,4 @@ Reach figures are lower in v2 mainly because of the polling-day weight (a day-1 
 - **Clashes are rarely chosen** (V12). *Addressed after v2 in #3:* an overlapping rally now only counts as a repeat for its non-overlapping part, so a full overlap pays only `beta`. See ASSUMPTIONS V12 and RESULTS §3.
 - **B's ranking ignores time-dependent knock-on effects.** A ranking that accounts for the whole route, or a final local-search pass on exact reach, could fix the cases where B loses to A. *Addressed after v2 in #7:* exact ranking was tried and didn't stop B losing to A. Instead, B now runs a second time from A's plan and keeps the better plan, so it never ends below A.
 - **Starting-point and decay defaults are first guesses.** RESULTS.md §4–5 shows how sensitive the results are to them.
-- **No fairness term yet.** With alpha = 0 and long campaigns, fairness still drops to 0.00 (RESULTS.md §2).
+- **No fairness term yet.** With alpha = 0 and long campaigns, fairness still drops to 0.00 (RESULTS.md §2). *Changed after v2 in #5:* that came from alpha = 0 never fading. It now drops only as low as 0.38 for A and 0.47 for B (k = 5, alpha = 0, 6 days).

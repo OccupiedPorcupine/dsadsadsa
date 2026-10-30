@@ -90,15 +90,16 @@ Clashes are **not** a constraint. They are allowed, and they cost reach.
 Maximise total reach. A rally r in town c reaches
 
 ```
-reach(r) = pop(c) × alpha^E(r) × w(start_r) × share(r)
+reach(r) = pop(c) × P(E(r)) × w(start_r) × share(r)
 
+P(E)       = alpha^n × (1 − (1 − alpha) × (E − n)),  n = floor(E)                                 repeat penalty
 E(r)       = Σ over rallies j that started earlier in c of
              (1 − overlap(r, j) / rally(c)) × exp(−(start_r − finish_j) / tauRepeat)             fading repeat count
 w(s)       = exp(−(polling − s) / tauPoll)                                                       polling-day weight
 share(r)   = average over r of (1 − beta) / (1 − beta + m × beta),  m = others in c then         crowd share
 ```
 
-- **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again.
+- **Fading repeat penalty (E).** Back-to-back rallies count as full repeats, so a second rally straight after the first reaches `alpha × pop`, as in v1. A rally days later is worth almost the full population again. `P` equals `alpha^E` at whole E and is a straight line in between. Plain `alpha^E` never fades at alpha = 0 (`0^E = 0` for any E > 0), so results jumped between alpha = 0 and any alpha > 0 (#5, ASSUMPTIONS V13).
 - **Polling-day weight (w).** Voters partly forget early rallies. With the defaults (tauPoll = 336 h, polling = end of day 14), a day-1 rally counts for about 0.38 of a final-day one. A rally that runs past the end of the campaign is after polling day and reaches nobody (only the benchmark makes these).
 - **Clash penalty.** A 10-minute overlap costs little. A full overlap with one other rally cuts both by `beta`. With m others at once, a rally keeps `(1 − beta) / (1 − beta + m × beta)` of its crowd while they overlap, so at the default beta = 0.5 any number of teammates speaking at once reach exactly one crowd between them (#2). Adding up the overlaps instead, as the first v2 rule did, let three at once reach 1.5 crowds. While two rallies overlap, the crowd is split rather than already reached, so the earlier one only counts towards the later one's repeat penalty for the part that doesn't overlap (ASSUMPTIONS V12). A full overlap pays only `beta`; a rally that starts just as the other ends pays the full repeat penalty, and everything in between is in proportion. On reach alone, a full overlap beats waiting when `beta < (1 − alpha) / 2`.
 - **Time scale for decay.** Gaps in `E` and `w` are measured in **wall-clock hours** (nights included), because people forget overnight too. Everything else uses the active clock.
@@ -301,7 +302,7 @@ insertUntilFull(plan):
 - **`gain² / delay`:** the scoring rule from the paper. Squaring favours big towns.
 - **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k²)) is only computed for candidates that could beat the best so far.
 - **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong. Counting the knock-on change exactly was tried (#7) and didn't help: B still lost to A in the same settings, did worse on the default run, and took about twice as long.
-- **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 3 of 27 settings, by up to 6% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 11 of the same 27 settings (22.67M from empty vs 21.65M from A's plan in the default run). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
+- **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 3 of 27 settings, by up to 5% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 8 of the same 27 settings (30.97M from empty vs 30.10M from A's plan at k = 3, alpha = 0.5, 14 days). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
 - **Shake and re-timing:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from home:
   - a `clash` rally starts as early as the window allows;
   - a `wait` rally starts when the town is free.
@@ -309,8 +310,8 @@ insertUntilFull(plan):
   Neither can start later than before, because its old slot is still feasible. One exception: another politician's `clash` rally may have moved into a `wait` rally's old slot. That rally then keeps its old start and becomes a clash itself. Rallies therefore never move later, and every route still gets home in time.
 - **Weaknesses:**
   - It is slower than A, and running it twice doubles that.
-  - The objective has no fairness term; at alpha = 0 it can give every town to one politician.
-  - From empty routes, the search is weakest when the polling-day weight is off. There B ends up only 0.4–2.8% above A, and in two of those three settings that comes from the run seeded with A's plan (see [RESULTS.md](RESULTS.md) §5).
+  - The objective has no fairness term; at k = 5 with a 6-day campaign, one politician can end up with under half of another's reach.
+  - From empty routes, the search is weakest with k = 5 or with the polling-day weight off. With the weight off, B ends up only 0.3–2.3% above A, and at tauRepeat = 12 h that comes from the run seeded with A's plan (see [RESULTS.md](RESULTS.md) §2 and §5).
 
 ### 6.4 The two approaches side by side
 
@@ -353,9 +354,9 @@ At most k rallies share a town, so one reach calculation for a town is O(k²).
 | Validator | O(L + n · k²) | O(n + L) |
 
 Measured (see [RESULTS.md](RESULTS.md) §7):
-- **A** takes about 0.4 ms at 92 towns and 1.2 ms at 255.
-- **B** takes 2 ms at 15 towns, about 290 ms at 92, and about 1.8 s at 255.
-- **v1 comparison:** B is about 2.3× slower than in v1 at 92 towns. That comes from the two timings per candidate, the full reach model, and (since #7) running the search twice. Pruning keeps it far below the worst case.
+- **A** takes about 0.5 ms at 92 towns and 1.2 ms at 255.
+- **B** takes 3 ms at 15 towns, about 225 ms at 92, and about 1 s at 255.
+- **v1 comparison:** B is about 1.8× slower than in v1 at 92 towns, and about as fast at 255. That comes from the two timings per candidate, the full reach model, and (since #7) running the search twice. Pruning keeps it far below the worst case.
 
 ## 8. How results are checked
 
@@ -378,10 +379,10 @@ Checks run on v2:
 - **A vs B:** A is more than 100× faster and simple to explain. B reaches at least as many people as A in every setting, because one of its two runs starts from A's plan (#7). It is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
 - **The soft clash rule only matters when beta is small.** Planners clash when `beta < (1 − alpha) / 2` (0.25 at the default alpha); at the default beta = 0.5 they always wait or go elsewhere (RESULTS §3).
-- **B's search from empty routes can still lose to A** (§6.3), by up to 6% when the polling-day weight is off. The run from A's plan covers this, but the gain over A in those settings is small (0.4–2.8%). Ranking on the exact knock-on reach was tried and was not the fix.
+- **B's search from empty routes can still lose to A** (§6.3), by up to 5% at k = 5 and 2.7% when the polling-day weight is off. The run from A's plan covers this, but with the weight off B's gain over A is small (0.3–2.3%). Ranking on the exact knock-on reach was tried and was not the fix.
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
-- **The objective ignores fairness.** B can leave a politician idle when alpha = 0.
+- **The objective ignores fairness.** At k = 5, alpha = 0 and 6 days, fairness is 0.38 for A and 0.47 for B.
 - **Population ≠ voters**, and some duplicate towns survive merging.
 
 ## 10. Code map

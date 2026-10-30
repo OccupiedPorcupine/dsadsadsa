@@ -7,8 +7,10 @@
 
 // The reach model (see docs/DESIGN.md section 11.4). For a rally r in town c:
 //
-//   reach(r) = pop(c) * alpha^E(r) * w(start) * share(r)
+//   reach(r) = pop(c) * P(E(r)) * w(start) * share(r)
 //
+//   P(E)       repeat penalty: alpha^E at whole E, linear in between,
+//              i.e. alpha^n * (1 - (1 - alpha) * (E - n)) with n = floor(E)
 //   E(r)       sum over rallies j that started earlier in c of
 //              (1 - overlap(r, j) / rally(c)) * exp(-(start_r - finish_j) / tauRepeat)
 //   w(s)       exp(-(polling day - s) / tauPoll)
