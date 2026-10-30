@@ -89,6 +89,14 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         throw runtime_error("need at least 1 day, and between 3 and 24 campaigning hours a day");
     }
     if (config.tauRepeatHours <= 0 || config.tauPollHours <= 0) throw runtime_error("tau values must be positive");
+    // Above 1, or with a negative beta, one rally could reach more than the town's population,
+    // which breaks the % max bound and ILS's pruning.
+    if (config.alpha < 0 || config.alpha > 1) throw runtime_error("--alpha must be between 0 and 1");
+    if (config.clashPenalty < 0 || config.clashPenalty > 1) throw runtime_error("--clash-penalty must be between 0 and 1");
+    const string& a = options.approach;
+    if (a != "all" && a != "nearest" && a != "uncoordinated" && a != "sequential" && a != "ils") {
+        throw runtime_error("unknown approach " + a);
+    }
     return true;
 }
 
