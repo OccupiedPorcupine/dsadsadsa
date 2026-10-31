@@ -68,6 +68,11 @@ static void printUsage() {
             "  --ms-starts N        multistart: plans to build, the first being plain sequential (default 200)\n"
             "  --ms-beta B          multistart: chance of taking the best option at each step (default 0.3)\n"
             "  --ms-seed N          multistart: random seed (default 1)\n"
+            "  --ils-alns           ILS as an adaptive large neighbourhood search: each round picks one of\n"
+            "                       several destroy operators (random, worst, cluster, day, shake) and repair\n"
+            "                       operators (greedy, regret, noisy), favouring those that find better plans\n"
+            "  --ils-alns-seed N    random seed for --ils-alns (default 1)\n"
+            "  --ils-alns-skip LIST leave out these --ils-alns operators, e.g. regret,cluster (default: none)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -78,6 +83,19 @@ static string nextValue(int& i, int argc, char** argv) {
     if (i + 1 >= argc) throw runtime_error(string("missing value for ") + argv[i]);
     i++;
     return argv[i];
+}
+
+// Splits "a,b,c" into {"a", "b", "c"}.
+static vector<string> splitList(const string& text) {
+    vector<string> items;
+    size_t from = 0;
+    while (from <= text.size()) {
+        size_t comma = text.find(',', from);
+        if (comma == string::npos) comma = text.size();
+        if (comma > from) items.push_back(text.substr(from, comma - from));
+        from = comma + 1;
+    }
+    return items;
 }
 
 // Returns false if the user asked for --help.
@@ -116,6 +134,9 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--ms-starts") options.multiStartParams.starts = stoi(nextValue(i, argc, argv));
         else if (option == "--ms-beta") options.multiStartParams.beta = stod(nextValue(i, argc, argv));
         else if (option == "--ms-seed") options.multiStartParams.seed = (unsigned)stoul(nextValue(i, argc, argv));
+        else if (option == "--ils-alns") options.ilsParams.alns = true;
+        else if (option == "--ils-alns-seed") options.ilsParams.alnsSeed = (unsigned)stoul(nextValue(i, argc, argv));
+        else if (option == "--ils-alns-skip") options.ilsParams.alnsSkip = splitList(nextValue(i, argc, argv));
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -133,6 +154,10 @@ static bool parseOptions(int argc, char** argv, Options& options) {
     const IlsParams& ils = options.ilsParams;
     if (ils.startTemperature < 0 || ils.cooling <= 0 || ils.cooling > 1 || ils.restartAfter < 1) {
         throw runtime_error("need --ils-sa-temp >= 0, 0 < --ils-sa-cooling <= 1 and --ils-sa-restart >= 1");
+    }
+    for (const string& name : options.ilsParams.alnsSkip) {
+        const vector<string> known = {"random", "worst", "cluster", "day", "shake", "greedy", "regret", "noisy"};
+        if (find(known.begin(), known.end(), name) == known.end()) throw runtime_error("unknown ALNS operator " + name);
     }
     const string& a = options.approach;
     if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
@@ -322,6 +347,13 @@ int main(int argc, char** argv) {
                "from A's plan %.0f\n",
                ilsStats.iterations, ilsStats.improvements, ilsStats.reachFromEmpty, ilsStats.reachFromA);
         if (options.ilsParams.localSearch) printf("ILS local search kept %d moves\n", ilsStats.localMoves);
+        if (!ilsStats.operators.empty()) {
+            printf("ALNS operators (final weight averaged over the two runs, uses, new bests):\n");
+            for (const OperatorStats& op : ilsStats.operators) {
+                printf("  %-8s weight %5.1f  uses %4d  new bests %3d\n", op.name.c_str(), op.weight, op.uses,
+                       op.newBests);
+            }
+        }
     }
     return 0;
 }
