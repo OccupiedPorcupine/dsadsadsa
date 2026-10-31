@@ -49,9 +49,48 @@ struct Insertion {
     double score = -1;
 };
 
+// A gap in a route where a town could go: the stop before it and the stop after it (home at
+// either end). Together with the town's bookings, this is everything a candidate's timing depends on.
+struct Gap {
+    int previousPlace = -1;  // -1: not worked out yet
+    double leaveTime = 0;
+    int nextPlace = -1;
+    double arrivalAtNext = 0;
+
+    bool operator==(const Gap& other) const {
+        return previousPlace == other.previousPlace && leaveTime == other.leaveTime &&
+               nextPlace == other.nextPlace && arrivalAtNext == other.arrivalAtNext;
+    }
+};
+
+// --ils-cache: one candidate (politician, town, gap) with both timings, kept between insertion steps.
+// Index 0 is "wait", 1 is "clash". It is worked out in two stages, each only when the pruning in
+// scoreCachedTry gets that far: first the timings, then the reach gains.
+struct CachedTry {
+    bool timed = false;  // false: only `arrive` is known so far
+    double arrive = 0;
+    double start[2] = {0, 0};
+    double delay[2] = {0, 0};  // infinity if that timing isn't tried
+    double gain[2] = {0, 0};
+    bool gainKnown[2] = {false, false};
+};
+
+// --ils-cache: what the scan needs to skip a candidate without looking at the rest of it.
+struct QuickCheck {
+    double minDelay = -INFINITY;   // no timing causes less delay; -infinity means "work it out again"
+    double scoreBound = INFINITY;  // pop² / max(minDelay, EPS): no timing can score more than this
+};
+
+// --ils-cache: the cached candidates for one politician and one town, one per gap in the route.
+struct TownTries {
+    vector<QuickCheck> quick;
+    vector<CachedTry> tries;
+    double rowBound = INFINITY;  // no up-to-date gap has a higher scoreBound
+};
+
 class IlsPlanner {
 public:
-    explicit IlsPlanner(const Instance& instance);
+    IlsPlanner(const Instance& instance, const IlsParams& params);
 
     void load(const Solution& plan);
     void insertUntilFull();
@@ -63,19 +102,34 @@ public:
 
 private:
     void tryInsertion(int politician, int town, int position, Insertion& best) const;
+    bool outsideGranularList(int previousPlace, int town, int nextPlace) const;
+    void insertUntilFullCached();
+    Gap gapAt(int politician, int position) const;
+    double allowedDelayAt(int politician, int position) const;
+    void scoreCachedTry(int politician, int town, int position, const Gap& gap, double allowedDelay,
+                        Insertion& best);
     void applyInsertion(const Insertion& insertion);
     void recalculateTimes(int politician);
     void updateMaxShifts();
     double timeBackHome(int politician) const;
 
     const Instance& inst;
+    bool cacheScores;
+    double granularity;
     vector<vector<PlannedVisit>> routes;
     BookingTable bookings;
     vector<vector<bool>> inRoute;  // inRoute[politician][town]
+    vector<int> rebookedTowns;     // towns whose bookings the last insertion changed
+
+    // --ils-cache only.
+    vector<vector<TownTries>> cache;  // cache[politician][town]
+    vector<vector<Gap>> cachedGaps;   // cachedGaps[politician][position]: the gap the cache was worked out for
 };
 
-IlsPlanner::IlsPlanner(const Instance& instance)
+IlsPlanner::IlsPlanner(const Instance& instance, const IlsParams& params)
     : inst(instance),
+      cacheScores(params.cacheScores),
+      granularity(params.granularity),
       routes(instance.numPoliticians),
       bookings(instance.numTowns(), instance.clock),
       inRoute(instance.numPoliticians, vector<bool>(instance.numTowns(), false)) {}
@@ -155,6 +209,193 @@ void IlsPlanner::tryInsertion(int politician, int town, int position, Insertion&
     }
 }
 
+// Granular candidate lists (--ils-granular G, from Shahmanzari, Aksen & Salhi 2022, §4.7): a town is
+// only tried between stops j and k if it is close to one of them, min(travel(j, town), travel(town, k))
+// <= G × travel(j, k). A far-off town would make a long detour there, so is unlikely to be the best
+// move. Gaps next to home are always tried: a home is often in a town of its own, so the first gap
+// in a route can have length 0, and an empty route could never get started.
+bool IlsPlanner::outsideGranularList(int previousPlace, int town, int nextPlace) const {
+    if (granularity <= 0 || previousPlace >= inst.numTowns() || nextPlace >= inst.numTowns()) return false;
+    double direct = inst.travelTime(previousPlace, nextPlace);
+    return min(inst.travelTime(previousPlace, town), inst.travelTime(town, nextPlace)) > granularity * direct;
+}
+
+// The gap just before `position` in `politician`'s route, as tryInsertion sees it.
+Gap IlsPlanner::gapAt(int politician, int position) const {
+    const vector<PlannedVisit>& route = routes[politician];
+    bool atStart = (position == 0);
+    bool atEnd = (position == (int)route.size());
+    int home = inst.homeIndex(politician);
+    Gap gap;
+    gap.previousPlace = atStart ? home : route[position - 1].town;
+    gap.leaveTime = atStart ? 0.0 : route[position - 1].finish;
+    gap.nextPlace = atEnd ? home : route[position].town;
+    gap.arrivalAtNext = atEnd ? timeBackHome(politician) : route[position].arrive;
+    return gap;
+}
+
+// How much later the next stop after the gap can be reached, as in tryInsertion.
+double IlsPlanner::allowedDelayAt(int politician, int position) const {
+    const vector<PlannedVisit>& route = routes[politician];
+    if (position == (int)route.size()) return inst.campaignHours() - timeBackHome(politician);
+    return route[position].waitTime() + route[position].maxShift;
+}
+
+// tryInsertion for --ils-cache. A candidate's timing and the delay it causes depend only on the gap
+// and the town's bookings, so they are kept until one of those changes. maxShift changes after
+// almost every insertion, in every route, but it only decides whether the delay is allowed, so that
+// is checked fresh each time. The arithmetic and the order of the checks are the same as in
+// tryInsertion, so the same move wins.
+//
+// A changed candidate first gets only the delay of starting as soon as the window allows. Waiting
+// for the town to be free can only start later, so this is the least delay either timing can cause.
+// Most candidates don't fit even then, and skip the booking-table lookup.
+void IlsPlanner::scoreCachedTry(int politician, int town, int position, const Gap& gap, double allowedDelay,
+                                Insertion& best) {
+    TownTries& townTries = cache[politician][town];
+    CachedTry& candidate = townTries.tries[position];
+    QuickCheck& quick = townTries.quick[position];
+    double length = inst.rallyHours(town);
+    double population = inst.towns[town].population;
+
+    if (quick.minDelay == -INFINITY) {
+        candidate.gainKnown[0] = candidate.gainKnown[1] = false;
+        if (outsideGranularList(gap.previousPlace, town, gap.nextPlace)) {
+            candidate.timed = true;
+            candidate.delay[0] = candidate.delay[1] = INFINITY;
+            quick = {INFINITY, 0};
+            return;
+        }
+        candidate.timed = false;
+        candidate.arrive = gap.leaveTime + inst.travelTime(gap.previousPlace, town);
+        double finish = inst.clock.fitRally(candidate.arrive, length) + length;
+        quick.minDelay = finish + inst.travelTime(town, gap.nextPlace) - gap.arrivalAtNext;
+        quick.scoreBound = population * population / max(quick.minDelay, EPS);
+        if (quick.minDelay > allowedDelay + EPS || quick.scoreBound <= best.score) return;
+    }
+
+    if (!candidate.timed) {
+        double waitStart = bookings.earliestFreeTime(town, candidate.arrive, length, politician);
+        double clashStart = inst.clock.fitRally(candidate.arrive, length);
+        for (bool clash : {false, true}) {
+            double start = clash ? clashStart : waitStart;
+            candidate.start[clash] = start;
+            candidate.delay[clash] = INFINITY;
+            if (clash && clashStart >= waitStart - EPS) continue;  // nobody to clash with: same as waiting
+            double finish = start + length;
+            candidate.delay[clash] = finish + inst.travelTime(town, gap.nextPlace) - gap.arrivalAtNext;
+        }
+        candidate.timed = true;
+        quick.minDelay = min(candidate.delay[0], candidate.delay[1]);
+        quick.scoreBound = population * population / max(quick.minDelay, EPS);
+    }
+
+    for (bool clash : {false, true}) {
+        double delay = candidate.delay[clash];
+        if (delay > allowedDelay + EPS) continue;
+        double extraTime = max(delay, EPS);
+        if (population * population / extraTime <= best.score) continue;
+
+        double start = candidate.start[clash];
+        if (!candidate.gainKnown[clash]) {
+            candidate.gain[clash] = reachGain(inst, town, bookings.bookingsIn(town), {start, start + length, politician});
+            candidate.gainKnown[clash] = true;
+        }
+        double gain = candidate.gain[clash];
+        if (gain <= EPS) continue;
+        double score = gain * gain / extraTime;
+        if (score > best.score) {
+            best = {politician, position, town, candidate.arrive, start, clash, score};
+        }
+    }
+}
+
+// insertUntilFull with --ils-cache. Each step still goes through the candidates in the same order,
+// but skips most of them with two comparisons: the cached delay against the gap's allowed delay,
+// and the cached score bound against the best so far. A candidate is worked out again only if its
+// gap changed (the stops on either side moved, or the gap is new) or its town's bookings changed
+// (the inserted town, and towns whose rallies were pushed later). Nothing else goes into its
+// timing and gain, so they stay the same.
+//
+// rowBound lets a whole town be skipped: if no up-to-date gap there can beat the best so far, only
+// the gaps that changed since the last step need a look.
+void IlsPlanner::insertUntilFullCached() {
+    // Shakes re-time every route, so start from scratch each time.
+    cache.assign(inst.numPoliticians, vector<TownTries>(inst.numTowns()));
+    cachedGaps.assign(inst.numPoliticians, {});
+    for (int p = 0; p < inst.numPoliticians; ++p) {
+        int gaps = routes[p].size() + 1;
+        cachedGaps[p].assign(gaps, Gap());
+        for (TownTries& townTries : cache[p]) {
+            townTries.quick.assign(gaps, QuickCheck());
+            townTries.tries.assign(gaps, CachedTry());
+        }
+    }
+
+    vector<Gap> gaps;
+    vector<double> allowedDelays;
+    vector<int> changedGaps;
+    while (true) {
+        Insertion best;
+        for (int p = 0; p < inst.numPoliticians; ++p) {
+            int numGaps = routes[p].size() + 1;
+            gaps.resize(numGaps);
+            allowedDelays.resize(numGaps);
+            changedGaps.clear();
+            for (int position = 0; position < numGaps; ++position) {
+                gaps[position] = gapAt(p, position);
+                allowedDelays[position] = allowedDelayAt(p, position);
+                if (gaps[position] == cachedGaps[p][position]) continue;
+                cachedGaps[p][position] = gaps[position];
+                changedGaps.push_back(position);
+                for (TownTries& townTries : cache[p]) townTries.quick[position] = QuickCheck();
+            }
+
+            for (int town = 0; town < inst.numTowns(); ++town) {
+                if (inRoute[p][town]) continue;
+                TownTries& townTries = cache[p][town];
+                if (townTries.rowBound <= best.score) {
+                    // Only the changed gaps can beat the best so far.
+                    for (int position : changedGaps) {
+                        scoreCachedTry(p, town, position, gaps[position], allowedDelays[position], best);
+                        townTries.rowBound = max(townTries.rowBound, townTries.quick[position].scoreBound);
+                    }
+                    continue;
+                }
+
+                double rowBound = 0;
+                for (int position = 0; position < numGaps; ++position) {
+                    const QuickCheck& quick = townTries.quick[position];
+                    bool fits = quick.minDelay <= allowedDelays[position] + EPS;
+                    if (fits && quick.scoreBound > best.score) {
+                        scoreCachedTry(p, town, position, gaps[position], allowedDelays[position], best);
+                    }
+                    rowBound = max(rowBound, quick.scoreBound);
+                }
+                townTries.rowBound = rowBound;
+            }
+        }
+        if (best.politician == -1) return;  // nothing else fits anywhere
+        applyInsertion(best);
+
+        // The gap the town went into is now two gaps. Add a column so the cache stays lined up
+        // with the route; gaps after it keep their entries, and are worked out again if they moved.
+        int p = best.politician;
+        cachedGaps[p].insert(cachedGaps[p].begin() + best.position, Gap());
+        for (TownTries& townTries : cache[p]) {
+            townTries.quick.insert(townTries.quick.begin() + best.position, QuickCheck());
+            townTries.tries.insert(townTries.tries.begin() + best.position, CachedTry());
+        }
+        for (int town : rebookedTowns) {
+            for (int q = 0; q < inst.numPoliticians; ++q) {
+                TownTries& townTries = cache[q][town];
+                fill(townTries.quick.begin(), townTries.quick.end(), QuickCheck());
+                townTries.rowBound = INFINITY;
+            }
+        }
+    }
+}
+
 // Starts from an existing valid plan instead of empty routes. Its rallies keep their times and
 // timing modes; only maxShift has to be worked out.
 void IlsPlanner::load(const Solution& plan) {
@@ -169,12 +410,25 @@ void IlsPlanner::load(const Solution& plan) {
 }
 
 void IlsPlanner::insertUntilFull() {
+    if (cacheScores) {
+        insertUntilFullCached();
+        return;
+    }
+    vector<Gap> gaps;
     while (true) {
         Insertion best;
         for (int p = 0; p < inst.numPoliticians; ++p) {
+            if (granularity > 0) {
+                gaps.resize(routes[p].size() + 1);
+                for (int position = 0; position < (int)gaps.size(); ++position) gaps[position] = gapAt(p, position);
+            }
             for (int town = 0; town < inst.numTowns(); ++town) {
                 if (inRoute[p][town]) continue;
                 for (int position = 0; position <= (int)routes[p].size(); ++position) {
+                    if (granularity > 0 &&
+                        outsideGranularList(gaps[position].previousPlace, town, gaps[position].nextPlace)) {
+                        continue;
+                    }
                     tryInsertion(p, town, position, best);
                 }
             }
@@ -193,6 +447,7 @@ void IlsPlanner::applyInsertion(const Insertion& insertion) {
     route.insert(route.begin() + insertion.position, newVisit);
     bookings.book(insertion.town, insertion.start, finish, p);
     inRoute[p][insertion.town] = true;
+    rebookedTowns = {insertion.town};
 
     // Push the later rallies back. The maxShift check in tryInsertion already made sure
     // none of them ends up clashing, running past the day's window, or getting home late.
@@ -208,6 +463,7 @@ void IlsPlanner::applyInsertion(const Insertion& insertion) {
         visit.start = newStart;
         visit.finish = newStart + inst.rallyHours(visit.town);
         bookings.rebook(visit.town, p, visit.start, visit.finish);
+        rebookedTowns.push_back(visit.town);
     }
     updateMaxShifts();
 }
@@ -353,11 +609,11 @@ static Solution search(const Instance& inst, IlsPlanner& planner, const IlsParam
 Solution solveIls(const Instance& inst, const IlsParams& params, IlsStats* stats) {
     IlsStats counts;
 
-    IlsPlanner fromEmpty(inst);
+    IlsPlanner fromEmpty(inst, params);
     Solution planFromEmpty = search(inst, fromEmpty, params, counts.reachFromEmpty, counts);
 
     // Starting from A's plan means B can never end up below A.
-    IlsPlanner fromA(inst);
+    IlsPlanner fromA(inst, params);
     fromA.load(solveSequential(inst));
     Solution planFromA = search(inst, fromA, params, counts.reachFromA, counts);
 

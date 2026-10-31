@@ -22,6 +22,8 @@ Solution solveSequential(const Instance& inst);
 struct IlsParams {
     int maxIterations = 5000;
     int maxNoImprove = 150;  // give up after this many rounds without finding a better plan
+    bool cacheScores = false;  // keep candidates' timings and reach gains between insertion steps (same plans, faster)
+    double granularity = 0;    // if > 0, only try a town in a gap it is close to one end of (see ils.cpp)
 };
 
 struct IlsStats {

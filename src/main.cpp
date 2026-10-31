@@ -49,6 +49,11 @@ static void printUsage() {
             "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
+            "  --ils-cache          ILS keeps each candidate insertion's timing and reach gain between steps and\n"
+            "                       works out again only those the last insertion changed (same plans, faster)\n"
+            "  --ils-granular G     ILS only tries town i between stops j and k if min(travel(j,i), travel(i,k))\n"
+            "                       <= G x travel(j,k); gaps next to home are always tried (default off;\n"
+            "                       may lose reach)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -86,6 +91,8 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--approach") options.approach = nextValue(i, argc, argv);
         else if (option == "--ils-iters") options.ilsParams.maxIterations = stoi(nextValue(i, argc, argv));
         else if (option == "--ils-no-improve") options.ilsParams.maxNoImprove = stoi(nextValue(i, argc, argv));
+        else if (option == "--ils-cache") options.ilsParams.cacheScores = true;
+        else if (option == "--ils-granular") options.ilsParams.granularity = stod(nextValue(i, argc, argv));
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -99,6 +106,7 @@ static bool parseOptions(int argc, char** argv, Options& options) {
     // which breaks the % max bound and ILS's pruning.
     if (config.alpha < 0 || config.alpha > 1) throw runtime_error("--alpha must be between 0 and 1");
     if (config.clashPenalty < 0 || config.clashPenalty > 1) throw runtime_error("--clash-penalty must be between 0 and 1");
+    if (options.ilsParams.granularity < 0) throw runtime_error("--ils-granular must be positive");
     const string& a = options.approach;
     if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
         a != "ils") {
