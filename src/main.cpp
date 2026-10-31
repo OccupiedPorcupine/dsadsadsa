@@ -27,6 +27,26 @@ struct Options {
     bool listTowns = false;
 };
 
+// Every approach, in the order the results table shows them. The ils-* versions are B with the
+// improvements found by the experiments in GitHub issues #13-#16, kept side by side so the
+// results show what each one adds (RESULTS.md section 8).
+static const vector<string> APPROACHES = {"nearest", "nearest-budget", "uncoordinated", "sequential",
+                                          "multistart", "ils", "ils-cache", "ils-revert", "ils-alns",
+                                          "ils-moves", "ils-full"};
+
+// The settings each named version of B runs with. Plain ils keeps whatever --ils-* options were given.
+static IlsParams ilsParamsFor(const string& approach, IlsParams params) {
+    if (approach == "ils") return params;
+    params.cacheScores = true;  // #16: same plans as without it, only faster
+    if (approach == "ils-revert" || approach == "ils-full") {
+        params.annealing = true;  // #14, at temperature 0: go back to the plan before the shake if it got worse
+        params.startTemperature = 0;
+    }
+    if (approach == "ils-alns") params.alns = true;                                    // #15
+    if (approach == "ils-moves" || approach == "ils-full") params.localSearch = true;  // #13
+    return params;
+}
+
 static void printUsage() {
     cerr << "usage: campaign [options]\n"
             "  --data PATH          GeoNames file (default CS201_2026_project/MY.txt)\n"
@@ -47,8 +67,11 @@ static void printUsage() {
             "  --max-towns N        keep only the N most populous towns (default: all)\n"
             "  --merge-km D         merge places within D km of a bigger one (default 5)\n"
             "  --borneo             include Sabah, Sarawak and Labuan (reached by flight)\n"
-            "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all),\n"
-            "                       or multistart (not part of all)\n"
+            "  --approach NAME      one approach, or all (default). Benchmarks: nearest, nearest-budget,\n"
+            "                       uncoordinated. A: sequential, multistart (#17). B and its improvements:\n"
+            "                       ils (as published), ils-cache (#16), ils-revert (#14), ils-alns (#15),\n"
+            "                       ils-moves (#13), ils-full (#13 + #14). The --ils-* options below\n"
+            "                       change plain ils; the named versions set them themselves\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
             "  --ils-cache          ILS keeps each candidate insertion's timing and reach gain between steps and\n"
@@ -160,8 +183,7 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         if (find(known.begin(), known.end(), name) == known.end()) throw runtime_error("unknown ALNS operator " + name);
     }
     const string& a = options.approach;
-    if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
-        a != "ils" && a != "multistart") {
+    if (a != "all" && find(APPROACHES.begin(), APPROACHES.end(), a) == APPROACHES.end()) {
         throw runtime_error("unknown approach " + a);
     }
     const MultiStartParams& ms = options.multiStartParams;
@@ -268,6 +290,20 @@ static void appendSummaryCsv(const string& path, const string& approach, const I
         << runtimeMs << '\n';
 }
 
+// B's search statistics, under its row of the table.
+static void printIlsStats(const IlsStats& stats, const IlsParams& params) {
+    printf("    %d rounds, %d improvements over two runs; best reach from empty routes %.0f, from A's plan %.0f\n",
+           stats.iterations, stats.improvements, stats.reachFromEmpty, stats.reachFromA);
+    if (params.localSearch) printf("    local search kept %d moves\n", stats.localMoves);
+    if (!stats.operators.empty()) {
+        printf("    ALNS operators (final weight averaged over the two runs, uses, new bests):\n");
+        for (const OperatorStats& op : stats.operators) {
+            printf("      %-8s weight %5.1f  uses %4d  new bests %3d\n", op.name.c_str(), op.weight, op.uses,
+                   op.newBests);
+        }
+    }
+}
+
 static Solution runPlanner(const string& approach, const Instance& inst, const Options& options,
                            IlsStats& ilsStats) {
     if (approach == "nearest") return solveNearestNeighbour(inst);
@@ -275,7 +311,7 @@ static Solution runPlanner(const string& approach, const Instance& inst, const O
     if (approach == "uncoordinated") return solveUncoordinated(inst);
     if (approach == "sequential") return solveSequential(inst);
     if (approach == "multistart") return solveMultiStart(inst, options.multiStartParams);
-    return solveIls(inst, options.ilsParams, &ilsStats);
+    return solveIls(inst, ilsParamsFor(approach, options.ilsParams), &ilsStats);
 }
 
 int main(int argc, char** argv) {
@@ -312,12 +348,9 @@ int main(int argc, char** argv) {
     if (!options.routesDir.empty()) writeInstanceCsv(options.routesDir, inst);
 
     printTableHeader();
-    IlsStats ilsStats;
-    // multistart is an experiment (#17), so it only runs when asked for by name.
-    vector<string> approaches = {"nearest", "nearest-budget", "uncoordinated", "sequential", "ils", "multistart"};
-    for (const string& approach : approaches) {
-        bool inAll = approach != "multistart";
-        if (!(options.approach == "all" && inAll) && options.approach != approach) continue;
+    for (const string& approach : APPROACHES) {
+        if (options.approach != "all" && options.approach != approach) continue;
+        IlsStats ilsStats;
 
         auto startClock = chrono::steady_clock::now();
         Solution solution = runPlanner(approach, inst, options, ilsStats);
@@ -333,6 +366,7 @@ int main(int argc, char** argv) {
                    "has %.0f\n",
                    longest, longest / inst.clock.dayHours, inst.clock.dayHours, inst.campaignHours());
         }
+        if (approach.rfind("ils", 0) == 0) printIlsStats(ilsStats, ilsParamsFor(approach, options.ilsParams));
 
         if (!options.routesDir.empty()) {
             writeRoutesCsv(options.routesDir + "/" + approach + "_routes.csv", inst, solution, metrics);
@@ -342,18 +376,5 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (options.approach == "all" || options.approach == "ils") {
-        printf("\nILS: %d iterations, %d improvements over two runs. Best reach from empty routes %.0f, "
-               "from A's plan %.0f\n",
-               ilsStats.iterations, ilsStats.improvements, ilsStats.reachFromEmpty, ilsStats.reachFromA);
-        if (options.ilsParams.localSearch) printf("ILS local search kept %d moves\n", ilsStats.localMoves);
-        if (!ilsStats.operators.empty()) {
-            printf("ALNS operators (final weight averaged over the two runs, uses, new bests):\n");
-            for (const OperatorStats& op : ilsStats.operators) {
-                printf("  %-8s weight %5.1f  uses %4d  new bests %3d\n", op.name.c_str(), op.weight, op.uses,
-                       op.newBests);
-            }
-        }
-    }
     return 0;
 }

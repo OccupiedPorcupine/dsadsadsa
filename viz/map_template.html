@@ -241,7 +241,12 @@ const APPROACH_NAMES = {
   "nearest-budget": "Nearest neighbour, budgeted",
   uncoordinated: "Uncoordinated (baseline)",
   sequential: "A: one at a time",
-  ils: "B: iterated local search",
+  multistart: "A, multi-start (#17)",
+  ils: "B: iterated local search, as published",
+  "ils-revert": "B + go back if worse (#14)",
+  "ils-alns": "B + ALNS (#15)",
+  "ils-moves": "B + local-search moves (#13)",
+  "ils-full": "B + moves + go back (final)",
 };
 const MAX_POLITICIAN_COLOURS = 7;
 const PLAY_SECONDS = 20;  // the whole campaign plays in this many seconds
@@ -250,7 +255,7 @@ const homes = DATA.homes;
 const homeLatLng = p => [homes[p].lat, homes[p].lon];
 const numPoliticians = DATA.meta.politicians;
 
-let currentApproach = DATA.routes.ils ? "ils" : Object.keys(DATA.routes)[0];
+let currentApproach = ["ils-full", "ils"].find(a => DATA.routes[a]) || Object.keys(DATA.routes)[0];
 let visiblePoliticians = new Set([...Array(numPoliticians).keys()]);
 let currentHour = 0;
 let playing = false;
