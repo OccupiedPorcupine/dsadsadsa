@@ -60,7 +60,7 @@ public:
 
     void load(const Solution& plan);
     void insertUntilFull();
-    void shake(int firstPosition, int howMany);
+    void shake(int firstPosition, int howMany, bool avoidDelays);
 
     double totalReach() const;
     int shortestRouteLength() const;
@@ -70,6 +70,7 @@ public:
 
 private:
     void tryInsertion(int politician, int town, int position, Insertion& best) const;
+    void keepRunsThatDelay(int politician, vector<bool>& remove) const;
     void applyInsertion(const Insertion& insertion);
     void recalculateTimes(int politician);
     void updateMaxShifts();
@@ -248,9 +249,37 @@ void IlsPlanner::recalculateTimes(int politician) {
     }
 }
 
+// Re-timing after a shake assumes that removing visits never makes the next stop later. That
+// fails when travel times break the triangle inequality, as flights to and from Borneo do:
+// Kuching -> a peninsula town -> Kota Kinabalu is two short flights, but Kuching -> Kota Kinabalu
+// is a 15 h drive. This puts back any run of removed visits whose removal would make the next
+// rally (or home) be reached after its old start (or after the campaign ends). It uses the old
+// times, which is enough because the rally before the run finishes no later after re-timing.
+void IlsPlanner::keepRunsThatDelay(int politician, vector<bool>& remove) const {
+    const vector<PlannedVisit>& route = routes[politician];
+    int length = route.size();
+    int home = inst.homeIndex(politician);
+    int previous = -1;  // the last kept visit, or -1 for home
+    for (int i = 0; i <= length; ++i) {
+        if (i < length && remove[i]) continue;
+        if (previous + 1 < i) {
+            int from = previous == -1 ? home : route[previous].town;
+            double leave = previous == -1 ? 0.0 : route[previous].finish;
+            int to = i == length ? home : route[i].town;
+            double latest = i == length ? inst.campaignHours() : route[i].start;
+            if (leave + inst.travelTime(from, to) > latest + EPS) {
+                for (int j = previous + 1; j < i; ++j) remove[j] = false;
+            }
+        }
+        previous = i;
+    }
+}
+
 // Removes `howMany` visits in a row from every route, starting at `firstPosition`
-// (wrapping round to the start of the route if needed).
-void IlsPlanner::shake(int firstPosition, int howMany) {
+// (wrapping round to the start of the route if needed). With `avoidDelays`, removals that
+// would make a later stop late are skipped (see above). Only the annealing search uses this so
+// far, so that B's default results stay exactly as they were (#14).
+void IlsPlanner::shake(int firstPosition, int howMany, bool avoidDelays) {
     for (int p = 0; p < inst.numPoliticians; ++p) {
         vector<PlannedVisit>& route = routes[p];
         int length = route.size();
@@ -260,6 +289,7 @@ void IlsPlanner::shake(int firstPosition, int howMany) {
         for (int i = 0; i < min(howMany, length); ++i) {
             remove[(firstPosition + i) % length] = true;
         }
+        if (avoidDelays) keepRunsThatDelay(p, remove);
 
         vector<PlannedVisit> kept;
         for (int i = 0; i < length; ++i) {
@@ -357,7 +387,7 @@ static Solution search(const Instance& inst, IlsPlanner& planner, const IlsParam
 
     while (iterations < params.maxIterations && roundsWithoutImprovement < params.maxNoImprove) {
         iterations++;
-        planner.shake(removeFrom, removeCount);
+        planner.shake(removeFrom, removeCount, params.annealing);
         planner.insertUntilFull();
 
         double reach = planner.totalReach();
