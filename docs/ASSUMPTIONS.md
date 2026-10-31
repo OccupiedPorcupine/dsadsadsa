@@ -27,7 +27,7 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | D5 | Population figures are used as given by GeoNames. They are not real voter numbers and may be out of date. | No better source is in the provided data. |
 | D6 | Five places listed in `data/excluded_places.csv` are dropped before merging (`--exclude`; `--exclude none` keeps them): Pelentong, Mukim Pulai, Kampung Kangkar Teberau, Kota Kuala Muda and Kampung Baru Subang. | Each carries a district's or subdistrict's population on top of the city it sits in, 7–17 km away, too far for the 5 km merge. GeoNames tags them as ordinary towns (`PPL`), so no filter on feature code catches them. They made the 11 places within 25 km of Johor Bahru add up to 4.0M (Johor Bahru district had about 1.7M at the 2020 census), and the 92 towns 24.0M, close to the whole Peninsular population. Without them, the JB area is 2.8M and the 90 towns 21.4M. The reason for each is in the CSV (#11). |
 
-**Still in, flagged:** Bukit Rahman Putra (607,000) and a few other round-number figures (Kota Damansara 500,000, Bukit Jalil 200,000) look like estimates, but the evidence is weaker, so they are kept. Add a row to the CSV to drop one.
+**Kept on purpose:** Bukit Rahman Putra (607,000, 0.8 km from Sungai Buloh, which the merge folds into it), Kota Damansara (500,000) and Bukit Jalil (200,000) look like estimates, but unlike the five above there is no hard evidence against them, so the team decided to keep GeoNames' figures. The results are sensitive to this: at the defaults, dropping all three gives budgeted nearest neighbour 16.88M, A 16.62M and B 19.02M, so the benchmark would edge out A (it trails A by 1% with them in). Add a row to the CSV to drop one.
 
 ## Travel and time
 
@@ -79,7 +79,6 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - Should a politician be allowed to return to a town later in the campaign? See S6. This becomes more relevant under V4, because a revisit days later is worth almost the full population.
 - Default values for tauRepeat, tauPoll and beta (V4–V6) are first guesses. The first sensitivity sweeps are in [RESULTS.md](RESULTS.md) §3 and §5. tauPoll matters most, and needs a justification.
 - Exact solver for small instances (about 10 towns), to measure how far A and B are from the best possible plan.
-- Should the round-number places flagged under D6 be excluded too?
 
 ## Change log
 
@@ -96,3 +95,4 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-31: Added A6 (B runs from two starts, #7). A3's reach calculation is now O(k³), because of the crowd split in V6. Brought S7, V4 and A4 up to date.
 - 2026-10-31: Added D6: five places that double-count a city are dropped before merging (#11). The default instance has 90 towns.
 - 2026-10-31: Added A7, the budgeted nearest-neighbour benchmark (#12).
+- 2026-10-31: Decided to keep the round-number places flagged under D6 (Bukit Rahman Putra, Kota Damansara, Bukit Jalil), and noted how much they move the results. Closed that open question.

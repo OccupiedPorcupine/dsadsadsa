@@ -398,7 +398,7 @@ Checks run on v2:
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
 - **The objective ignores fairness.** At k = 5, alpha = 0 and 6 days, fairness is 0.47 for both A and B.
-- **Population ≠ voters.** Five places that double-count a city are excluded by hand (ASSUMPTIONS D6); a few round-number figures remain.
+- **Population ≠ voters.** Five places that double-count a city are excluded by hand (ASSUMPTIONS D6); a few round-number figures (Bukit Rahman Putra 607,000) are kept on purpose, though dropping them would put the budgeted nearest-neighbour benchmark ahead of A at the defaults.
 
 ## 10. Code map
 
