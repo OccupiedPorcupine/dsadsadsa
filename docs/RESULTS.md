@@ -4,6 +4,8 @@ All numbers below come from `build/campaign` runs of **v2** of the model: own ho
 
 **Note (2026-10-31):** every section and every CSV in `results/sweep/` was re-run after the daily window was widened from 08:00–20:00 (12 h) to 06:00–22:00 (16 h), so the campaign has 224 active hours instead of 168 (ASSUMPTIONS V3). This changed every number, and it changed one conclusion: budgeted nearest neighbour now beats A at the defaults (finding 2). Figures in earlier commits and issue comments used 12-hour days and can't be compared with these, except the 14 × 12 h rows of section 6, which reproduce them.
 
+**Versions of B (2026-10-31):** five experiments from the literature (GitHub issues #13–#17) are kept as their own approaches, so the results show what each one adds: `ils-cache`, `ils-revert`, `ils-alns`, `ils-moves`, `ils-full` and `multistart`. Sections 1–7 compare the benchmarks, A and **B as published** (`ils`, unchanged); section 8 compares the versions of B. Every CSV in `results/sweep/` was re-run with all of them; the reach of the approaches that already existed is unchanged.
+
 Runtimes are from a single run on an Apple Silicon Mac (Apple clang 21, `-O2`). They will differ on other machines and vary a little between runs. The other numbers are deterministic.
 
 Column meanings:
@@ -23,9 +25,10 @@ Column meanings:
 |---|---|---|---|---|---|---|---|---|---|
 | Classic nearest neighbour, full tour | 21.58M | 50.5% | 180 | 1 (1.1 h) | 94.8 | 28.0 | 0.91 | **no** | < 0.1 ms |
 | Classic nearest neighbour, budgeted | 21.14M | 49.5% | 154 | 1 (1.1 h) | 82.1 | 23.2 | 0.89 | yes | < 0.1 ms |
-| Uncoordinated (baseline) | 15.08M | 35.3% | 124 | **13** (34.2 h) | 140.5 | 13.1 | 0.72 | yes | 0.7 ms |
-| A: one at a time | 18.36M | 43.0% | 122 | 0 | 148.8 | 8.9 | 0.87 | yes | 1.0 ms |
-| B: iterated local search | **23.62M** | **55.3%** | 113 | 0 | 172.8 | 4.7 | **0.92** | yes | ~216 ms |
+| Uncoordinated (baseline) | 15.08M | 35.3% | 124 | **13** (34.2 h) | 140.5 | 13.1 | 0.72 | yes | 0.5 ms |
+| A: one at a time | 18.36M | 43.0% | 122 | 0 | 148.8 | 8.9 | 0.87 | yes | 0.7 ms |
+| B: iterated local search, as published | **23.62M** | **55.3%** | 113 | 0 | 172.8 | 4.7 | **0.92** | yes | ~150 ms |
+| B, final version (`ils-full`, section 8) | 26.71M | 62.5% | 135 | 0 | 130.9 | 1.2 | 0.95 | yes | ~740 ms |
 
 - **Full tour:** invalid. Each tour visits all 90 towns and needs **260.5 active hours (16.3 days of 16 h)** to get everyone home, against a 224 h campaign (260.5 h for the KL politician, 258.7 h for George Town). 22 of its 180 rallies are after polling day and reach nobody (#4), so its reach comes from the first 158 alone.
 - **Budgeted nearest neighbour:** the same rule, but each politician stops when no town leaves time to get home. It is valid and reaches 21.14M, **15% more than A**. It holds more rallies than A (154 vs 122) and drives a little over half as far (82 h vs 149 h), because the big towns cluster around KL, JB and Penang. Its two routes meet once, in one 1.1 h clash.
@@ -33,7 +36,7 @@ Column meanings:
 - **A:** valid, never chooses to clash, and fairness is 0.87. It now falls behind budgeted nearest neighbour, with 32 fewer rallies and 1.8 times the driving.
 - **B:** reaches 29% more than A and 12% more than budgeted nearest neighbour, with the best fairness (0.92). It travels the most (173 h). The polling-day weight rewards rallying in big towns late, and B is better at fitting those in. Its result here comes from the search that starts from empty routes; the one that starts from A's plan reaches 23.08M.
 
-The route map for this run is `results/default/campaign_map.html` (see [viz/README.md](../viz/README.md)). It can show the budgeted nearest-neighbour plan, the baseline, A and B.
+The route map for this run is `results/default/campaign_map.html` (see [viz/README.md](../viz/README.md)). It can show the budgeted nearest-neighbour plan, the baseline, A, multi-start A and every version of B except `ils-cache`, whose routes are the same as B's.
 
 ## 2. Across settings
 
@@ -102,7 +105,7 @@ Reach barely depends on where politicians start for A and B: each varies by abou
 
 ### 4.1 Homes weighted by population, k = 2 to 10
 
-Default settings except k. For each k from 2 to 10, ten runs with `--starts weighted --seed 1` to `10`. These draw k distinct rally towns, each with probability proportional to its population, so big towns (KL, Puchong, JB) are home more often and many teams have two politicians in the Klang Valley. The same seed gives the same team plus one more politician at the next k, so each k adds one politician to the same ten teams. Raw rows: [results/sweep/weighted_starts.csv](../results/sweep/weighted_starts.csv); the tables come from `python3 scripts/average_by_k.py results/sweep/weighted_starts.csv`. All 360 plans are valid.
+Default settings except k. For each k from 2 to 10, ten runs with `--starts weighted --seed 1` to `10`. These draw k distinct rally towns, each with probability proportional to its population, so big towns (KL, Puchong, JB) are home more often and many teams have two politicians in the Klang Valley. The same seed gives the same team plus one more politician at the next k, so each k adds one politician to the same ten teams. Raw rows: [results/sweep/weighted_starts.csv](../results/sweep/weighted_starts.csv); the tables come from `python3 scripts/average_by_k.py results/sweep/weighted_starts.csv`. All 900 plans (NN, the baseline, A, multi-start A and the six versions of B) are valid.
 
 Mean reach in millions over the ten runs (standard deviation in brackets):
 
@@ -136,11 +139,11 @@ Mean fairness and clashes:
 
 | k | NN fairness | Uncoord. fairness | A fairness | B fairness | NN clashes | Uncoord. clashes | A clashes | B clashes | B runtime |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 | 0.91 | 0.87 | 0.91 | 0.97 | 6.6 | 22.3 | 0.1 | 0.0 | 0.26 s |
-| 4 | 0.64 | 0.59 | 0.78 | 0.91 | 46.6 | 124.0 | 0.3 | 0.0 | 0.80 s |
-| 6 | 0.45 | 0.41 | 0.67 | 0.85 | 140.6 | 287.1 | 0.5 | 0.1 | 1.49 s |
-| 8 | 0.39 | 0.24 | 0.58 | 0.79 | 233.0 | 553.1 | 0.5 | 0.5 | 1.59 s |
-| 10 | 0.31 | 0.18 | 0.48 | 0.74 | 372.8 | 1002.8 | 0.6 | 0.5 | 2.84 s |
+| 2 | 0.91 | 0.87 | 0.91 | 0.97 | 6.6 | 22.3 | 0.1 | 0.0 | 0.18 s |
+| 4 | 0.64 | 0.59 | 0.78 | 0.91 | 46.6 | 124.0 | 0.3 | 0.0 | 0.55 s |
+| 6 | 0.45 | 0.41 | 0.67 | 0.85 | 140.6 | 287.1 | 0.5 | 0.1 | 1.03 s |
+| 8 | 0.39 | 0.24 | 0.58 | 0.79 | 233.0 | 553.1 | 0.5 | 0.5 | 1.08 s |
+| 10 | 0.31 | 0.18 | 0.48 | 0.74 | 372.8 | 1002.8 | 0.6 | 0.5 | 1.93 s |
 
 (The script prints every k; odd k follow the same trend.)
 
@@ -196,19 +199,81 @@ k = 2, default settings. Larger instances were made by lowering the population c
 
 | Towns | NN reach | A reach | B reach | A runtime | B runtime |
 |---|---|---|---|---|---|
-| 15 | 7.15M | 7.24M | 9.41M | 0.1 ms | 5 ms |
-| 30 | 12.49M | 12.34M | 17.98M | 0.2 ms | 10 ms |
-| 60 | 20.68M | 18.05M | 22.92M | 0.6 ms | 88 ms |
-| 90 | 21.14M | 18.36M | 23.62M | 1.0 ms | 216 ms |
-| 173 (pop ≥ 20k) | 18.49M | 18.35M | 23.08M | 1.8 ms | 969 ms |
-| 253 (pop ≥ 10k) | 12.41M | 18.35M | 23.16M | 2.7 ms | 3,753 ms |
+| 15 | 7.15M | 7.24M | 9.41M | < 0.1 ms | 4 ms |
+| 30 | 12.49M | 12.34M | 17.98M | 0.1 ms | 7 ms |
+| 60 | 20.68M | 18.05M | 22.92M | 0.4 ms | 60 ms |
+| 90 | 21.14M | 18.36M | 23.62M | 0.7 ms | 150 ms |
+| 173 (pop ≥ 20k) | 18.49M | 18.35M | 23.08M | 1.3 ms | 683 ms |
+| 253 (pop ≥ 10k) | 12.41M | 18.35M | 23.16M | 1.8 ms | 2,645 ms |
 
 - **Nearest neighbour peaks at 90 towns and then falls**, to 12.41M at 253 towns: with smaller towns in the list, the nearest town is often a small one, and it ignores population. A and B pick by reach, so smaller towns barely change their results.
 - **Nearest neighbour beats A on the 30-, 60-, 90- and 173-town instances** (by 1%, 15%, 15% and 1%).
-- **B is about 1.7× slower than in v1 at 90 towns** (216 ms vs 125 ms) and 3.6× slower at 253 (3.75 s vs 1.05 s). Each candidate now tries two timings and scores reach with the full model, since #7 the whole search runs twice (from empty routes and from A's plan), and 16-hour days make routes longer. The pruning in `tryInsertion` (skip the exact reach calculation when even a full crowd couldn't win) keeps the cost down. A is still more than 100× faster from 60 towns up.
+- **B is about 1.2× slower than in v1 at 90 towns** (150 ms vs 125 ms) and 2.5× slower at 253 (2.65 s vs 1.05 s). Each candidate now tries two timings and scores reach with the full model, since #7 the whole search runs twice (from empty routes and from A's plan), and 16-hour days make routes longer. The pruning in `tryInsertion` (skip the exact reach calculation when even a full crowd couldn't win) keeps the cost down. A is still more than 100× faster from 60 towns up. Section 8 has the faster and better versions of B.
 - **B's reach isn't monotone in the number of towns** (23.62M at 90, 23.08M at 173): it is a heuristic, and a larger list gives it more ways to settle on a slightly worse plan.
 
-## 8. Findings
+## 8. Improving B: the experiments
+
+B as published (Vansteenwegen et al. 2009) only inserts towns and shakes the plan. Five ideas from the later literature were each tried as an experiment (GitHub issues #13–#17) and are kept as their own approaches, so the effect of each one can be measured on the same runs:
+
+| Approach | What it adds to B | Source | Issue |
+|---|---|---|---|
+| `ils` | Nothing: B as published | Vansteenwegen et al. 2009 | — |
+| `ils-cache` | Keeps each candidate insertion's timing and reach between steps, and works out again only those the last insertion changed. Same plans as `ils` | Granular neighbourhoods, Labadie et al. 2012 | #16 |
+| `ils-revert` | After each shake and refill, goes back to the plan before the shake if the new one reaches fewer people | SAILS, Gunawan et al. 2017 (simulated annealing at temperature 0) | #14 |
+| `ils-alns` | Several destroy and repair operators, picked more often the more they improve the plan | ALNS, Ropke & Pisinger 2006; Hammami et al. 2020 | #15 |
+| `ils-moves` | After each refill, tries replacing a rally, moving or swapping one between politicians, and swapping two in one route; keeps any move that raises reach | VND moves, Shahmanzari et al. 2022 | #13 |
+| `ils-full` | `ils-moves` and `ils-revert` together: the final version | — | #13, #14 |
+| `multistart` | Not B: A run 200 times with random politician orders and slightly random choices, keeping the best | Biased randomisation, Panadero et al. 2021 | #17 |
+
+Every version except `ils` and `multistart` also uses the cache, so their runtimes can be compared with each other.
+
+**Default run** (as section 1):
+
+| Approach | Reach | vs B | Rallies | Travel (h) | Wait (h) | Fairness | Runtime |
+|---|---|---|---|---|---|---|---|
+| A (`sequential`) | 18.36M | −22.3% | 122 | 148.8 | 8.9 | 0.87 | 0.7 ms |
+| `multistart` | 19.25M | −18.5% | 107 | 179.6 | 8.4 | 0.95 | 121 ms |
+| `ils` | 23.62M | — | 113 | 172.8 | 4.7 | 0.92 | 150 ms |
+| `ils-cache` | 23.62M | same plan | 113 | 172.8 | 4.7 | 0.92 | 55 ms |
+| `ils-alns` | 23.49M | −0.5% | 119 | 159.8 | 7.3 | 0.86 | 176 ms |
+| `ils-revert` | 24.75M | +4.8% | 122 | 155.4 | 3.0 | 0.95 | 298 ms |
+| `ils-moves` | 26.07M | +10.4% | 124 | 152.9 | 3.0 | 0.90 | 340 ms |
+| `ils-full` | **26.71M** | **+13.1%** | 135 | 130.9 | 1.2 | 0.95 | 738 ms |
+
+**Across the 27 settings of sections 2 and 5, and the 90 weighted-home runs of section 4.1** (reach and runtime as a ratio to `ils`; runtime is the median):
+
+| Approach | Reach, 27 settings: mean (min–max) | Better / worse | Reach, 90 runs: mean (min–max) | Better / worse | Runtime vs `ils` | Slowest run |
+|---|---|---|---|---|---|---|
+| `multistart` | 0.890 (0.706–0.994) | 0 / 27 | 0.872 (0.803–0.939) | 0 / 90 | 0.6–0.8× | 2.3 s |
+| `ils-cache` | 1.000 | equal in all | 1.000 | equal in all | **0.3×** | 0.6 s |
+| `ils-alns` | 1.002 (0.956–1.060) | 12 / 13 | 1.014 (0.975–1.053) | 75 / 15 | 0.8× | 3.0 s |
+| `ils-revert` | 1.052 (1.000–1.144) | 26 / 0 | 1.067 (1.007–1.116) | 90 / 0 | 0.6–0.8× | 2.1 s |
+| `ils-moves` | 1.115 (1.047–1.213) | 27 / 0 | 1.137 (1.095–1.181) | 90 / 0 | 1.3–1.8× | 5.7 s |
+| `ils-full` | **1.139** (1.062–1.220) | **27 / 0** | **1.161** (1.114–1.210) | **90 / 0** | 2.9–4.3× | 15.5 s |
+
+**By team size** (section 4.1's weighted homes; mean reach in millions):
+
+| k | `multistart` | `ils` | `ils-revert` | `ils-alns` | `ils-moves` | `ils-full` | `ils-full` vs `ils` | `ils` runtime | `ils-full` runtime |
+|---|---|---|---|---|---|---|---|---|---|
+| 2 | 19.08 | 22.96 | 24.47 | 23.25 | 26.25 | **26.82** | +16.9% (+13.3 to +20.2) | 0.18 s | 0.52 s |
+| 4 | 33.31 | 40.16 | 42.54 | 40.37 | 45.31 | **46.88** | +16.8% (+13.0 to +19.1) | 0.55 s | 2.03 s |
+| 6 | 45.01 | 51.83 | 55.44 | 52.68 | 59.27 | **60.78** | +17.3% (+15.1 to +19.7) | 1.03 s | 4.24 s |
+| 8 | 55.01 | 60.36 | 64.84 | 61.87 | 69.19 | **70.32** | +16.5% (+13.6 to +18.3) | 1.08 s | 6.17 s |
+| 10 | 62.38 | 67.35 | 71.08 | 68.02 | 75.16 | **75.94** | +12.8% (+11.4 to +14.9) | 1.93 s | 10.72 s |
+
+(`average_by_k.py` prints every k; odd k follow the same trend.)
+
+- **Each adopted change adds something, and they add up.** The cache makes B about 3× faster (2.7× at 90 towns, 4.9× at 253) with exactly the same plans. Going back to the plan before the shake adds about 5–7%. The local-search moves add 11–14%. Together they reach 14–16% more than B, better in all 117 runs, by at least 6.2%.
+- **Most of the moves' gain comes from swapping two rallies in one route** so that the bigger town comes later, which the polling-day weight rewards (#13). Moving the big towns to the end of the campaign is exactly what A can't do.
+- **The final version is not the best in every run.** `ils-moves` alone beats `ils-full` in 3 of the 27 settings (and ties in 1) and in 1 of the 90 runs, by at most 1.1%. Going back to the earlier plan probably sometimes stops the search from moving on to a better area. `ils-revert` on its own loses to `ils` on the two smallest instances (−2.1% at 15 towns, −1.4% at 30).
+- **Two ideas didn't pay off.** ALNS (#15) is about even with B: +0.2% on the 27 settings, +1.4% on the 90 runs, and −0.5% at the defaults. Its adaptive weights probably have little to learn from while every plan is accepted. Multi-start A (#17) beats A by 2–8% but stays 11–13% below B even with B's runtime: A only appends towns, so randomising its choices can't move big towns later.
+- **The cost is runtime.** `ils-full` takes 2.9–4.3× as long as B (median), up to 15.5 s at k = 10. At 253 towns it reaches 26.30M (+13.6% over B) in 2.7 s, about the same time B needs.
+- **Against the benchmarks,** `ils-full` reaches on average 35% more than budgeted nearest neighbour and 34% more than A over the 27 settings, and 70% and 44% more over the 90 weighted-home runs.
+- **Every plan is valid:** all 117 benchmark runs, and all 360 stress-test settings (DESIGN §8) for every approach. The shake in `ils-revert` and `ils-full` also skips removals that would make a later stop late; that can only happen with Borneo flights, which break the triangle inequality (#14).
+
+Runtimes come from single runs while other benchmarks were running, so they are rough; the reach figures are exact.
+
+## 9. Findings
 
 1. **The classic TSP heuristic can't be used unchanged.** The full nearest-neighbour tour needs 16.3 days of 16 h for a 14-day campaign, and 22 of its rallies fall after polling day. With one check added (only go where there's still time to get home), it is valid.
 2. **A valid classic heuristic is a strong benchmark, and beats A at the defaults.** Budgeted nearest neighbour reaches 15% more than A at the defaults, and beats A in 16 of the 27 settings in sections 2 and 5: 8 of the 9 14-day campaigns in section 2, and 8 of the 9 cells in section 5. It wins by holding many more rallies with much less driving in the big-town clusters. A's advantage is clear only in 6-day campaigns (12–38%), at k = 5 with alpha = 0 (22%), and with more politicians from random homes (section 4.1). With 12-hour days A was narrowly ahead at the defaults; the wider window helps NN far more than A (section 6).
@@ -220,8 +285,9 @@ k = 2, default settings. Larger instances were made by lowering the population c
 8. **Averaged over homes weighted by population, B is first at every k from 2 to 10** and the baseline last. B beats both in all 90 runs. NN is ahead of A on average at k = 2 and 3; A is ahead from k = 4, and in every run from k = 7 (section 4.1).
 9. **Maximising reach still isn't fair.** Fairness drops as low as 0.44 for A and 0.41 for B (k = 5, alpha = 0, 6 days). Nothing in the objective rewards using every politician.
 10. **The decay parameters matter more than the algorithm.** tauPoll moves reach by about 1.5–1.85× and B vs A by 0.6–55%; it also decides how far A falls behind nearest neighbour. The parameters should be justified, or swept, in the report.
+11. **Ideas from the literature improve B step by step** (section 8). Cached insertion scores make it about 3× faster with the same plans; going back to the plan before a bad shake adds 5–7%; local-search moves add 11–14%; together they add 14–16%, better in all 117 runs. ALNS and a randomised multi-start A did not help.
 
-## 9. Reproduce
+## 10. Reproduce
 
 ```sh
 make
@@ -256,13 +322,14 @@ for opt in "--max-towns 15" "--max-towns 30" "--max-towns 60" "" "--min-pop 2000
 done
 ```
 
-Delete the old CSVs in `results/sweep/` first: `--summary` appends.
+Delete the old CSVs in `results/sweep/` first: `--summary` appends. Each run includes every approach; section 8's comparisons come from the same CSVs (`python3 scripts/compare.py` compares two `scripts/bench.sh` outputs, as used in the experiment issues).
 
-## 10. Not done yet
+## 11. Not done yet
 
 - Gap to the optimal plan on small instances (needs an exact solver).
 - Separating the effect of the daily window from the effect of campaign length on the polling-day weight (section 6).
 - Why NN and A reach less with 24-hour days than with 16-hour days (section 6).
 - A look-ahead for A, so it can save big towns for the last days when the polling-day weight is high. Without one, it falls behind budgeted nearest neighbour in long campaigns (findings 2 and 10).
-- A better search for B when the polling-day weight is off or k = 5. From empty routes it still loses to A in some of those settings (sections 2 and 5), and exact knock-on ranking didn't fix it (#7).
+- A better search for B when the polling-day weight is off or k = 5. From empty routes it still loses to A in some of those settings (sections 2 and 5), and exact knock-on ranking didn't fix it (#7). The versions in section 8 beat B in every one of these settings.
+- Combining ALNS with the go-back acceptance rule, and adding the local-search moves to the run that starts from A's plan only where it helps (section 8).
 - Repeated runs to give runtime averages instead of single measurements.

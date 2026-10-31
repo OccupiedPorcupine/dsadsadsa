@@ -50,9 +50,10 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 | A1 | Baseline: each politician plans greedily as if alone, which is the classic single-traveller view. | Shows what goes wrong without coordination: largely the same towns at the same times, many clashes, and the reach they cost. |
 | A2 | Approach A ranks (town, timing) options by `reach gain / (travel + wait + rally hours)`, where the gain includes what a clash costs the other politician, and timing is wait or clash. | Plain greedy "reach per hour", which compares wait, clash and go elsewhere in one score. |
 | A3 | Approach B ranks insertions by `reach gain² / extra time`, trying both timings. The exact gain is only computed when `population² / extra time` could beat the best so far. | Taken from Vansteenwegen et al. (2009). Squaring favours big towns. The bound skips most of the O(k³) reach calculations. |
-| A4 | Approach B stops after 150 rounds without improvement or 5,000 rounds in total. | The paper's stopping rule is similar. Each run takes about 0.2 s at 90 towns and about 3.8 s at 253. |
+| A4 | Approach B stops after 150 rounds without improvement or 5,000 rounds in total. | The paper's stopping rule is similar. Each run takes about 0.15 s at 90 towns and about 2.6 s at 253. |
 | A5 | Approach B's shake rule: the removal point moves along the route, and the number removed grows by 1 each round, resetting after an improvement or once it exceeds `towns / (3k)`. | Follows the paper. |
 | A6 | Approach B runs its whole search twice, from empty routes (as in the paper) and from Approach A's plan, and keeps the better plan. | From empty routes alone, B lost to A in 4 of the 27 settings in RESULTS §2 and §5; from A's plan alone, it did worse than from empty routes in 10. Ranking insertions on the exact knock-on reach was tried first and didn't fix it (#7). Running both doubles B's runtime and guarantees B ≥ A. |
+| A8 | The improvements to B from the experiments (#13–#17) are kept as separate approaches (`ils-cache`, `ils-revert`, `ils-alns`, `ils-moves`, `ils-full`, `multistart`) instead of replacing B, and B (`ils`) stays as published. The versions use the same round limits as B. `ils-revert` uses temperature 0. | So the results show what each idea adds, including the two that didn't help (RESULTS §8). Temperature 0 is deterministic and was as good as the tuned annealing temperatures (#14). |
 
 ## v2 (agreed and implemented 2026-10-29)
 
@@ -97,4 +98,5 @@ These replace the rows named in the last column. Rows that have been replaced ar
 - 2026-10-31: Added A7, the budgeted nearest-neighbour benchmark (#12).
 - 2026-10-31: Decided to keep the round-number places flagged under D6 (Bukit Rahman Putra, Kota Damansara, Bukit Jalil), and noted how much they move the results. Closed that open question.
 - 2026-10-31: Added `--starts weighted` (V1, V10), for the runs averaged over homes in RESULTS §4.1.
+- 2026-10-31: Added A8: the versions of B from experiments #13–#17 run as their own approaches.
 - 2026-10-31: Widened the daily window from 08:00–20:00 (12 h) to 06:00–22:00 (16 h), so the campaign has 224 active hours instead of 168 (V3, V8). Every result was re-run.

@@ -99,6 +99,7 @@ What the map shows:
 | **Baseline: uncoordinated** | Each politician plans greedily as if alone, which is classic single-traveller thinking. Clashes freely and pays the penalty. | Visited flags |
 | **A: sequential greedy** | Politicians are planned one after another. Each appends the town and timing (wait or clash) with the best `reach gain / (travel + wait + rally hours)`. | `BookingTable` (per-town sorted intervals) |
 | **B: iterated local search** | All politicians at once. Insert the best `(town, politician, position, timing)` by `gain^2 / extra time`, then shake (remove runs of visits) and repeat. Based on Vansteenwegen et al. (2009). Runs twice, from empty routes and from A's plan, and keeps the better plan, so it never ends below A. | `BookingTable` + per-visit `{arrive, start, finish, mode, maxShift}`. `maxShift` includes the slack before the next clash and before the day's window closes, so each insertion is checked in O(1) |
+| **Versions of B** (`ils-cache`, `ils-revert`, `ils-alns`, `ils-moves`, `ils-full`) and **multi-start A** (`multistart`) | Ideas from the later literature, each tried as an experiment (issues #13–#17) and kept as its own approach so the results show what it adds. `ils-full`, B with local-search moves and going back to the plan before a bad shake, reaches 14–16% more than B. See DESIGN §6.5 and RESULTS §8. | B's, plus a cache of candidate insertions (`ils-cache` and every later version) |
 
 ## Data and preprocessing
 
@@ -137,4 +138,4 @@ The full list, with the reasoning behind each one, is in [docs/ASSUMPTIONS.md](d
 | `fairness` | Lowest politician's reach ÷ highest politician's reach |
 | `valid` | Passed every check in the independent validator (timing, daily window, no rally after polling day, no town twice, back home in time) |
 
-After the table, `ILS:` gives B's iterations and improvements, and the reach of each of its two runs (from empty routes and from A's plan).
+Under each version of B, an indented line gives its rounds and improvements and the reach of each of its two runs (from empty routes and from A's plan); `ils-moves` and `ils-full` also say how many local-search moves they kept, and `ils-alns` lists its operators' weights.

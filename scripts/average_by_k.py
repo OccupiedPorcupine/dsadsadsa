@@ -2,7 +2,7 @@
 
 Usage: python3 scripts/average_by_k.py results/sweep/weighted_starts.csv
 Prints Markdown tables of mean reach, B's lead, fairness and runtime, and how often each
-approach's plan was valid. The full-tour nearest-neighbour benchmark is left out, because
+approach's plan was valid, then a table comparing the versions of B (and multi-start A). The full-tour nearest-neighbour benchmark is left out, because
 it is invalid by design.
 """
 
@@ -13,6 +13,8 @@ from collections import defaultdict
 
 APPROACHES = ["nearest-budget", "uncoordinated", "sequential", "ils"]
 NAMES = {"nearest-budget": "NN", "uncoordinated": "Uncoord.", "sequential": "A", "ils": "B"}
+# Versions of B from the experiments in issues #13-#17. ils-cache is left out: same plans as ils.
+VERSIONS = ["multistart", "ils", "ils-revert", "ils-alns", "ils-moves", "ils-full"]
 
 
 def main(path):
@@ -20,7 +22,7 @@ def main(path):
     runs = defaultdict(lambda: defaultdict(dict))
     with open(path, newline="") as file:
         for row in csv.DictReader(file):
-            if row["approach"] in APPROACHES:
+            if row["approach"] in APPROACHES + VERSIONS:
                 runs[int(row["k"])][row["homes"]][row["approach"]] = row
 
     def column(k, approach, field):
@@ -57,8 +59,21 @@ def main(path):
         runtime = statistics.mean(column(k, "ils", "runtime_ms"))
         print(f"| {k} | " + " | ".join(fair) + " | " + " | ".join(clash) + f" | {runtime:.0f} |")
 
-    invalid = [(k, a) for k in runs for run in runs[k].values() for a in APPROACHES if run[a]["valid"] != "1"]
-    total = sum(len(runs[k]) for k in runs) * len(APPROACHES)
+    versions = [v for v in VERSIONS if all(v in run for k in runs for run in runs[k].values())]
+    if versions:
+        print("\nVersions of B: mean reach in millions, the final version's lead over B, and mean runtime\n")
+        print("| k | " + " | ".join(versions) + " | ils-full vs ils | ils runtime (ms) | ils-full runtime (ms) |")
+        print("|---|" + "---|" * (len(versions) + 3))
+        for k in sorted(runs):
+            means = [f"{statistics.mean(column(k, v, 'reach')) / 1e6:.2f}" for v in versions]
+            gains = [100 * (a / b - 1) for a, b in zip(column(k, "ils-full", "reach"), column(k, "ils", "reach"))]
+            lead = f"{statistics.mean(gains):+.1f}% ({min(gains):+.1f} to {max(gains):+.1f})"
+            print(f"| {k} | " + " | ".join(means) + f" | {lead} | {statistics.mean(column(k, 'ils', 'runtime_ms')):.0f}"
+                  f" | {statistics.mean(column(k, 'ils-full', 'runtime_ms')):.0f} |")
+
+    checked = APPROACHES + versions
+    invalid = [(k, a) for k in runs for run in runs[k].values() for a in checked if run[a]["valid"] != "1"]
+    total = sum(len(runs[k]) for k in runs) * len(checked)
     print(f"\nValid plans: {total - len(invalid)} of {total}")
 
 

@@ -337,6 +337,57 @@ insertUntilFull(plan):
 | Feasibility check | Simulate one step forward | O(1) comparison against `maxShift` |
 | Literature origin | Prioritised planning (Silver 2005) | ILS for team orienteering with time windows (Vansteenwegen 2009) |
 
+### 6.5 Improving B: versions from the literature (#13–#17)
+
+B above is the algorithm as published. Five ideas from the later literature were each tried as an experiment, and each is kept as its own approach so the results show what it adds (RESULTS §8). All of them except `ils` use the cache.
+
+**Cached insertion scores (`ils-cache`, #16).** Profiling at 253 towns showed that B spends its time listing candidates, not scoring them: 471M `tryInsertion` calls, of which 5.5% fit the delay check and 0.14% reach `reachGain`. A candidate's timing, delay and gain depend only on its *gap* (the stop before, when it is left, the stop after, when it is reached) and on its town's bookings. So `insertUntilFull` keeps every candidate between insertion steps:
+- After an insertion, a candidate is worked out again only if its gap changed or its town's bookings changed.
+- Each step still compares the cached delay with the gap's current `wait + maxShift`, and skips candidates whose bound `pop² / delay` can't beat the best so far.
+- The scan order and arithmetic are those of `tryInsertion`, so the same move wins, ties included: the plans are identical to B's (checked on all 117 benchmark runs and 36 stress settings), about 3× faster.
+
+Granular candidate lists (only try a town between stops it is close to, Labadie et al. 2012; Shahmanzari et al. 2022 §4.7) were also tried in #16. They changed single runs by ±4% and added no reliable speed on top of the cache, so they are not used.
+
+**Go back if worse (`ils-revert`, #14).** B carries on from the shaken plan whether it is better or worse. SAILS (Gunawan et al. 2017) adds simulated-annealing acceptance; at temperature 0 that is simply:
+
+```
+plan before = copy of plan
+shake(plan);  fill(plan)
+if reach(plan) < reach(plan before): plan = plan before
+```
+
+A random acceptance of worse plans (temperature > 0) added nothing measurable over temperature 0, which is also deterministic, so temperature 0 is used. This version's shake also keeps any run of visits whose removal would make a later stop late. That can happen only with Borneo flights, which break the triangle inequality (Kuching → a peninsula town → Kota Kinabalu is two short flights, but Kuching → Kota Kinabalu is a 15 h drive), and `recalculateTimes` assumes it never does.
+
+**Local-search moves (`ils-moves`, #13).** After each `insertUntilFull`, one pass of four moves, as in the variable neighbourhood descent of Shahmanzari et al. (2022):
+
+```
+fill(plan):
+    insertUntilFull(plan)
+    repeat:
+        kept = 0
+        for each move type in [replace, move to another politician, swap between routes, swap within a route]:
+            for each possible move of that type:
+                if a quick maxShift-style check and a reach estimate say it may help:
+                    make it for real; re-time the changed routes
+                    keep it if everyone still gets home in time and the exact reach of the touched towns rises
+                    otherwise undo it
+                    kept += 1 if kept
+        if kept == 0 or insertUntilFull(plan) adds nothing: stop
+```
+
+- **Replace:** swap a rally for one in a town that politician doesn't visit yet.
+- **Move:** give a rally to another politician, at any position in their route.
+- **Swap between routes:** exchange two rallies between two politicians.
+- **Swap within a route:** exchange two rallies in one route, only when the bigger town moves later. This is where most of the gain comes from: the polling-day weight rewards big towns late, which insertion alone rarely achieves.
+
+Going back to the first move type after every improvement (a full descent) added only about 0.5% more reach but took up to 21× as long at k = 9–10, so one pass per call is used.
+
+**Final version (`ils-full`).** `ils-moves` and `ils-revert` together.
+
+**Not adopted:**
+- **ALNS (`ils-alns`, #15),** after Ropke & Pisinger (2006) and Hammami et al. (2020): destroy operators (random, worst reach per hour, a cluster of nearby towns, one day's rallies, B's shake) and repair operators (B's insertion, regret-2, noisy greedy), picked by adaptive weights. It is about even with B. The set-packing step of Hammami et al. was left out, because it assumes route values add up, and ours don't (politicians share towns and clash).
+- **Multi-start A (`multistart`, #17),** after Panadero et al. (2021): A run 200 times with a shuffled politician order, taking the best option with probability 0.3, the next with 0.3 × 0.7, and so on, keeping the best plan. It beats A but stays well below B: A only appends, so randomising its choices can't move big towns later.
+
 ## 7. Complexity
 
 Notation:
@@ -361,14 +412,17 @@ At most k rallies share a town, so one reach calculation for a town is O(k³) (�
 | **Approach A** | Each step scans n towns × 2 timings at O(k³) each; L steps in total → **O(k³ · n · L)** | O(n + L) |
 | **Approach B**, one insertion | Try n towns × (L + k) positions × 2 timings at O(k³) each, then O(L · k) to update → **O(k³ · n · (L + k))** worst case. Pruning skips most `reachGain` calls, so in practice it is close to O(k · n · L) | O(n + L) |
 | **Approach B**, one round | A shake (O(L · k)), a few insertions, and an exact total reach (O(n · k³)) | |
+| **Cached insertion (`ils-cache`)**, one insertion | Only candidates whose gap or town changed are worked out again: roughly the new route's gaps × n towns, plus the towns whose bookings moved. The skip check is O(1) per candidate. Same worst case as B, but at 253 towns `earliestFreeTime` calls fall from 471M to 264K | O(k · n · L) for the cache |
+| **Local-search pass (`ils-moves`)** | Replace: L × n candidates; move and swap between routes: O(L²); swap within a route: O(L²/k). Each candidate that passes the quick check costs a re-time of up to two routes, O(L), plus exact reach for the touched towns, O(k³) | O(L) to undo a move |
 | **Approach B**, total | 2 runs (from empty, from A's plan) × O(I × insertions per round × cost of one insertion), plus one run of A. Each run is capped by `--ils-iters`; in practice it stops after 150 rounds without improvement | |
 | Validator | O(L + n · k³) | O(n + L) |
 
 Measured (see [RESULTS.md](RESULTS.md) §7):
 - **Both nearest-neighbour benchmarks** take under 0.1 ms.
-- **A** takes about 1.0 ms at 90 towns and 2.7 ms at 253.
-- **B** takes 5 ms at 15 towns, about 216 ms at 90, and about 3.8 s at 253.
-- **v1 comparison:** B is about 1.7× slower than in v1 at 90 towns, and 3.6× slower at 253. That comes from the two timings per candidate, the full reach model, (since #7) running the search twice, and the longer routes that 16-hour days allow. Pruning keeps it far below the worst case.
+- **A** takes about 0.7 ms at 90 towns and 1.8 ms at 253.
+- **B** takes 4 ms at 15 towns, about 150 ms at 90, and about 2.6 s at 253.
+- **Versions of B** (RESULTS §8): with the cache, B takes 55 ms at 90 towns and 0.5 s at 253. The final version, `ils-full`, takes about 0.7 s at 90 towns and 2.7 s at 253, and up to 15.5 s at k = 10.
+- **v1 comparison:** B is about 1.2× slower than in v1 at 90 towns, and 2.5× slower at 253. That comes from the two timings per candidate, the full reach model, (since #7) running the search twice, and the longer routes that 16-hour days allow. Pruning keeps it far below the worst case.
 
 ## 8. How results are checked
 
@@ -383,8 +437,9 @@ Measured (see [RESULTS.md](RESULTS.md) §7):
 A plan is reported as `valid` only if there are no errors.
 
 Checks run on v2:
-- **Stress test:** after the daily window was widened to 16 h, every budgeted nearest-neighbour, baseline, A and B plan was valid in 360 settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × {default, Borneo, 15 towns, 8 h days, random homes}. The same holds for every run in [RESULTS.md](RESULTS.md). The full-tour nearest-neighbour benchmark is invalid by design, except in the 36 settings with 15 towns over 14 days, where the whole tour fits.
-- **Reach consistency:** B's internal running total of reach matched the validator's figure in all 27 settings of RESULTS §2 and §5 after the window was widened. With 12-hour days it matched in all 144 settings checked: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {default, Borneo, random homes, 15 towns}.
+- **Stress test:** after the versions of B were added (§6.5), every plan from budgeted nearest neighbour, the baseline, A, multi-start A and all six versions of B was valid in 360 settings (3,960 plans): k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × {default, Borneo, 15 towns, 8 h days, random homes}. The same holds for every run in [RESULTS.md](RESULTS.md). The full-tour nearest-neighbour benchmark is invalid by design, except in the 36 settings with 15 towns over 14 days, where the whole tour fits.
+- **Reach consistency:** B's internal running total of reach matched the validator's figure in all 27 settings of RESULTS §2 and §5 after the window was widened, and for every version of B at the defaults.
+- **Cache:** `ils-cache` gives exactly the same plans as `ils` in all 117 benchmark runs (RESULTS §8), and the routes CSVs were byte-identical in 153 runs checked in #16. With 12-hour days it matched in all 144 settings checked: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {default, Borneo, random homes, 15 towns}.
 - **Clash option:** with both politicians in KL and alpha = 0.5, A chooses to clash 64 times at beta = 0 and 7 times at beta = 0.25 (where clashing and waiting tie), and never above the threshold `(1 − alpha) / 2` (RESULTS §3).
 - **Reach model:** the overlap rules (#2, #3) were checked against hand-worked examples, for instance any number of fully overlapping rallies reaching exactly one crowd at beta = 0.5. #2 was also compared against a build with the old rule over 72 settings: every k = 2 result was unchanged.
 - **Options:** `--alpha` and `--clash-penalty` outside [0, 1], or an unknown `--approach`, are rejected (#6), because they would break the reach bound that B's pruning relies on.
@@ -392,6 +447,7 @@ Checks run on v2:
 ## 9. Trade-offs and limitations
 
 - **A vs B:** A is more than 100× faster and simple to explain. B reaches at least as many people as A in every setting, because one of its two runs starts from A's plan (#7). It is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
+- **B vs its final version:** `ils-full` reaches 14–16% more than B and beats it in every benchmark run, but takes about 3–4× as long (up to 15.5 s at k = 10). `ils-moves` gets most of the gain (11–14%) for 1.3–1.8× B's time. In a few settings `ils-moves` beats `ils-full` by up to 1.1% (RESULTS §8).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
 - **The soft clash rule only matters when beta is small.** Planners clash when `beta < (1 − alpha) / 2` (0.25 at the default alpha); at the default beta = 0.5 they always wait or go elsewhere (RESULTS §3).
 - **A loses to a distance-only plan at the defaults.** Budgeted nearest neighbour reaches 15% more than A at the defaults and beats it in 16 of 27 settings, mostly 14-day campaigns (RESULTS §2, §5). A's reach-per-hour choice doesn't look ahead to the rallies that are worth more later, and it drives 1.8 times as far. With more politicians from random homes, A pulls ahead from k = 4 (RESULTS §4.1). B beats both everywhere.
@@ -412,9 +468,9 @@ Checks run on v2:
 | [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveMultiStart`, `solveIls` |
 | [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmarks | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `buildNearestNeighbourTour` |
 | [src/sequential.cpp](../src/sequential.cpp) | Baseline, Approach A, and the multi-start experiment (#17) | `buildGreedyRoute`, `Chooser`, `solveMultiStart` |
-| [src/ils.cpp](../src/ils.cpp) | Approach B | `IlsPlanner::insertUntilFull`, `tryInsertion`, `applyInsertion`, `updateMaxShifts`, `shake`, `recalculateTimes` |
+| [src/ils.cpp](../src/ils.cpp) | Approach B and its versions (§6.5) | `IlsPlanner::insertUntilFull`, `tryInsertion`, `applyInsertion`, `updateMaxShifts`, `shake`, `recalculateTimes`; cache: `insertUntilFullCached`, `scoreCachedTry`; go back if worse: `search`, `keepRunsThatDelay`; moves: `localSearch`, `tryReplacing`, `tryMovingToOthers`, `trySwappingBetweenRoutes`, `trySwappingWithinRoutes`; ALNS: `runAlns`, `removeRandom`, `removeWorst`, `removeCluster`, `removeDay`, `insertByRegret` |
 | [src/solution.hpp/.cpp](../src/solution.cpp) | `Visit`, `Solution`, `Metrics`; the validator | `evaluate`, `checkRoute` |
-| [src/main.cpp](../src/main.cpp) | Command line, results table, CSV export | `parseOptions`, `runPlanner`, `writeRoutesCsv`, `writeInstanceCsv` |
+| [src/main.cpp](../src/main.cpp) | Command line, results table, CSV export; which settings each version of B runs with | `parseOptions`, `ilsParamsFor`, `runPlanner`, `writeRoutesCsv`, `writeInstanceCsv` |
 | [viz/](../viz/README.md) | Route map, separate from the solver | `make_map.py`, `map_template.html` |
 
 ## 11. v2 changes
@@ -454,3 +510,8 @@ Made on 2026-10-30 and 2026-10-31 through GitHub issues, after a review of v2:
 | #11 | Five places that double-count a city are dropped from the data; the default instance has 90 towns | §4, ASSUMPTIONS D6 |
 | #12 | A budgeted nearest-neighbour benchmark, valid and comparable with A and B; the full tour reports how long it needs | §6.0, ASSUMPTIONS A7, RESULTS §1 |
 | — | The daily window is 06:00–22:00 (16 h) instead of 08:00–20:00 (12 h), so the campaign has 224 active hours. Budgeted nearest neighbour now beats A at the defaults | §3, ASSUMPTIONS V3, V8, RESULTS §6 |
+| #13 | Local-search moves after each insertion round (`ils-moves`) | §6.5, RESULTS §8 |
+| #14 | Go back to the plan before the shake if it got worse (`ils-revert`); the shake skips removals that make a later stop late | §6.5, RESULTS §8 |
+| #15 | Adaptive large neighbourhood search (`ils-alns`); not adopted | §6.5, RESULTS §8 |
+| #16 | Cached insertion scores (`ils-cache`, used by every version); granular lists tried and not used | §6.5, §7, RESULTS §8 |
+| #17 | Multi-start A (`multistart`); not adopted | §6.5, RESULTS §8 |

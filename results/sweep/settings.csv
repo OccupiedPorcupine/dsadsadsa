@@ -1,91 +1,199 @@
 approach,towns,k,alpha,days,day_hours,homes,tau_repeat,tau_poll,clash_penalty,reach,max_reach,visits,clashes,clash_h,travel_h,wait_h,fairness,valid,runtime_ms
-nearest,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.43596e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.997189,0,0.02975
-nearest-budget,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.29849e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.82261,1,0.021209
-uncoordinated,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.06178e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.372511,1,0.293334
-sequential,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.74343e+07,4.27269e+07,48,0,0,59.2869,4.79348,0.952881,1,0.38575
-ils,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.78887e+07,4.27269e+07,49,0,0,59.2625,4.8339,0.990314,1,250.272
-nearest,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.04875e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.88831,0,0.027917
-nearest-budget,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.0124e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.873234,1,0.028916
-uncoordinated,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.24498e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.429215,1,0.678833
-sequential,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.82593e+07,4.27269e+07,123,0,0,142.276,11.3268,0.891971,1,1.01221
-ils,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.27149e+07,4.27269e+07,113,0,0,180.457,3.20382,0.978513,1,200.412
-nearest,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.5073e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.967418,0,0.031125
-nearest-budget,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.36406e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.853609,1,0.013917
-uncoordinated,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.24831e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.613624,1,0.282209
-sequential,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.76928e+07,4.27269e+07,47,0,0,59.4758,6.86728,0.888379,1,0.368458
-ils,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.85511e+07,4.27269e+07,49,0,0,61.9703,1.46492,0.885736,1,181.454
-nearest,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.15751e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.905067,0,0.03625
-nearest-budget,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.1139e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.886036,1,0.026625
-uncoordinated,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.50763e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.7175,1,0.840917
-sequential,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.83564e+07,4.27269e+07,122,0,0,148.788,8.87604,0.872686,1,1.12808
-ils,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.36183e+07,4.27269e+07,113,0,0,172.808,4.65769,0.924181,1,217.68
-nearest,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.57864e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.941098,0,0.034333
-nearest-budget,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.42963e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.882691,1,0.014042
-uncoordinated,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.43484e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.854737,1,0.323709
-sequential,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.95717e+07,4.27269e+07,44,0,0,66.5787,6.52022,0.950714,1,0.373292
-ils,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.0004e+07,4.27269e+07,46,0,0,66.4972,2.06058,0.945201,1,128.389
-nearest,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.26628e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.920474,0,0.033833
-nearest-budget,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.2154e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.897816,1,0.026875
-uncoordinated,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.77028e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.998593,1,0.665084
-sequential,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.10195e+07,4.27269e+07,123,0,0,145.768,9.72661,0.991795,1,0.949834
-ils,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.44572e+07,4.27269e+07,111,0,0,176.259,5.0394,0.999371,1,225.517
-nearest,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.98279e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.85821,0,0.042959
-nearest-budget,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.93534e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.810455,1,0.022125
-uncoordinated,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.25662e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.344787,1,0.442375
-sequential,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.16249e+07,6.40903e+07,70,0,0,97.4667,8.01886,0.684645,1,0.679875
-ils,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.22252e+07,6.40903e+07,73,0,0,96.5047,4.77185,0.772971,1,229.264
-nearest,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.76807e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.92884,0,0.048875
-nearest-budget,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.66701e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.906836,1,0.043292
-uncoordinated,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.30373e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.27624,1,1.24417
-sequential,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.43805e+07,6.40903e+07,181,0,0,225.591,14.1582,0.746982,1,2.02562
-ils,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96545e+07,6.40903e+07,169,0,0,266.798,6.24883,0.86257,1,587.738
-nearest,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.16409e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.9561,0,0.048
-nearest-budget,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.05459e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.847725,1,0.022792
-uncoordinated,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.723e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.627721,1,0.49275
-sequential,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.34603e+07,6.40903e+07,70,0,0,92.79,6.86728,0.675803,1,0.664209
-ils,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.43726e+07,6.40903e+07,73,0,0,92.5086,4.67725,0.855369,1,340.116
-nearest,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.11663e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.969227,0,0.047958
-nearest-budget,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.0036e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.963031,1,0.041041
-uncoordinated,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.92112e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.603146,1,1.21988
-sequential,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.51401e+07,6.40903e+07,179,0,0,233.973,11.2691,0.75448,1,2.23404
-ils,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.21387e+07,6.40903e+07,164,0,0,271.704,6.51228,0.887157,1,506.984
-nearest,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.34808e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.941098,0,0.047083
-nearest-budget,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.17384e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.882691,1,0.020208
-uncoordinated,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.40649e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.680517,1,0.505166
-sequential,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.92883e+07,6.40903e+07,65,0,0,102.796,8.64695,0.950714,1,0.625833
-ils,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96149e+07,6.40903e+07,67,0,0,102.914,4.17617,0.946133,1,392.365
-nearest,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.46693e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.904691,0,0.048708
-nearest-budget,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.34193e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.897816,1,0.043541
-uncoordinated,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.76254e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.85495,1,0.958875
-sequential,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.13891e+07,6.40903e+07,182,0,0,222.423,13.9159,0.982619,1,1.78233
-ils,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.5497e+07,6.40903e+07,165,0,0,276.513,7.21631,0.964767,1,339.549
-nearest,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.09868e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.715901,0,0.076833
-nearest-budget,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.08606e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.721977,1,0.03825
-uncoordinated,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,1.42628e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.224729,1,0.709416
-sequential,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.86904e+07,1.06817e+08,126,0,0,158.582,10.6277,0.436572,1,1.65558
-ils,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.90865e+07,1.06817e+08,129,0,0,158.837,6.19732,0.406658,1,511.399
-nearest,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.95125e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.581095,0,0.082166
-nearest-budget,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.90147e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.565047,1,0.068375
-uncoordinated,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,1.53894e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.159806,1,1.76767
-sequential,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.55172e+07,1.06817e+08,295,0,0,388.106,28.3859,0.663325,1,4.70642
-ils,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.01198e+07,1.06817e+08,294,0,0,431.756,16.7253,0.691678,1,763.37
-nearest,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.9744e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.876459,0,0.084833
-nearest-budget,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.8713e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.792899,1,0.032542
-uncoordinated,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.2159e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.448817,1,0.929834
-sequential,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.24245e+07,1.06817e+08,121,0,0,148.153,13.3646,0.524058,1,1.56129
-ils,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.43399e+07,1.06817e+08,126,0,0,150.044,9.26075,0.616273,1,472.45
-nearest,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.1976e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.784032,0,0.0835
-nearest-budget,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.08851e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.760758,1,0.068791
-uncoordinated,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.60803e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.476362,1,1.6655
-sequential,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.66551e+07,1.06817e+08,293,0,0,395.228,24.347,0.666353,1,4.42975
-ils,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.64647e+07,1.06817e+08,279,0,0,455.772,10.8904,0.85683,1,1057.92
-nearest,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.98544e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.871466,0,0.078917
-nearest-budget,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.75643e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.820293,1,0.034
-uncoordinated,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.83896e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.476997,1,0.871083
-sequential,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.81566e+07,1.06817e+08,107,3,1.0129,168.443,18.997,0.941905,1,1.33262
-ils,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.8939e+07,1.06817e+08,112,3,1.0129,169.046,7.65815,0.934755,1,405.517
-nearest,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.58858e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.862489,0,0.09725
-nearest-budget,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.41059e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.852823,1,0.071667
-uncoordinated,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.52609e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.74176,1,1.90521
-sequential,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.18241e+07,1.06817e+08,294,3,1.0129,383.349,29.0037,0.973009,1,4.67758
-ils,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.85898e+07,1.06817e+08,278,0,0,447.466,17.8179,0.890868,1,1224.69
+nearest,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.43596e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.997189,0,0.024917
+nearest-budget,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.29849e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.82261,1,0.013708
+uncoordinated,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.06178e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.372511,1,0.194125
+sequential,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.74343e+07,4.27269e+07,48,0,0,59.2869,4.79348,0.952881,1,0.253875
+multistart,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.74343e+07,4.27269e+07,48,0,0,59.2869,4.79348,0.952881,1,51.1586
+ils,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.78887e+07,4.27269e+07,49,0,0,59.2625,4.8339,0.990314,1,171.506
+ils-cache,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.78887e+07,4.27269e+07,49,0,0,59.2625,4.8339,0.990314,1,63.1148
+ils-revert,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.84946e+07,4.27269e+07,51,0,0,55.7711,3.05421,0.986068,1,71.6024
+ils-alns,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.85286e+07,4.27269e+07,50,0,0,58.1339,0.972449,0.973259,1,61.0453
+ils-moves,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.91764e+07,4.27269e+07,50,0,0,57.5385,2.56534,0.943842,1,69.1183
+ils-full,90,2,0,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.91764e+07,4.27269e+07,50,0,0,57.5385,2.56534,0.943842,1,115.186
+nearest,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.04875e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.88831,0,0.024292
+nearest-budget,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.0124e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.873234,1,0.020083
+uncoordinated,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.24498e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.429215,1,0.492625
+sequential,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.82593e+07,4.27269e+07,123,0,0,142.276,11.3268,0.891971,1,0.724542
+multistart,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.87395e+07,4.27269e+07,99,0,0,194.558,11.6227,0.943676,1,121.275
+ils,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.27149e+07,4.27269e+07,113,0,0,180.457,3.20382,0.978513,1,139.648
+ils-cache,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.27149e+07,4.27269e+07,113,0,0,180.457,3.20382,0.978513,1,51.6529
+ils-revert,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.39009e+07,4.27269e+07,119,0,0,162.726,0.69356,0.953662,1,148.8
+ils-alns,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.17037e+07,4.27269e+07,116,0,0,173.422,4.44189,0.850374,1,156.98
+ils-moves,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.57771e+07,4.27269e+07,128,0,0,144.193,2.12987,0.88423,1,318.333
+ils-full,90,2,0,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.65211e+07,4.27269e+07,139,0,0,122.475,2.71554,0.925096,1,498.847
+nearest,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.5073e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.967418,0,0.026625
+nearest-budget,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.36406e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.853609,1,0.010458
+uncoordinated,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.24831e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.613624,1,0.213167
+sequential,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.76928e+07,4.27269e+07,47,0,0,59.4758,6.86728,0.888379,1,0.273375
+multistart,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.76928e+07,4.27269e+07,47,0,0,59.4758,6.86728,0.888379,1,53.3858
+ils,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.85511e+07,4.27269e+07,49,0,0,61.9703,1.46492,0.885736,1,127.531
+ils-cache,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.85511e+07,4.27269e+07,49,0,0,61.9703,1.46492,0.885736,1,45.9117
+ils-revert,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.88361e+07,4.27269e+07,50,0,0,54.6544,4.9722,0.95563,1,33.6553
+ils-alns,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.82404e+07,4.27269e+07,49,0,0,62.6742,0.795177,0.90201,1,73.1585
+ils-moves,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.03779e+07,4.27269e+07,50,0,0,57.9001,1.43005,0.98237,1,91.7256
+ils-full,90,2,0.5,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.01587e+07,4.27269e+07,49,0,0,59.7213,1.44854,0.98958,1,69.8963
+nearest,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.15751e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.905067,0,0.026584
+nearest-budget,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.1139e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.886036,1,0.023375
+uncoordinated,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.50763e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.7175,1,0.4465
+sequential,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.83564e+07,4.27269e+07,122,0,0,148.788,8.87604,0.872686,1,0.662834
+multistart,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.92535e+07,4.27269e+07,107,0,0,179.645,8.35173,0.947672,1,119.542
+ils,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.36183e+07,4.27269e+07,113,0,0,172.808,4.65769,0.924181,1,151.141
+ils-cache,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.36183e+07,4.27269e+07,113,0,0,172.808,4.65769,0.924181,1,56.4474
+ils-revert,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.47486e+07,4.27269e+07,122,0,0,155.399,2.97784,0.951476,1,303.959
+ils-alns,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.34947e+07,4.27269e+07,119,0,0,159.805,7.29223,0.862525,1,174.342
+ils-moves,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.60698e+07,4.27269e+07,124,0,0,152.904,2.96973,0.898948,1,354.427
+ils-full,90,2,0.5,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.67137e+07,4.27269e+07,135,0,0,130.866,1.16643,0.95049,1,754.272
+nearest,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.57864e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.941098,0,0.028584
+nearest-budget,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.42963e+07,4.27269e+07,66,1,1.14146,31.134,8.74591,0.882691,1,0.009666
+uncoordinated,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.43484e+07,4.27269e+07,42,10,26.5619,71.241,7.07132,0.854737,1,0.201709
+sequential,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.95717e+07,4.27269e+07,44,0,0,66.5787,6.52022,0.950714,1,0.237
+multistart,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,1.95717e+07,4.27269e+07,44,0,0,66.5787,6.52022,0.950714,1,47.3616
+ils,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.0004e+07,4.27269e+07,46,0,0,66.4972,2.06058,0.945201,1,89.1827
+ils-cache,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.0004e+07,4.27269e+07,46,0,0,66.4972,2.06058,0.945201,1,31.5272
+ils-revert,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.04883e+07,4.27269e+07,46,0,0,65.6505,1.8347,0.934038,1,43.6262
+ils-alns,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.0152e+07,4.27269e+07,46,0,0,67.1211,1.62547,0.99884,1,83.8186
+ils-moves,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.17354e+07,4.27269e+07,47,0,0,64.5085,1.51311,0.984249,1,80.3015
+ils-full,90,2,1,6,16,"Kuala Lumpur; George Town",48,336,0.5,2.19707e+07,4.27269e+07,48,0,0,62.971,0.432386,0.992309,1,96.2579
+nearest,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.26628e+07,4.27269e+07,180,1,1.14146,94.8043,27.9654,0.920474,0,0.026125
+nearest-budget,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.2154e+07,4.27269e+07,154,1,1.14146,82.059,23.2481,0.897816,1,0.018666
+uncoordinated,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,1.77028e+07,4.27269e+07,124,13,34.2386,140.482,13.1185,0.998593,1,0.455916
+sequential,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.10195e+07,4.27269e+07,123,0,0,145.768,9.72661,0.991795,1,0.658166
+multistart,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.10195e+07,4.27269e+07,123,0,0,145.768,9.72661,0.991795,1,116.746
+ils,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.44572e+07,4.27269e+07,111,0,0,176.259,5.0394,0.999371,1,157.452
+ils-cache,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.44572e+07,4.27269e+07,111,0,0,176.259,5.0394,0.999371,1,58.4113
+ils-revert,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.6099e+07,4.27269e+07,129,0,0,142.677,6.20014,0.923809,1,86.7411
+ils-alns,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.46562e+07,4.27269e+07,113,0,0,175.676,3.46638,0.861118,1,155.487
+ils-moves,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.80303e+07,4.27269e+07,125,0,0,147.705,4.67455,0.937744,1,365.662
+ils-full,90,2,1,14,16,"Kuala Lumpur; George Town",48,336,0.5,2.8385e+07,4.27269e+07,134,0,0,128.896,4.58887,0.95988,1,534.602
+nearest,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.98279e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.85821,0,0.034125
+nearest-budget,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.93534e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.810455,1,0.017667
+uncoordinated,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.25662e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.344787,1,0.293917
+sequential,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.16249e+07,6.40903e+07,70,0,0,97.4667,8.01886,0.684645,1,0.432375
+multistart,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.16475e+07,6.40903e+07,67,0,0,105.512,6.88659,0.63623,1,91.7152
+ils,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.22252e+07,6.40903e+07,73,0,0,96.5047,4.77185,0.772971,1,159.578
+ils-cache,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.22252e+07,6.40903e+07,73,0,0,96.5047,4.77185,0.772971,1,49.9189
+ils-revert,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.38159e+07,6.40903e+07,79,0,0,86.2005,2.83237,0.787244,1,224.319
+ils-alns,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.19362e+07,6.40903e+07,71,0,0,97.3237,5.19517,0.694045,1,95.4637
+ils-moves,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.38865e+07,6.40903e+07,79,0,0,85.8734,3.01846,0.828407,1,223.466
+ils-full,90,3,0,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.47413e+07,6.40903e+07,82,0,0,80.5944,1.36462,0.861995,1,420.759
+nearest,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.76807e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.92884,0,0.034
+nearest-budget,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.66701e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.906836,1,0.029167
+uncoordinated,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.30373e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.27624,1,0.625875
+sequential,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.43805e+07,6.40903e+07,181,0,0,225.591,14.1582,0.746982,1,1.18829
+multistart,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.611e+07,6.40903e+07,150,0,0,283.744,22.0747,0.944032,1,218.653
+ils,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96545e+07,6.40903e+07,169,0,0,266.798,6.24883,0.86257,1,402.551
+ils-cache,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96545e+07,6.40903e+07,169,0,0,266.798,6.24883,0.86257,1,131.924
+ils-revert,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.18844e+07,6.40903e+07,197,0,0,213.546,9.80185,0.878514,1,308.278
+ils-alns,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.01926e+07,6.40903e+07,166,0,0,276.547,5.18722,0.950692,1,254.096
+ils-moves,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.453e+07,6.40903e+07,202,0,0,199.367,5.11303,0.825414,1,386.695
+ils-full,90,3,0,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.54629e+07,6.40903e+07,208,0,0,190.956,2.34532,0.857357,1,1181.98
+nearest,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.16409e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.9561,0,0.03375
+nearest-budget,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.05459e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.847725,1,0.017791
+uncoordinated,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.723e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.627721,1,0.350208
+sequential,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.34603e+07,6.40903e+07,70,0,0,92.79,6.86728,0.675803,1,0.508125
+multistart,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.34955e+07,6.40903e+07,64,0,0,107.814,7.37522,0.901915,1,86.6459
+ils,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.43726e+07,6.40903e+07,73,0,0,92.5086,4.67725,0.855369,1,235.193
+ils-cache,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.43726e+07,6.40903e+07,73,0,0,92.5086,4.67725,0.855369,1,70.0342
+ils-revert,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.60428e+07,6.40903e+07,72,0,0,93.6139,5.50447,0.942203,1,48.2535
+ils-alns,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.45223e+07,6.40903e+07,79,0,0,85.4247,3.75388,0.941787,1,189.928
+ils-moves,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.64906e+07,6.40903e+07,74,0,0,90.3257,2.42196,0.855296,1,120.111
+ils-full,90,3,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.78396e+07,6.40903e+07,76,0,0,87.2105,0.159694,0.963898,1,380.687
+nearest,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.11663e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.969227,0,0.033875
+nearest-budget,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.0036e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.963031,1,0.032875
+uncoordinated,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,1.92112e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.603146,1,0.691291
+sequential,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.51401e+07,6.40903e+07,179,0,0,233.973,11.2691,0.75448,1,1.28183
+multistart,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.66662e+07,6.40903e+07,154,1,0.418344,274.797,22.5149,0.874926,1,219.693
+ils,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.21387e+07,6.40903e+07,164,0,0,271.704,6.51228,0.887157,1,342.664
+ils-cache,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.21387e+07,6.40903e+07,164,0,0,271.704,6.51228,0.887157,1,111.295
+ils-revert,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.46293e+07,6.40903e+07,190,0,0,227.342,3.25528,0.919107,1,241.862
+ils-alns,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.24501e+07,6.40903e+07,176,0,0,254.553,5.71372,0.841292,1,271.397
+ils-moves,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.64245e+07,6.40903e+07,197,0,0,200.922,11.879,0.882201,1,374.884
+ils-full,90,3,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.79029e+07,6.40903e+07,201,0,0,199.734,1.70987,0.958297,1,1394
+nearest,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.34808e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.941098,0,0.035875
+nearest-budget,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.17384e+07,6.40903e+07,101,1,1.14146,47.5714,10.6736,0.882691,1,0.014917
+uncoordinated,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.40649e+07,6.40903e+07,63,10,26.5619,107.458,9.19806,0.680517,1,0.393292
+sequential,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.92883e+07,6.40903e+07,65,0,0,102.796,8.64695,0.950714,1,0.448666
+multistart,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.92883e+07,6.40903e+07,65,0,0,102.796,8.64695,0.950714,1,82.9042
+ils,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96149e+07,6.40903e+07,67,0,0,102.914,4.17617,0.946133,1,255.981
+ils-cache,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.96149e+07,6.40903e+07,67,0,0,102.914,4.17617,0.946133,1,73.122
+ils-revert,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.99618e+07,6.40903e+07,68,0,0,100.11,5.02172,0.935231,1,41.8581
+ils-alns,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.98547e+07,6.40903e+07,71,0,0,97.5473,2.33013,0.973564,1,120.91
+ils-moves,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.16955e+07,6.40903e+07,78,0,0,81.9257,1.99863,0.929508,1,166.213
+ils-full,90,3,1,6,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.27583e+07,6.40903e+07,75,0,0,84.7235,3.66128,0.943687,1,173.87
+nearest,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.46693e+07,6.40903e+07,270,1,1.14146,141.122,38.8591,0.904691,0,0.033083
+nearest-budget,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.34193e+07,6.40903e+07,234,1,1.14146,120.94,32.2574,0.897816,1,0.02925
+uncoordinated,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,2.76254e+07,6.40903e+07,184,20,41.4584,217.705,16.2246,0.85495,1,0.619333
+sequential,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.13891e+07,6.40903e+07,182,0,0,222.423,13.9159,0.982619,1,1.14125
+multistart,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.13891e+07,6.40903e+07,182,0,0,222.423,13.9159,0.982619,1,205.335
+ils,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.5497e+07,6.40903e+07,165,0,0,276.513,7.21631,0.964767,1,236.556
+ils-cache,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.5497e+07,6.40903e+07,165,0,0,276.513,7.21631,0.964767,1,79.1776
+ils-revert,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.88161e+07,6.40903e+07,198,0,0,207.636,5.27233,0.910119,1,305.014
+ils-alns,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,3.647e+07,6.40903e+07,183,0,0,238.798,5.81291,0.937765,1,243.977
+ils-moves,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,4.15613e+07,6.40903e+07,200,0,0,198.432,7.62639,0.932442,1,332.566
+ils-full,90,3,1,14,16,"Kuala Lumpur; George Town; Johor Bahru",48,336,0.5,4.2537e+07,6.40903e+07,202,0,0,197.243,2.88095,0.948032,1,943.014
+nearest,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.09868e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.715901,0,0.052666
+nearest-budget,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.08606e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.721977,1,0.028625
+uncoordinated,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,1.42628e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.224729,1,0.540291
+sequential,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.86904e+07,1.06817e+08,126,0,0,158.582,10.6277,0.436572,1,1.2085
+multistart,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.86904e+07,1.06817e+08,126,0,0,158.582,10.6277,0.436572,1,202.936
+ils,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.90865e+07,1.06817e+08,129,0,0,158.837,6.19732,0.406658,1,347.501
+ils-cache,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.90865e+07,1.06817e+08,129,0,0,158.837,6.19732,0.406658,1,90.7385
+ils-revert,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.94142e+07,1.06817e+08,131,0,0,158.817,3.5656,0.587236,1,204.508
+ils-alns,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.89456e+07,1.06817e+08,129,0,0,158.819,5.21505,0.432141,1,376.915
+ils-moves,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.04484e+07,1.06817e+08,134,0,0,153.064,7.84639,0.57968,1,645.003
+ils-full,90,5,0,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.15849e+07,1.06817e+08,142,0,0,140.632,1.91364,0.730738,1,1021.82
+nearest,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.95125e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.581095,0,0.053542
+nearest-budget,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.90147e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.565047,1,0.048
+uncoordinated,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,1.53894e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.159806,1,1.17567
+sequential,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.55172e+07,1.06817e+08,295,0,0,388.106,28.3859,0.663325,1,3.42471
+multistart,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.85257e+07,1.06817e+08,261,0,0,462.531,29.2419,0.820962,1,576.006
+ils,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.01198e+07,1.06817e+08,294,0,0,431.756,16.7253,0.691678,1,521.025
+ils-cache,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.01198e+07,1.06817e+08,294,0,0,431.756,16.7253,0.691678,1,152.302
+ils-revert,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.24516e+07,1.06817e+08,311,0,0,397.377,12.8768,0.920411,1,527.327
+ils-alns,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.93814e+07,1.06817e+08,284,0,0,456.037,12.4541,0.813841,1,679.986
+ils-moves,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.57584e+07,1.06817e+08,329,0,0,358.75,14.3568,0.897165,1,1446.98
+ils-full,90,5,0,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.68482e+07,1.06817e+08,329,0,0,358.348,9.13844,0.846595,1,4239.08
+nearest,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.9744e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.876459,0,0.0575
+nearest-budget,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.8713e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.792899,1,0.028833
+uncoordinated,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.2159e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.448817,1,0.500125
+sequential,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.24245e+07,1.06817e+08,121,0,0,148.153,13.3646,0.524058,1,1.02496
+multistart,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.25311e+07,1.06817e+08,105,1,0.0652373,183.113,19.613,0.803129,1,193.648
+ils,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.43399e+07,1.06817e+08,126,0,0,150.044,9.26075,0.616273,1,327.226
+ils-cache,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.43399e+07,1.06817e+08,126,0,0,150.044,9.26075,0.616273,1,81.4266
+ils-revert,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.53403e+07,1.06817e+08,130,0,0,145.932,7.22864,0.755552,1,165.641
+ils-alns,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.4299e+07,1.06817e+08,124,0,0,156.535,5.19695,0.496835,1,433.031
+ils-moves,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.61645e+07,1.06817e+08,132,0,0,143.156,3.16334,0.835406,1,321.308
+ils-full,90,5,0.5,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.72143e+07,1.06817e+08,132,0,0,141.185,1.72423,0.81374,1,649.668
+nearest,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.1976e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.784032,0,0.053
+nearest-budget,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.08851e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.760758,1,0.049042
+uncoordinated,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,2.60803e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.476362,1,1.1195
+sequential,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.66551e+07,1.06817e+08,293,0,0,395.228,24.347,0.666353,1,2.98767
+multistart,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.93465e+07,1.06817e+08,257,1,0.59491,467.392,28.9173,0.832532,1,528.377
+ils,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.64647e+07,1.06817e+08,279,0,0,455.772,10.8904,0.85683,1,736.942
+ils-cache,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.64647e+07,1.06817e+08,279,0,0,455.772,10.8904,0.85683,1,222.667
+ils-revert,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.88077e+07,1.06817e+08,309,0,0,392.484,12.1369,0.888095,1,392.774
+ils-alns,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.61503e+07,1.06817e+08,313,0,0,381.079,21.6849,0.840822,1,478.576
+ils-moves,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.29217e+07,1.06817e+08,325,0,0,351.181,15.0785,0.947733,1,933.284
+ils-full,90,5,0.5,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.43887e+07,1.06817e+08,328,0,0,349.463,8.56627,0.956825,1,1126.63
+nearest,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.98544e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.871466,0,0.057625
+nearest-budget,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.75643e+07,1.06817e+08,163,4,4.93001,79.1262,22.2019,0.820293,1,0.02675
+uncoordinated,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,3.83896e+07,1.06817e+08,106,27,62.5873,179.192,12.5979,0.476997,1,0.468375
+sequential,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.81566e+07,1.06817e+08,107,3,1.0129,168.443,18.997,0.941905,1,0.735833
+multistart,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.81566e+07,1.06817e+08,107,3,1.0129,168.443,18.997,0.941905,1,160.824
+ils,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.8939e+07,1.06817e+08,112,3,1.0129,169.046,7.65815,0.934755,1,278.194
+ils-cache,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.8939e+07,1.06817e+08,112,3,1.0129,169.046,7.65815,0.934755,1,66.6605
+ils-revert,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.8939e+07,1.06817e+08,112,3,1.0129,169.046,7.65815,0.934755,1,63.917
+ils-alns,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.8939e+07,1.06817e+08,112,3,1.0129,169.046,7.65815,0.934755,1,201.887
+ils-moves,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.24868e+07,1.06817e+08,124,1,0.473655,148.635,3.64907,0.91084,1,321.762
+ils-full,90,5,1,6,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.39395e+07,1.06817e+08,120,1,0.0516761,154.148,3.86702,0.93362,1,465.157
+nearest,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.58858e+07,1.06817e+08,450,14,14.614,242.681,68.4397,0.862489,0,0.052916
+nearest-budget,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.41059e+07,1.06817e+08,385,8,12.2812,209.786,56.4796,0.852823,1,0.048875
+uncoordinated,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,4.52609e+07,1.06817e+08,303,43,84.2374,373.566,23.7069,0.74176,1,1.27879
+sequential,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.18241e+07,1.06817e+08,294,3,1.0129,383.349,29.0037,0.973009,1,3.34883
+multistart,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.18241e+07,1.06817e+08,294,3,1.0129,383.349,29.0037,0.973009,1,462.759
+ils,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.85898e+07,1.06817e+08,278,0,0,447.466,17.8179,0.890868,1,845.17
+ils-cache,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.85898e+07,1.06817e+08,278,0,0,447.466,17.8179,0.890868,1,255.358
+ils-revert,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.93928e+07,1.06817e+08,317,0,0,370.734,12.3492,0.844457,1,388.1
+ils-alns,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,5.87924e+07,1.06817e+08,303,0,0,400.234,13.2049,0.941999,1,743.303
+ils-moves,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,6.89671e+07,1.06817e+08,318,0,0,361.4,9.92222,0.931524,1,718.373
+ils-full,90,5,1,14,16,"Kuala Lumpur; George Town; Johor Bahru; Kota Bharu; Ipoh",48,336,0.5,7.12285e+07,1.06817e+08,339,0,0,321.348,6.42631,0.964488,1,4185.86

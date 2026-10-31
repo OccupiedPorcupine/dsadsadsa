@@ -157,3 +157,9 @@ After v2 was built, a review raised the problems below as GitHub issues. Each wa
 | #11 | Five places carried a district's population on top of their city, inflating the JB area to 4.0M and the total to 24.0M | Dropped via `data/excluded_places.csv` (ASSUMPTIONS D6); 90 towns | `98dff91` |
 | #12 | The nearest-neighbour benchmark visits every town, so it's never valid and can't be compared | Kept as the full tour (which reports how many days it needs: 22 with 12-hour days), plus a budgeted version that stops when it must head home (ASSUMPTIONS A7) | `50e401f` |
 | — | 08:00–20:00 left only 12 campaigning hours a day | The window is 06:00–22:00 (16 h, 224 active hours); every result re-run. Budgeted nearest neighbour now beats A at the defaults (ASSUMPTIONS V3, RESULTS §6) | `628dbb6` |
+| #13 | B only inserted and shook; it never improved a plan by moving rallies | Local-search moves after each insertion round, as `ils-moves` | `65270ef` |
+| #14 | B carried on from a worse shaken plan; the shake could make a later stop late with Borneo flights | Go back to the plan before the shake if it got worse, and skip removals that delay a later stop, as `ils-revert` | `aa04611`, `3ea7a6f` |
+| #15 | Could an ALNS beat B's single shake? | `ils-alns`; about even with B, not adopted | `bc14ca4` |
+| #16 | B re-scored every candidate after every insertion | Cached insertion scores, same plans about 3× faster, used by every version of B | `fd1a218` |
+| #17 | Could a randomised multi-start A replace B? | `multistart`; beats A, stays 11–13% below B | `7d51991` |
+| — | Keep each experiment as its own approach | `ils-cache`, `ils-revert`, `ils-alns`, `ils-moves`, `ils-full`, `multistart` (RESULTS §8) | `1439518` |
