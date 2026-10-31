@@ -49,6 +49,8 @@ static void printUsage() {
             "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
+            "  --ils-vnd            after each ILS round's insertions, also try replacing, moving and swapping\n"
+            "                       rallies, keeping any move that raises total reach (off by default)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -86,6 +88,7 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--approach") options.approach = nextValue(i, argc, argv);
         else if (option == "--ils-iters") options.ilsParams.maxIterations = stoi(nextValue(i, argc, argv));
         else if (option == "--ils-no-improve") options.ilsParams.maxNoImprove = stoi(nextValue(i, argc, argv));
+        else if (option == "--ils-vnd") options.ilsParams.localSearch = true;
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -280,6 +283,7 @@ int main(int argc, char** argv) {
         printf("\nILS: %d iterations, %d improvements over two runs. Best reach from empty routes %.0f, "
                "from A's plan %.0f\n",
                ilsStats.iterations, ilsStats.improvements, ilsStats.reachFromEmpty, ilsStats.reachFromA);
+        if (options.ilsParams.localSearch) printf("ILS local search kept %d moves\n", ilsStats.localMoves);
     }
     return 0;
 }

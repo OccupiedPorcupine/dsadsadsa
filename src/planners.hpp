@@ -22,11 +22,13 @@ Solution solveSequential(const Instance& inst);
 struct IlsParams {
     int maxIterations = 5000;
     int maxNoImprove = 150;  // give up after this many rounds without finding a better plan
+    bool localSearch = false;  // after each round's insertions, try replace, move and swap moves (#13)
 };
 
 struct IlsStats {
     int iterations = 0;    // over both runs
     int improvements = 0;
+    int localMoves = 0;    // moves the local search kept, over both runs (only with localSearch)
     double reachFromEmpty = 0;  // best reach of the run that starts from empty routes
     double reachFromA = 0;      // best reach of the run that starts from Approach A's plan
 };
