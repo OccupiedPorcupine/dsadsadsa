@@ -20,6 +20,7 @@ using namespace std;
 struct Options {
     Config config;
     IlsParams ilsParams;
+    MultiStartParams multiStartParams;
     string approach = "all";  // which planner(s) to run
     string routesDir;         // if set, write <approach>_routes.csv into this folder
     string summaryFile;       // if set, add one CSV row per approach to this file
@@ -46,9 +47,13 @@ static void printUsage() {
             "  --max-towns N        keep only the N most populous towns (default: all)\n"
             "  --merge-km D         merge places within D km of a bigger one (default 5)\n"
             "  --borneo             include Sabah, Sarawak and Labuan (reached by flight)\n"
-            "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all)\n"
+            "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all),\n"
+            "                       or multistart (not part of all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
+            "  --ms-starts N        multistart: plans to build, the first being plain sequential (default 200)\n"
+            "  --ms-beta B          multistart: chance of taking the best option at each step (default 0.3)\n"
+            "  --ms-seed N          multistart: random seed (default 1)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -86,6 +91,9 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--approach") options.approach = nextValue(i, argc, argv);
         else if (option == "--ils-iters") options.ilsParams.maxIterations = stoi(nextValue(i, argc, argv));
         else if (option == "--ils-no-improve") options.ilsParams.maxNoImprove = stoi(nextValue(i, argc, argv));
+        else if (option == "--ms-starts") options.multiStartParams.starts = stoi(nextValue(i, argc, argv));
+        else if (option == "--ms-beta") options.multiStartParams.beta = stod(nextValue(i, argc, argv));
+        else if (option == "--ms-seed") options.multiStartParams.seed = (unsigned)stoul(nextValue(i, argc, argv));
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -101,9 +109,12 @@ static bool parseOptions(int argc, char** argv, Options& options) {
     if (config.clashPenalty < 0 || config.clashPenalty > 1) throw runtime_error("--clash-penalty must be between 0 and 1");
     const string& a = options.approach;
     if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
-        a != "ils") {
+        a != "ils" && a != "multistart") {
         throw runtime_error("unknown approach " + a);
     }
+    const MultiStartParams& ms = options.multiStartParams;
+    if (ms.starts < 1) throw runtime_error("--ms-starts must be at least 1");
+    if (ms.beta <= 0 || ms.beta > 1) throw runtime_error("--ms-beta must be above 0 and at most 1");
     return true;
 }
 
@@ -211,6 +222,7 @@ static Solution runPlanner(const string& approach, const Instance& inst, const O
     if (approach == "nearest-budget") return solveBudgetedNearestNeighbour(inst);
     if (approach == "uncoordinated") return solveUncoordinated(inst);
     if (approach == "sequential") return solveSequential(inst);
+    if (approach == "multistart") return solveMultiStart(inst, options.multiStartParams);
     return solveIls(inst, options.ilsParams, &ilsStats);
 }
 
@@ -249,9 +261,11 @@ int main(int argc, char** argv) {
 
     printTableHeader();
     IlsStats ilsStats;
-    vector<string> approaches = {"nearest", "nearest-budget", "uncoordinated", "sequential", "ils"};
+    // multistart is an experiment (#17), so it only runs when asked for by name.
+    vector<string> approaches = {"nearest", "nearest-budget", "uncoordinated", "sequential", "ils", "multistart"};
     for (const string& approach : approaches) {
-        if (options.approach != "all" && options.approach != approach) continue;
+        bool inAll = approach != "multistart";
+        if (!(options.approach == "all" && inAll) && options.approach != approach) continue;
 
         auto startClock = chrono::steady_clock::now();
         Solution solution = runPlanner(approach, inst, options, ilsStats);

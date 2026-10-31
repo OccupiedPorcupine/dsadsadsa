@@ -19,6 +19,16 @@ Solution solveUncoordinated(const Instance& inst);
 // the most reach per hour, and has to work around the rallies already booked by earlier politicians.
 Solution solveSequential(const Instance& inst);
 
+struct MultiStartParams {
+    int starts = 200;   // plans to build; the first is plain Approach A
+    double beta = 0.3;  // chance of taking the best option at each step (1 = always, as in A)
+    unsigned seed = 1;
+};
+
+// Approach A run many times, with the politicians in a random order and each rally picked at
+// random from the ranked options, biased towards the best (see sequential.cpp). Keeps the best plan.
+Solution solveMultiStart(const Instance& inst, const MultiStartParams& params);
+
 struct IlsParams {
     int maxIterations = 5000;
     int maxNoImprove = 150;  // give up after this many rounds without finding a better plan

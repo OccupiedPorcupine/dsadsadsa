@@ -409,9 +409,9 @@ Checks run on v2:
 | [src/geo.hpp](../src/geo.hpp) | Great-circle distance | `haversineKm` |
 | [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `overlapHours`, `book`, `cancel`, `rebook` |
 | [src/reach.hpp/.cpp](../src/reach.cpp) | The reach model | `rallyReaches`, `townReach`, `reachGain` |
-| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveIls` |
+| [src/planners.hpp](../src/planners.hpp) | Planner interface | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `solveUncoordinated`, `solveSequential`, `solveMultiStart`, `solveIls` |
 | [src/nearest.cpp](../src/nearest.cpp) | Classic nearest-neighbour benchmarks | `solveNearestNeighbour`, `solveBudgetedNearestNeighbour`, `buildNearestNeighbourTour` |
-| [src/sequential.cpp](../src/sequential.cpp) | Baseline and Approach A | `buildGreedyRoute` |
+| [src/sequential.cpp](../src/sequential.cpp) | Baseline, Approach A, and the multi-start experiment (#17) | `buildGreedyRoute`, `Chooser`, `solveMultiStart` |
 | [src/ils.cpp](../src/ils.cpp) | Approach B | `IlsPlanner::insertUntilFull`, `tryInsertion`, `applyInsertion`, `updateMaxShifts`, `shake`, `recalculateTimes` |
 | [src/solution.hpp/.cpp](../src/solution.cpp) | `Visit`, `Solution`, `Metrics`; the validator | `evaluate`, `checkRoute` |
 | [src/main.cpp](../src/main.cpp) | Command line, results table, CSV export | `parseOptions`, `runPlanner`, `writeRoutesCsv`, `writeInstanceCsv` |
