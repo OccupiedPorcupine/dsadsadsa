@@ -40,6 +40,7 @@ Other examples:
 
 ```sh
 ./build/campaign --starts random --seed 4                 # random home bases, reproducible
+./build/campaign --starts weighted --seed 4 --k 5         # random, with big towns more likely
 ./build/campaign --starts "Kuala Lumpur,Ipoh,Kuantan" --k 3
 ./build/campaign --clash-penalty 0                        # clashing costs nothing
 ./build/campaign --tau-repeat 12 --tau-poll 168           # faster-fading decay
@@ -82,6 +83,7 @@ What the map shows:
 | `viz/` | Route map: `make_map.py` turns a results folder into an interactive HTML map (`map_template.html`) |
 | `results/default/` | Routes, settings and map for the default run |
 | `results/sweep/` | Summary CSVs behind every table in [docs/RESULTS.md](docs/RESULTS.md) |
+| `scripts/` | `average_by_k.py`: averages a summary CSV over the runs for each k (RESULTS §4.1) |
 | `CS201_2026_project/` | Provided GeoNames dataset (`MY.txt`) |
 | `data/excluded_places.csv` | Places dropped because they double-count a city, with the reason for each |
 | `notebooks/explore_geonames.ipynb` | First look at the GeoNames spreadsheet with pandas |
@@ -103,7 +105,7 @@ What the map shows:
 - **Source:** `CS201_2026_project/MY.txt` (GeoNames, Malaysia).
 - **Columns used:** geonameid, asciiname, latitude, longitude, feature class, population.
 - **Records:** feature class `P` (populated places) with population ≥ `--min-pop` (default 50,000). Peninsular Malaysia only unless `--borneo` is given.
-- **Home bases:** by default KL, George Town, Johor Bahru, Kota Bharu, Ipoh, Kuantan, Alor Setar, in that order (`--starts`). `--starts random --seed N` picks random towns.
+- **Home bases:** by default KL, George Town, Johor Bahru, Kota Bharu, Ipoh, Kuantan, Alor Setar, in that order (`--starts`). `--starts random --seed N` picks random towns, and `--starts weighted --seed N` picks them with probability proportional to population.
 - **Merging:** GeoNames lists cities and their districts separately, each with a population. Places are sorted by population, and any place within `--merge-km` (default 5 km) of a larger kept place is dropped. Five places that carry a district's population on top of the city they sit in are dropped first, using [data/excluded_places.csv](data/excluded_places.csv), which gives each one's reason (`--exclude PATH`, or `--exclude none` to keep them). See ASSUMPTIONS D6.
 
 ## Derived attributes and assumptions

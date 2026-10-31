@@ -177,6 +177,33 @@ static vector<Town> randomHomes(const vector<Town>& towns, int k, unsigned seed)
     return homes;
 }
 
+// k distinct rally towns, each draw picking a town with probability proportional to its
+// population among the towns not yet picked. Like randomHomes, it turns mt19937's raw output into
+// a number in [0, 1) itself, so the same seed gives the same towns on every compiler.
+static vector<Town> weightedHomes(const vector<Town>& towns, int k, unsigned seed) {
+    vector<bool> picked(towns.size(), false);
+    mt19937 random(seed);
+    vector<Town> homes;
+    for (int p = 0; p < k; ++p) {
+        if (p > 0 && p % (int)towns.size() == 0) picked.assign(towns.size(), false);  // more politicians than towns
+        double total = 0;
+        for (int i = 0; i < (int)towns.size(); ++i) {
+            if (!picked[i]) total += towns[i].population;
+        }
+        double target = random() / 4294967296.0 * total;
+        int choice = -1;
+        for (int i = 0; i < (int)towns.size(); ++i) {
+            if (picked[i]) continue;
+            choice = i;  // the last unpicked town, if rounding leaves target just past the end
+            target -= towns[i].population;
+            if (target < 0) break;
+        }
+        picked[choice] = true;
+        homes.push_back(towns[choice]);
+    }
+    return homes;
+}
+
 // Politician p's home is the p-th name in the list (starting again from the top if there are
 // more politicians than names).
 static vector<Town> homesFromNames(const vector<string>& names, int k, const vector<Town>& towns,
@@ -188,6 +215,7 @@ static vector<Town> homesFromNames(const vector<string>& names, int k, const vec
 
 static vector<Town> chooseHomes(const Config& config, const vector<Town>& towns, const vector<Town>& allPlaces) {
     if (config.starts == "random") return randomHomes(towns, config.numPoliticians, config.seed);
+    if (config.starts == "weighted") return weightedHomes(towns, config.numPoliticians, config.seed);
     if (config.starts == "fixed") return homesFromNames(DEFAULT_HOMES, config.numPoliticians, towns, allPlaces);
 
     vector<string> names;
@@ -196,7 +224,7 @@ static vector<Town> chooseHomes(const Config& config, const vector<Town>& towns,
     while (getline(list, name, ',')) {
         if (!trim(name).empty()) names.push_back(trim(name));
     }
-    if (names.empty()) throw runtime_error("--starts needs fixed, random, or a list of town names");
+    if (names.empty()) throw runtime_error("--starts needs fixed, random, weighted, or a list of town names");
     return homesFromNames(names, config.numPoliticians, towns, allPlaces);
 }
 

@@ -123,6 +123,7 @@ Details and reasons are in [ASSUMPTIONS.md](ASSUMPTIONS.md) (D1–D5, T1–T4, V
 3. Picks the home bases:
    - the fixed list (`--starts fixed`, the default);
    - k distinct random rally towns (`--starts random --seed N`);
+   - k distinct rally towns drawn with probability proportional to population (`--starts weighted --seed N`);
    - or the names given on the command line.
 
    A name is matched to a rally town first, and otherwise to the most populous place in the file with that name.
@@ -349,7 +350,7 @@ At most k rallies share a town, so one reach calculation for a town is O(k³) (�
 |---|---|---|
 | Read and filter `MY.txt` (N ≈ 71,709 lines) | O(N) | O(candidates + populated places) |
 | Merge nearby places (c candidates, m kept) | O(c · m) | O(c) |
-| Choose homes | O(k · N_places) by name, O(n) random | O(n) |
+| Choose homes | O(k · N_places) by name, O(n) random, O(k · n) weighted | O(n) |
 | Travel matrix | O((n + k)²) | O((n + k)²) |
 | `Clock` helpers | O(1) | O(1) |
 | Booking table: `earliestFreeTime` | O(k²) worst case | O(L) in total |
@@ -404,7 +405,7 @@ Checks run on v2:
 
 | File | What's in it | Main functions |
 |---|---|---|
-| [src/instance.hpp/.cpp](../src/instance.cpp) | `Town`, `Clock`, `Config`, `Instance`; loading, preprocessing and home bases | `buildInstance`, `readCandidateTowns`, `mergeNearbyPlaces`, `chooseHomes`, `findPlace`, `randomHomes`, `travelHoursBetween`, `Clock::fitRally` |
+| [src/instance.hpp/.cpp](../src/instance.cpp) | `Town`, `Clock`, `Config`, `Instance`; loading, preprocessing and home bases | `buildInstance`, `readCandidateTowns`, `mergeNearbyPlaces`, `chooseHomes`, `findPlace`, `randomHomes`, `weightedHomes`, `travelHoursBetween`, `Clock::fitRally` |
 | [src/geo.hpp](../src/geo.hpp) | Great-circle distance | `haversineKm` |
 | [src/booking.hpp/.cpp](../src/booking.cpp) | `BookingTable` | `earliestFreeTime`, `nextOtherBooking`, `overlapHours`, `book`, `cancel`, `rebook` |
 | [src/reach.hpp/.cpp](../src/reach.cpp) | The reach model | `rallyReaches`, `townReach`, `reachGain` |

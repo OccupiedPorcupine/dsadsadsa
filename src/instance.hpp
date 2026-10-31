@@ -61,7 +61,8 @@ struct Config {
     double mergeKm = 5;          // a place this close to a bigger town counts as part of it
     bool includeBorneo = false;
 
-    // Home bases: "fixed" (the list below), "random" (seeded), or a comma-separated list of town names.
+    // Home bases: "fixed" (the list below), "random" (seeded), "weighted" (seeded, more likely in big
+    // towns), or a comma-separated list of town names.
     std::string starts = "fixed";
     unsigned seed = 1;
 

@@ -1,0 +1,451 @@
+approach,towns,k,alpha,days,day_hours,homes,tau_repeat,tau_poll,clash_penalty,reach,max_reach,visits,clashes,clash_h,travel_h,wait_h,fairness,valid,runtime_ms
+nearest,90,2,0.5,14,12,"Selayang Baru Utara; Hulu Langat",48,336,0.5,1.36624e+07,4.27269e+07,180,7,4.86209,95.341,36.0568,0.692131,0,0.021542
+nearest-budget,90,2,0.5,14,12,"Selayang Baru Utara; Hulu Langat",48,336,0.5,1.31213e+07,4.27269e+07,114,7,4.86209,60.0439,20.6198,0.714305,1,0.01475
+uncoordinated,90,2,0.5,14,12,"Selayang Baru Utara; Hulu Langat",48,336,0.5,9.57491e+06,4.27269e+07,84,42,105.978,110.871,10.4702,0.999369,1,0.44875
+sequential,90,2,0.5,14,12,"Selayang Baru Utara; Hulu Langat",48,336,0.5,1.7032e+07,4.27269e+07,86,0,0,109.495,10.0107,0.830535,1,0.573167
+ils,90,2,0.5,14,12,"Selayang Baru Utara; Hulu Langat",48,336,0.5,2.06347e+07,4.27269e+07,79,0,0,135.885,1.33045,0.907256,1,133.993
+nearest,90,2,0.5,14,12,"Pasir Gudang; Ipoh",48,336,0.5,1.88968e+07,4.27269e+07,180,1,1.42458,93.6408,31.1206,0.965005,0,0.022459
+nearest-budget,90,2,0.5,14,12,"Pasir Gudang; Ipoh",48,336,0.5,1.70659e+07,4.27269e+07,114,1,1.42458,53.1053,26.1545,0.972607,1,0.0145
+uncoordinated,90,2,0.5,14,12,"Pasir Gudang; Ipoh",48,336,0.5,1.63461e+07,4.27269e+07,81,2,4.68915,116.915,10.9796,0.891189,1,0.347084
+sequential,90,2,0.5,14,12,"Pasir Gudang; Ipoh",48,336,0.5,1.69705e+07,4.27269e+07,83,1,0.093549,117.441,6.70571,0.999606,1,0.412084
+ils,90,2,0.5,14,12,"Pasir Gudang; Ipoh",48,336,0.5,1.97891e+07,4.27269e+07,70,0,0,149.779,6.53848,0.967317,1,208.399
+nearest,90,2,0.5,14,12,"Puchong; Johor Bahru",48,336,0.5,1.86856e+07,4.27269e+07,180,0,0,98.0127,33.0214,0.891088,0,0.024792
+nearest-budget,90,2,0.5,14,12,"Puchong; Johor Bahru",48,336,0.5,1.72983e+07,4.27269e+07,114,0,0,52.3813,26.2758,0.940374,1,0.014083
+uncoordinated,90,2,0.5,14,12,"Puchong; Johor Bahru",48,336,0.5,1.54689e+07,4.27269e+07,81,4,5.23281,117.285,10.5483,0.901342,1,0.333667
+sequential,90,2,0.5,14,12,"Puchong; Johor Bahru",48,336,0.5,1.71953e+07,4.27269e+07,85,0,0,113.269,7.24201,0.835256,1,0.44075
+ils,90,2,0.5,14,12,"Puchong; Johor Bahru",48,336,0.5,2.06049e+07,4.27269e+07,81,0,0,128.264,5.21958,0.94238,1,154.983
+nearest,90,2,0.5,14,12,"Jitra; Kuala Nerus",48,336,0.5,1.64589e+07,4.27269e+07,180,0,0,99.2861,45.0526,0.81831,0,0.024083
+nearest-budget,90,2,0.5,14,12,"Jitra; Kuala Nerus",48,336,0.5,1.55054e+07,4.27269e+07,110,0,0,55.7647,30.3394,0.785918,1,0.01775
+uncoordinated,90,2,0.5,14,12,"Jitra; Kuala Nerus",48,336,0.5,1.51343e+07,4.27269e+07,81,7,3.78161,123.183,7.09351,0.687572,1,0.334667
+sequential,90,2,0.5,14,12,"Jitra; Kuala Nerus",48,336,0.5,1.67397e+07,4.27269e+07,80,0,0,127.126,5.81092,0.897171,1,0.44075
+ils,90,2,0.5,14,12,"Jitra; Kuala Nerus",48,336,0.5,2.03689e+07,4.27269e+07,76,0,0,137.591,5.6686,0.959022,1,172.973
+nearest,90,2,0.5,14,12,"Subang Jaya; Kuala Lumpur",48,336,0.5,1.17377e+07,4.27269e+07,180,65,138.642,95.605,24.0014,0.880346,0,0.021375
+nearest-budget,90,2,0.5,14,12,"Subang Jaya; Kuala Lumpur",48,336,0.5,1.13768e+07,4.27269e+07,116,32,68.1168,61.578,14.729,0.871798,1,0.012834
+uncoordinated,90,2,0.5,14,12,"Subang Jaya; Kuala Lumpur",48,336,0.5,1.04127e+07,4.27269e+07,84,39,89.0834,110.699,10.7328,0.902305,1,0.366208
+sequential,90,2,0.5,14,12,"Subang Jaya; Kuala Lumpur",48,336,0.5,1.70297e+07,4.27269e+07,86,0,0,109.886,10.1581,0.830164,1,0.502041
+ils,90,2,0.5,14,12,"Subang Jaya; Kuala Lumpur",48,336,0.5,2.01823e+07,4.27269e+07,86,0,0,122.945,3.21139,0.97908,1,133.997
+nearest,90,2,0.5,14,12,"Pendang; Johor Jaya",48,336,0.5,1.80623e+07,4.27269e+07,180,1,1.76751,92.2662,33.6787,0.883081,0,0.023083
+nearest-budget,90,2,0.5,14,12,"Pendang; Johor Jaya",48,336,0.5,1.64251e+07,4.27269e+07,116,1,1.76751,53.8317,23.1774,0.903069,1,0.018125
+uncoordinated,90,2,0.5,14,12,"Pendang; Johor Jaya",48,336,0.5,1.48988e+07,4.27269e+07,80,7,18.7138,118.907,11.768,0.917528,1,0.426083
+sequential,90,2,0.5,14,12,"Pendang; Johor Jaya",48,336,0.5,1.70185e+07,4.27269e+07,83,0,0,112.677,12.3173,0.926838,1,0.483458
+ils,90,2,0.5,14,12,"Pendang; Johor Jaya",48,336,0.5,1.97164e+07,4.27269e+07,73,0,0,142.537,6.8547,0.923549,1,189.077
+nearest,90,2,0.5,14,12,"Johor Bahru; Bukit Rahman Putra",48,336,0.5,1.87141e+07,4.27269e+07,180,1,1.78056,94.1661,25.9457,0.87273,0,0.025417
+nearest-budget,90,2,0.5,14,12,"Johor Bahru; Bukit Rahman Putra",48,336,0.5,1.73536e+07,4.27269e+07,116,0,0,56.7092,19.3597,0.916995,1,0.017333
+uncoordinated,90,2,0.5,14,12,"Johor Bahru; Bukit Rahman Putra",48,336,0.5,1.5469e+07,4.27269e+07,81,4,5.23281,116.817,10.5704,0.901373,1,0.458458
+sequential,90,2,0.5,14,12,"Johor Bahru; Bukit Rahman Putra",48,336,0.5,1.65878e+07,4.27269e+07,83,0,0,116.338,9.59634,0.906577,1,0.545167
+ils,90,2,0.5,14,12,"Johor Bahru; Bukit Rahman Putra",48,336,0.5,2.00691e+07,4.27269e+07,74,0,0,142.89,3.58287,0.967141,1,207.724
+nearest,90,2,0.5,14,12,"Kuala Krai; Kuala Lumpur",48,336,0.5,1.70371e+07,4.27269e+07,180,1,0.0613153,101.379,28.3169,0.967953,0,0.025
+nearest-budget,90,2,0.5,14,12,"Kuala Krai; Kuala Lumpur",48,336,0.5,1.64759e+07,4.27269e+07,115,0,0,59.0979,17.3603,0.999936,1,0.016459
+uncoordinated,90,2,0.5,14,12,"Kuala Krai; Kuala Lumpur",48,336,0.5,1.50939e+07,4.27269e+07,83,6,6.55352,115.953,9.02565,0.701936,1,0.32575
+sequential,90,2,0.5,14,12,"Kuala Krai; Kuala Lumpur",48,336,0.5,1.71065e+07,4.27269e+07,85,0,0,114.775,5.40714,0.986349,1,0.439542
+ils,90,2,0.5,14,12,"Kuala Krai; Kuala Lumpur",48,336,0.5,2.03568e+07,4.27269e+07,77,0,0,137.365,2.99515,0.992198,1,173.134
+nearest,90,2,0.5,14,12,"Kuala Lumpur; Sungai Petani",48,336,0.5,1.73842e+07,4.27269e+07,180,0,0,93.707,34.0478,0.990213,0,0.026166
+nearest-budget,90,2,0.5,14,12,"Kuala Lumpur; Sungai Petani",48,336,0.5,1.66364e+07,4.27269e+07,114,0,0,58.4409,20.9988,0.999169,1,0.015666
+uncoordinated,90,2,0.5,14,12,"Kuala Lumpur; Sungai Petani",48,336,0.5,1.54089e+07,4.27269e+07,84,2,3.5559,115.887,8.77201,0.935784,1,0.491167
+sequential,90,2,0.5,14,12,"Kuala Lumpur; Sungai Petani",48,336,0.5,1.70649e+07,4.27269e+07,84,0,0,111.875,9.35037,0.91021,1,0.665667
+ils,90,2,0.5,14,12,"Kuala Lumpur; Sungai Petani",48,336,0.5,2.04194e+07,4.27269e+07,79,0,0,134.92,2.71836,0.991627,1,137.871
+nearest,90,2,0.5,14,12,"Kulim; Malacca",48,336,0.5,1.76271e+07,4.27269e+07,180,2,3.56806,94.5941,36.0223,0.938203,0,0.022375
+nearest-budget,90,2,0.5,14,12,"Kulim; Malacca",48,336,0.5,1.67117e+07,4.27269e+07,115,1,2.85021,51.0044,26.1316,0.987774,1,0.017917
+uncoordinated,90,2,0.5,14,12,"Kulim; Malacca",48,336,0.5,1.48304e+07,4.27269e+07,82,7,6.63143,120.589,6.61607,0.690502,1,0.302375
+sequential,90,2,0.5,14,12,"Kulim; Malacca",48,336,0.5,1.67342e+07,4.27269e+07,81,0,0,123.283,6.53855,0.837446,1,0.44475
+ils,90,2,0.5,14,12,"Kulim; Malacca",48,336,0.5,2.03251e+07,4.27269e+07,79,0,0,134.508,2.84684,0.979674,1,228.688
+nearest,90,3,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam",48,336,0.5,2.22047e+07,6.40903e+07,270,8,6.64339,142.62,54.6164,0.612792,0,0.037125
+nearest-budget,90,3,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam",48,336,0.5,2.10406e+07,6.40903e+07,172,8,6.64339,87.9245,30.6279,0.644292,1,0.022334
+uncoordinated,90,3,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam",48,336,0.5,1.33911e+07,6.40903e+07,124,52,118.952,172.517,13.7716,0.958579,1,0.63325
+sequential,90,3,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam",48,336,0.5,2.36473e+07,6.40903e+07,129,0,0,165.879,14.1835,0.818213,1,0.952416
+ils,90,3,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam",48,336,0.5,2.87071e+07,6.40903e+07,117,0,0,203.013,5.84837,0.931915,1,295.094
+nearest,90,3,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur",48,336,0.5,2.63457e+07,6.40903e+07,270,3,3.87577,141.429,43.0815,0.892803,0,0.033208
+nearest-budget,90,3,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur",48,336,0.5,2.41202e+07,6.40903e+07,172,2,2.09521,84.1017,33.4791,0.942953,1,0.023667
+uncoordinated,90,3,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur",48,336,0.5,2.09432e+07,6.40903e+07,123,6,9.73041,172.059,16.5203,0.820319,1,0.523042
+sequential,90,3,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur",48,336,0.5,2.42759e+07,6.40903e+07,125,1,0.093549,176.144,9.48292,0.956917,1,0.854709
+ils,90,3,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur",48,336,0.5,2.86736e+07,6.40903e+07,121,0,0,195.126,6.65717,0.917936,1,257.668
+nearest,90,3,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam",48,336,0.5,2.62131e+07,6.40903e+07,270,1,1.76751,145.291,51.5811,0.888611,0,0.033709
+nearest-budget,90,3,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam",48,336,0.5,2.42261e+07,6.40903e+07,172,1,1.76751,80.2619,36.2839,0.904908,1,0.023166
+uncoordinated,90,3,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam",48,336,0.5,1.90116e+07,6.40903e+07,121,9,11.7198,178.931,13.8498,0.731825,1,0.570666
+sequential,90,3,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam",48,336,0.5,2.38427e+07,6.40903e+07,123,0,0,181.254,9.99626,0.802861,1,0.938375
+ils,90,3,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam",48,336,0.5,2.74976e+07,6.40903e+07,118,0,0,205.526,6.87167,0.890969,1,289.657
+nearest,90,3,0.5,14,12,"Jitra; Kuala Nerus; Puchong",48,336,0.5,2.46119e+07,6.40903e+07,270,4,0.363419,150.981,64.3319,0.785564,0,0.030584
+nearest-budget,90,3,0.5,14,12,"Jitra; Kuala Nerus; Puchong",48,336,0.5,2.32544e+07,6.40903e+07,166,0,0,82.1965,44.8229,0.758225,1,0.024708
+uncoordinated,90,3,0.5,14,12,"Jitra; Kuala Nerus; Puchong",48,336,0.5,1.82197e+07,6.40903e+07,123,17,21.1465,178.881,12.2572,0.46,1,0.51025
+sequential,90,3,0.5,14,12,"Jitra; Kuala Nerus; Puchong",48,336,0.5,2.36716e+07,6.40903e+07,122,1,0.621193,184.292,10.5889,0.868967,1,0.706542
+ils,90,3,0.5,14,12,"Jitra; Kuala Nerus; Puchong",48,336,0.5,2.79681e+07,6.40903e+07,115,0,0,209.057,7.16849,0.931055,1,326.769
+nearest,90,3,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok",48,336,0.5,1.5472e+07,6.40903e+07,270,66,139.337,143.673,48.3757,0.797413,0,0.028375
+nearest-budget,90,3,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok",48,336,0.5,1.48123e+07,6.40903e+07,171,33,68.8122,89.1571,31.2216,0.767309,1,0.017
+uncoordinated,90,3,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok",48,336,0.5,1.05217e+07,6.40903e+07,127,120,281.861,166.005,15.5286,0.761867,1,0.52775
+sequential,90,3,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok",48,336,0.5,2.37353e+07,6.40903e+07,125,0,0,174.416,14.9768,0.877014,1,0.819416
+ils,90,3,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok",48,336,0.5,2.86179e+07,6.40903e+07,119,0,0,202.596,3.87574,0.996915,1,386.734
+nearest,90,3,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri",48,336,0.5,1.78088e+07,6.40903e+07,270,81,177.723,137.93,48.0171,0.65329,0,0.028084
+nearest-budget,90,3,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri",48,336,0.5,1.6176e+07,6.40903e+07,174,49,108.674,79.0901,35.5659,0.647323,1,0.02075
+uncoordinated,90,3,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri",48,336,0.5,1.41894e+07,6.40903e+07,119,53,136.935,180.753,16.8373,0.675502,1,0.503667
+sequential,90,3,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri",48,336,0.5,2.33608e+07,6.40903e+07,123,1,0.043308,172.552,18.1605,0.785024,1,0.764375
+ils,90,3,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri",48,336,0.5,2.76755e+07,6.40903e+07,120,0,0,200.8,4.57715,0.914502,1,208.662
+nearest,90,3,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat",48,336,0.5,2.57273e+07,6.40903e+07,270,2,2.23985,139.453,46.762,0.892911,0,0.034334
+nearest-budget,90,3,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat",48,336,0.5,2.38152e+07,6.40903e+07,172,1,0.459293,83.8898,34.0231,0.902162,1,0.021459
+uncoordinated,90,3,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat",48,336,0.5,1.9379e+07,6.40903e+07,123,9,11.7198,171.237,15.4061,0.774234,1,0.491208
+sequential,90,3,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat",48,336,0.5,2.34044e+07,6.40903e+07,125,1,0.10053,171.408,15.5523,0.86641,1,0.742084
+ils,90,3,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat",48,336,0.5,2.83109e+07,6.40903e+07,115,0,0,207.893,7.8116,0.926865,1,314.16
+nearest,90,3,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit",48,336,0.5,2.50118e+07,6.40903e+07,270,2,1.91381,149.317,52.4309,0.968454,0,0.030209
+nearest-budget,90,3,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit",48,336,0.5,2.43337e+07,6.40903e+07,172,1,1.85249,85.1197,31.1426,0.989459,1,0.022875
+uncoordinated,90,3,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit",48,336,0.5,1.5058e+07,6.40903e+07,124,52,111.058,174.074,14.3645,0.379872,1,0.514
+sequential,90,3,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit",48,336,0.5,2.34456e+07,6.40903e+07,129,0,0,169.935,9.7766,0.882754,1,0.831459
+ils,90,3,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit",48,336,0.5,2.86248e+07,6.40903e+07,118,0,0,206.427,5.1945,0.846487,1,265.656
+nearest,90,3,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong",48,336,0.5,2.48316e+07,6.40903e+07,270,2,1.90495,145.402,53.3271,0.900799,0,0.032875
+nearest-budget,90,3,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong",48,336,0.5,2.39897e+07,6.40903e+07,170,0,0,84.8727,35.4823,0.891617,1,0.024625
+uncoordinated,90,3,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong",48,336,0.5,1.5056e+07,6.40903e+07,126,44,98.7206,171.585,13.9357,0.651552,1,0.567
+sequential,90,3,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong",48,336,0.5,2.41192e+07,6.40903e+07,126,0,0,172.747,10.9618,0.862835,1,0.855833
+ils,90,3,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong",48,336,0.5,2.82606e+07,6.40903e+07,109,0,0,224.288,3.56015,0.840054,1,216.963
+nearest,90,3,0.5,14,12,"Kulim; Malacca; Kuala Lumpur",48,336,0.5,2.57851e+07,6.40903e+07,270,2,3.56806,142.383,47.9832,0.949155,0,0.03125
+nearest-budget,90,3,0.5,14,12,"Kulim; Malacca; Kuala Lumpur",48,336,0.5,2.44548e+07,6.40903e+07,173,1,2.85021,82.0007,33.4563,0.981708,1,0.023833
+uncoordinated,90,3,0.5,14,12,"Kulim; Malacca; Kuala Lumpur",48,336,0.5,1.47216e+07,6.40903e+07,124,51,94.0181,175.733,12.1568,0.769328,1,0.506916
+sequential,90,3,0.5,14,12,"Kulim; Malacca; Kuala Lumpur",48,336,0.5,2.32622e+07,6.40903e+07,126,0,0,177.478,9.25274,0.85764,1,0.743917
+ils,90,3,0.5,14,12,"Kulim; Malacca; Kuala Lumpur",48,336,0.5,2.83659e+07,6.40903e+07,122,0,0,195.988,8.19942,0.925683,1,287.779
+nearest,90,4,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama",48,336,0.5,2.3142e+07,8.54538e+07,360,80,147.483,190.451,66.9791,0.473312,0,0.036375
+nearest-budget,90,4,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama",48,336,0.5,2.20936e+07,8.54538e+07,230,47,76.9579,118.268,38.3543,0.502794,1,0.024583
+uncoordinated,90,4,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama",48,336,0.5,1.25879e+07,8.54538e+07,166,141,336.391,227.829,18.8084,0.890879,1,0.741791
+sequential,90,4,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama",48,336,0.5,2.96719e+07,8.54538e+07,165,0,0,232.308,21.7252,0.773539,1,1.341
+ils,90,4,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama",48,336,0.5,3.55012e+07,8.54538e+07,168,0,0,253.426,8.38534,0.847654,1,478.467
+nearest,90,4,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar",48,336,0.5,3.13961e+07,8.54538e+07,360,12,23.4738,187.348,61.9276,0.752206,0,0.040084
+nearest-budget,90,4,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar",48,336,0.5,2.88935e+07,8.54538e+07,229,10,21.4786,112.329,44.9302,0.799272,1,0.028916
+uncoordinated,90,4,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar",48,336,0.5,2.26965e+07,8.54538e+07,164,20,41.5231,233.553,19.3588,0.786849,1,0.670708
+sequential,90,4,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar",48,336,0.5,2.95027e+07,8.54538e+07,168,1,0.093549,236.445,10.1734,0.687209,1,1.26083
+ils,90,4,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar",48,336,0.5,3.46576e+07,8.54538e+07,166,0,0,256.795,9.57793,0.823478,1,386.817
+nearest,90,4,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor",48,336,0.5,2.6492e+07,8.54538e+07,360,77,169.175,192.349,70.2806,0.507083,0,0.037291
+nearest-budget,90,4,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor",48,336,0.5,2.45099e+07,8.54538e+07,230,45,99.9496,108.196,46.4318,0.496507,1,0.027084
+uncoordinated,90,4,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor",48,336,0.5,2.14215e+07,8.54538e+07,163,18,29.8058,239.68,16.7361,0.728193,1,0.699083
+sequential,90,4,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor",48,336,0.5,3.04031e+07,8.54538e+07,163,0,0,242.964,13.6471,0.823568,1,1.13675
+ils,90,4,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor",48,336,0.5,3.45362e+07,8.54538e+07,162,0,0,271.264,7.3608,0.84456,1,320.625
+nearest,90,4,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh",48,336,0.5,2.98672e+07,8.54538e+07,360,4,0.363419,198.313,81.4855,0.70406,0,0.038334
+nearest-budget,90,4,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh",48,336,0.5,2.7919e+07,8.54538e+07,222,0,0,109.347,58.9603,0.679357,1,0.029541
+uncoordinated,90,4,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh",48,336,0.5,2.20715e+07,8.54538e+07,165,29,51.2217,233.703,18.1567,0.398232,1,0.823167
+sequential,90,4,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh",48,336,0.5,2.94344e+07,8.54538e+07,164,1,0.621193,244.687,13.2208,0.788959,1,1.338
+ils,90,4,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh",48,336,0.5,3.48013e+07,8.54538e+07,152,0,0,285.099,10.2301,0.800552,1,507.821
+nearest,90,4,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras",48,336,0.5,1.53639e+07,8.54538e+07,360,207,438.299,191.417,60.2767,0.729035,0,0.032709
+nearest-budget,90,4,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras",48,336,0.5,1.4828e+07,8.54538e+07,229,109,228.502,119.551,38.4863,0.706475,1,0.024292
+uncoordinated,90,4,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras",48,336,0.5,1.04715e+07,8.54538e+07,169,243,581.326,221.409,20.9111,0.680285,1,0.794833
+sequential,90,4,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras",48,336,0.5,3.05037e+07,8.54538e+07,165,0,0,235.173,20.6383,0.849053,1,1.3385
+ils,90,4,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras",48,336,0.5,3.57244e+07,8.54538e+07,173,0,0,242.053,8.58285,0.88728,1,464.501
+nearest,90,4,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam",48,336,0.5,2.58248e+07,8.54538e+07,360,84,183.579,185.944,59.9844,0.572732,0,0.037833
+nearest-budget,90,4,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam",48,336,0.5,2.37368e+07,8.54538e+07,232,50,110.968,109.8,42.8971,0.548808,1,0.031541
+uncoordinated,90,4,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam",48,336,0.5,1.87694e+07,8.54538e+07,161,61,147.4,236.227,21.9886,0.483216,1,0.698625
+sequential,90,4,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam",48,336,0.5,2.94617e+07,8.54538e+07,160,1,0.043308,243.77,21.3572,0.819698,1,1.226
+ils,90,4,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam",48,336,0.5,3.46786e+07,8.54538e+07,168,0,0,256.269,7.86298,0.894014,1,532.979
+nearest,90,4,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan",48,336,0.5,2.95183e+07,8.54538e+07,360,4,2.33768,191.689,63.4005,0.698141,0,0.042083
+nearest-budget,90,4,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan",48,336,0.5,2.77518e+07,8.54538e+07,229,3,0.557117,113.604,44.2868,0.715581,1,0.03
+uncoordinated,90,4,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan",48,336,0.5,1.81974e+07,8.54538e+07,164,55,122.28,228.407,20.2894,0.402964,1,0.7395
+sequential,90,4,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan",48,336,0.5,2.98252e+07,8.54538e+07,167,1,0.10053,229.102,20.4494,0.865983,1,1.25708
+ils,90,4,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan",48,336,0.5,3.47441e+07,8.54538e+07,160,0,0,271.924,8.95112,0.880336,1,431.928
+nearest,90,4,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca",48,336,0.5,3.20204e+07,8.54538e+07,360,4,4.28628,196.707,70.0139,0.90345,0,0.049708
+nearest-budget,90,4,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca",48,336,0.5,3.11441e+07,8.54538e+07,230,3,4.22497,108.862,44.6829,0.925623,1,0.031458
+uncoordinated,90,4,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca",48,336,0.5,1.4463e+07,8.54538e+07,166,104,209.245,233.204,17.5916,0.42096,1,0.678333
+sequential,90,4,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca",48,336,0.5,2.95381e+07,8.54538e+07,170,0,0,227.975,15.4409,0.873356,1,1.26892
+ils,90,4,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca",48,336,0.5,3.5401e+07,8.54538e+07,165,0,0,254.389,11.4527,0.814964,1,417.261
+nearest,90,4,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar",48,336,0.5,3.05146e+07,8.54538e+07,360,2,1.90495,191.641,76.4113,0.670721,0,0.038917
+nearest-budget,90,4,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar",48,336,0.5,2.91872e+07,8.54538e+07,226,0,0,110.876,50.015,0.632301,1,0.033917
+uncoordinated,90,4,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar",48,336,0.5,1.82786e+07,8.54538e+07,168,56,114.665,227.572,19.9977,0.643267,1,0.738833
+sequential,90,4,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar",48,336,0.5,3.02905e+07,8.54538e+07,166,1,0.482737,234.805,15.6348,0.770954,1,1.29871
+ils,90,4,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar",48,336,0.5,3.49669e+07,8.54538e+07,162,0,0,263.478,10.5645,0.795841,1,530.406
+nearest,90,4,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar",48,336,0.5,2.96743e+07,8.54538e+07,360,18,18.1055,188.622,71.0675,0.6159,0,0.0395
+nearest-budget,90,4,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar",48,336,0.5,2.79552e+07,8.54538e+07,229,6,7.3667,108.004,47.989,0.605941,1,0.028667
+uncoordinated,90,4,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar",48,336,0.5,1.5767e+07,8.54538e+07,166,88,172.497,231.719,18.2189,0.522528,1,0.674959
+sequential,90,4,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar",48,336,0.5,2.93252e+07,8.54538e+07,169,0,0,233.247,14.535,0.884185,1,1.22904
+ils,90,4,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar",48,336,0.5,3.46682e+07,8.54538e+07,161,0,0,267.631,8.79984,0.914725,1,498.865
+nearest,90,5,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur",48,336,0.5,2.32702e+07,1.06817e+08,450,219,434.244,238.239,78.94,0.347051,0,0.043541
+nearest-budget,90,5,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur",48,336,0.5,2.22521e+07,1.06817e+08,288,121,224.639,149.264,45.679,0.371175,1,0.033791
+uncoordinated,90,5,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur",48,336,0.5,1.28684e+07,1.06817e+08,208,264,609.987,282.974,24.3492,0.665561,1,1.07517
+sequential,90,5,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur",48,336,0.5,3.49152e+07,1.06817e+08,206,1,0.461705,291.838,27.2395,0.708148,1,2.2155
+ils,90,5,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur",48,336,0.5,4.14516e+07,1.06817e+08,211,0,0,311.945,16.5333,0.82141,1,703.875
+nearest,90,5,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang",48,336,0.5,3.20344e+07,1.06817e+08,450,101,214.309,232.635,75.228,0.518862,0,0.048875
+nearest-budget,90,5,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang",48,336,0.5,2.95937e+07,1.06817e+08,288,65,141.269,137.572,56.2807,0.523832,1,0.035541
+uncoordinated,90,5,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang",48,336,0.5,2.49056e+07,1.06817e+08,206,29,52.0181,289.219,23.82,0.696585,1,1.00762
+sequential,90,5,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang",48,336,0.5,3.49005e+07,1.06817e+08,213,1,0.093549,286.46,16.0936,0.720454,1,1.95842
+ils,90,5,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang",48,336,0.5,4.07759e+07,1.06817e+08,212,0,0,323.544,6.98823,0.909836,1,603.729
+nearest,90,5,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri",48,336,0.5,2.63194e+07,1.06817e+08,450,158,343.407,238.013,84.6189,0.476583,0,0.046292
+nearest-budget,90,5,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri",48,336,0.5,2.43409e+07,1.06817e+08,288,94,205.133,133.455,58.8204,0.46436,1,0.032167
+uncoordinated,90,5,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri",48,336,0.5,2.04143e+07,1.06817e+08,202,66,145.556,301.527,21.8054,0.4189,1,0.946417
+sequential,90,5,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri",48,336,0.5,3.65729e+07,1.06817e+08,203,0,0,304.938,17.3508,0.811487,1,1.92058
+ils,90,5,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri",48,336,0.5,4.00934e+07,1.06817e+08,222,0,0,294.77,11.8098,0.739747,1,417.42
+nearest,90,5,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam",48,336,0.5,3.39638e+07,1.06817e+08,450,17,10.8814,245.665,99.7491,0.476166,0,0.053625
+nearest-budget,90,5,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam",48,336,0.5,3.1773e+07,1.06817e+08,279,3,0.978305,137.089,71.3758,0.470799,1,0.035709
+uncoordinated,90,5,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam",48,336,0.5,2.36783e+07,1.06817e+08,207,54,107.65,294.446,21.1026,0.299506,1,0.844416
+sequential,90,5,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam",48,336,0.5,3.50414e+07,1.06817e+08,208,1,0.621193,297.567,18.583,0.792186,1,1.80517
+ils,90,5,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam",48,336,0.5,4.13276e+07,1.06817e+08,204,1,0.485635,327.291,10.8038,0.812382,1,620.458
+nearest,90,5,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca",48,336,0.5,2.41189e+07,1.06817e+08,450,207,438.299,238.806,77.8597,0.399202,0,0.042625
+nearest-budget,90,5,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca",48,336,0.5,2.33745e+07,1.06817e+08,287,109,228.502,143.294,52.0267,0.389759,1,0.030084
+uncoordinated,90,5,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca",48,336,0.5,1.04866e+07,1.06817e+08,211,404,956.238,280.539,24.1382,0.571534,1,1.08879
+sequential,90,5,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca",48,336,0.5,3.5763e+07,1.06817e+08,207,0,0,291.403,27.11,0.791859,1,2.28087
+ils,90,5,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca",48,336,0.5,4.16436e+07,1.06817e+08,210,0,0,313.947,15.5392,0.900046,1,900.77
+nearest,90,5,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri",48,336,0.5,3.05074e+07,1.06817e+08,450,91,189.154,233.958,84.247,0.58093,0,0.047209
+nearest-budget,90,5,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri",48,336,0.5,2.83312e+07,1.06817e+08,288,57,116.544,138.653,56.3588,0.558499,1,0.034875
+uncoordinated,90,5,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri",48,336,0.5,1.7273e+07,1.06817e+08,203,111,263.361,291.472,26.948,0.57252,1,0.824916
+sequential,90,5,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri",48,336,0.5,3.5319e+07,1.06817e+08,199,1,0.043308,307.902,26.0641,0.820577,1,1.72242
+ils,90,5,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri",48,336,0.5,4.04506e+07,1.06817e+08,207,0,0,326.912,15.4406,0.782095,1,796.591
+nearest,90,5,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu",48,336,0.5,3.48611e+07,1.06817e+08,450,5,4.41155,245.11,85.4019,0.689461,0,0.054292
+nearest-budget,90,5,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu",48,336,0.5,3.27176e+07,1.06817e+08,283,4,2.63099,143.838,60.1267,0.663552,1,0.0375
+uncoordinated,90,5,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu",48,336,0.5,1.76263e+07,1.06817e+08,205,140,325.086,289.218,23.3993,0.278838,1,1.18354
+sequential,90,5,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu",48,336,0.5,3.58706e+07,1.06817e+08,210,1,0.10053,288.253,21.5718,0.881864,1,2.39275
+ils,90,5,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu",48,336,0.5,4.10682e+07,1.06817e+08,204,0,0,331.162,9.41251,0.868823,1,687.962
+nearest,90,5,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling",48,336,0.5,3.75099e+07,1.06817e+08,450,8,8.63951,242.928,83.7289,0.788137,0,0.051
+nearest-budget,90,5,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling",48,336,0.5,3.59025e+07,1.06817e+08,288,6,6.79763,134.707,56.4481,0.81603,1,0.03825
+uncoordinated,90,5,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling",48,336,0.5,1.72264e+07,1.06817e+08,205,111,217.067,294.826,22.8203,0.432147,1,0.880042
+sequential,90,5,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling",48,336,0.5,3.51983e+07,1.06817e+08,211,0,0,285.46,23.639,0.819194,1,2.01208
+ils,90,5,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling",48,336,0.5,4.02919e+07,1.06817e+08,210,0,0,323.541,9.47533,0.758182,1,517.146
+nearest,90,5,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban",48,336,0.5,3.39947e+07,1.06817e+08,450,19,37.8405,238.236,93.8191,0.63046,0,0.050916
+nearest-budget,90,5,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban",48,336,0.5,3.25936e+07,1.06817e+08,284,3,7.90884,137.445,60.9258,0.590868,1,0.036625
+uncoordinated,90,5,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban",48,336,0.5,1.71625e+07,1.06817e+08,210,145,318.365,284.759,24.491,0.471429,1,1.00871
+sequential,90,5,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban",48,336,0.5,3.59648e+07,1.06817e+08,207,1,0.482737,294.494,20.3787,0.754297,1,2.06137
+ils,90,5,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban",48,336,0.5,4.06558e+07,1.06817e+08,195,0,0,346.647,11.7672,0.796153,1,635.777
+nearest,90,5,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas",48,336,0.5,3.16588e+07,1.06817e+08,450,82,147.582,236.074,83.1306,0.61843,0,0.047292
+nearest-budget,90,5,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas",48,336,0.5,3.00039e+07,1.06817e+08,287,37,66.3179,138.22,55.416,0.632595,1,0.037833
+uncoordinated,90,5,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas",48,336,0.5,1.44037e+07,1.06817e+08,208,178,372.375,287.413,23.4572,0.537947,1,0.832875
+sequential,90,5,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas",48,336,0.5,3.57172e+07,1.06817e+08,207,0,0,298.9,19.9785,0.880505,1,1.83225
+ils,90,5,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas",48,336,0.5,4.13481e+07,1.06817e+08,221,1,0.222853,292.614,15.0795,0.850745,1,625.379
+nearest,90,6,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam",48,336,0.5,2.3371e+07,1.28181e+08,540,419,851.679,286.253,90.9073,0.288953,0,0.049292
+nearest-budget,90,6,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam",48,336,0.5,2.23689e+07,1.28181e+08,346,223,432.278,179.974,53.0102,0.310954,1,0.033
+uncoordinated,90,6,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam",48,336,0.5,1.25766e+07,1.28181e+08,250,434,1022.8,338.447,29.5005,0.596878,1,0.977709
+sequential,90,6,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam",48,336,0.5,4.03813e+07,1.28181e+08,249,1,0.461705,345.757,34.5543,0.726352,1,2.38796
+ils,90,6,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam",48,336,0.5,4.65545e+07,1.28181e+08,274,0,0,346.811,18.2663,0.888698,1,934.02
+nearest,90,6,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah",48,336,0.5,3.23602e+07,1.28181e+08,540,266,571.827,278.172,89.5569,0.3565,0,0.058041
+nearest-budget,90,6,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah",48,336,0.5,2.99221e+07,1.28181e+08,346,164,358.693,162.707,68.6598,0.362621,1,0.0435
+uncoordinated,90,6,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah",48,336,0.5,2.34824e+07,1.28181e+08,245,78,170.387,350.969,28.8509,0.39833,1,1.30492
+sequential,90,6,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah",48,336,0.5,3.97851e+07,1.28181e+08,250,1,0.093549,355.885,21.1102,0.726341,1,2.81225
+ils,90,6,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah",48,336,0.5,4.56229e+07,1.28181e+08,259,0,0,375.845,17.2132,0.816863,1,943.195
+nearest,90,6,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh",48,336,0.5,3.26646e+07,1.28181e+08,540,160,346.256,285.344,101.773,0.444199,0,0.055417
+nearest-budget,90,6,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh",48,336,0.5,3.00054e+07,1.28181e+08,344,96,207.982,160.606,72.9578,0.433271,1,0.04
+uncoordinated,90,6,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh",48,336,0.5,2.31706e+07,1.28181e+08,244,81,181.117,356.348,27.7049,0.408799,1,1.17308
+sequential,90,6,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh",48,336,0.5,4.15737e+07,1.28181e+08,248,0,0,358.404,21.9688,0.711849,1,2.60896
+ils,90,6,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh",48,336,0.5,4.59421e+07,1.28181e+08,267,0,0,344.984,20.2609,0.812353,1,994.907
+nearest,90,6,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor",48,336,0.5,3.46259e+07,1.28181e+08,540,90,128.498,292.723,118.449,0.283711,0,0.054708
+nearest-budget,90,6,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor",48,336,0.5,3.26373e+07,1.28181e+08,337,33,37.7538,165.023,81.5238,0.283098,1,0.038084
+uncoordinated,90,6,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor",48,336,0.5,2.19006e+07,1.28181e+08,249,121,267.876,355.196,23.989,0.230161,1,1.27775
+sequential,90,6,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor",48,336,0.5,3.99821e+07,1.28181e+08,248,1,0.621193,361.133,23.5035,0.695579,1,3.07437
+ils,90,6,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor",48,336,0.5,4.5251e+07,1.28181e+08,248,0,0,391.863,17.6943,0.75495,1,829.762
+nearest,90,6,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang",48,336,0.5,3.12417e+07,1.28181e+08,540,212,445.438,285.116,91.8266,0.429663,0,0.058833
+nearest-budget,90,6,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang",48,336,0.5,2.97417e+07,1.28181e+08,345,111,230.3,169.248,64.0438,0.436356,1,0.039709
+uncoordinated,90,6,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang",48,336,0.5,1.34822e+07,1.28181e+08,250,423,979.758,342.632,29.2182,0.345548,1,1.04438
+sequential,90,6,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang",48,336,0.5,4.05127e+07,1.28181e+08,246,0,0,355.779,33.6299,0.687605,1,2.53858
+ils,90,6,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang",48,336,0.5,4.59474e+07,1.28181e+08,269,0,0,346.235,20.1151,0.837546,1,613.915
+nearest,90,6,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur",48,336,0.5,3.10824e+07,1.28181e+08,540,167,339.894,281.747,96.2079,0.582254,0,0.057458
+nearest-budget,90,6,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur",48,336,0.5,2.90797e+07,1.28181e+08,346,98,193.197,169.649,63.6835,0.634149,1,0.0385
+uncoordinated,90,6,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur",48,336,0.5,1.69735e+07,1.28181e+08,245,195,445.885,346.616,32.4887,0.508534,1,1.06408
+sequential,90,6,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur",48,336,0.5,4.07684e+07,1.28181e+08,242,1,0.043308,362.953,31.5739,0.788256,1,2.46738
+ils,90,6,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur",48,336,0.5,4.56424e+07,1.28181e+08,252,0,0,390.582,15.5109,0.816573,1,794.595
+nearest,90,6,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh",48,336,0.5,3.83099e+07,1.28181e+08,540,13,9.46056,299.722,101.918,0.54698,0,0.05975
+nearest-budget,90,6,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh",48,336,0.5,3.61148e+07,1.28181e+08,338,6,4.85773,173.373,72.2312,0.568899,1,0.049667
+uncoordinated,90,6,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh",48,336,0.5,1.58839e+07,1.28181e+08,247,205,455.521,346.535,27.2511,0.372676,1,1.06925
+sequential,90,6,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh",48,336,0.5,4.134e+07,1.28181e+08,249,1,0.10053,351.725,27.7125,0.834591,1,2.73396
+ils,90,6,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh",48,336,0.5,4.67071e+07,1.28181e+08,272,0,0,343.955,17.6763,0.805014,1,859.478
+nearest,90,6,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara",48,336,0.5,3.81363e+07,1.28181e+08,540,77,153.574,290.879,95.6832,0.655678,0,0.060042
+nearest-budget,90,6,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara",48,336,0.5,3.65755e+07,1.28181e+08,346,41,81.3365,165.531,63.7661,0.663621,1,0.044584
+uncoordinated,90,6,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara",48,336,0.5,1.59019e+07,1.28181e+08,247,206,422.223,350.04,28.0709,0.432902,1,0.99775
+sequential,90,6,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara",48,336,0.5,4.05927e+07,1.28181e+08,251,0,0,344.019,30.5891,0.836929,1,2.52483
+ils,90,6,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara",48,336,0.5,4.58914e+07,1.28181e+08,271,0,0,345.107,19.1214,0.761408,1,577.404
+nearest,90,6,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru",48,336,0.5,3.97045e+07,1.28181e+08,540,25,46.6936,284.554,107.561,0.572891,0,0.060417
+nearest-budget,90,6,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru",48,336,0.5,3.74289e+07,1.28181e+08,342,7,14.7666,163.395,72.7181,0.530974,1,0.041833
+uncoordinated,90,6,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru",48,336,0.5,1.88128e+07,1.28181e+08,249,168,359.06,346.346,29.8756,0.461786,1,1.01087
+sequential,90,6,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru",48,336,0.5,4.05165e+07,1.28181e+08,248,1,0.482737,360.131,21.4144,0.637907,1,2.30213
+ils,90,6,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru",48,336,0.5,4.72711e+07,1.28181e+08,248,0,0,395.957,13.6189,0.910079,1,599.732
+nearest,90,6,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara",48,336,0.5,3.41377e+07,1.28181e+08,540,96,156.611,283.768,107.392,0.441663,0,0.054208
+nearest-budget,90,6,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara",48,336,0.5,3.24239e+07,1.28181e+08,343,51,75.3471,167.284,68.8766,0.477399,1,0.0395
+uncoordinated,90,6,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara",48,336,0.5,1.35585e+07,1.28181e+08,250,310,678.235,342.693,28.7252,0.522182,1,1.02913
+sequential,90,6,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara",48,336,0.5,4.15336e+07,1.28181e+08,247,0,0,358.903,27.013,0.857043,1,2.54546
+ils,90,6,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara",48,336,0.5,4.71084e+07,1.28181e+08,264,0,0,360.301,14.832,0.79605,1,564.814
+nearest,90,7,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan",48,336,0.5,2.44327e+07,1.49544e+08,630,428,863.285,338.49,107.546,0.255206,0,0.057084
+nearest-budget,90,7,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan",48,336,0.5,2.34168e+07,1.49544e+08,403,232,443.884,209.688,63.2739,0.275709,1,0.044584
+uncoordinated,90,7,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan",48,336,0.5,1.24568e+07,1.49544e+08,291,500,1153.8,395.617,34.3839,0.453466,1,1.26471
+sequential,90,7,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan",48,336,0.5,4.46225e+07,1.49544e+08,296,1,0.461705,392.214,42.7893,0.66333,1,3.666
+ils,90,7,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan",48,336,0.5,5.00505e+07,1.49544e+08,297,0,0,440.291,21.5416,0.860827,1,1325.33
+nearest,90,7,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu",48,336,0.5,3.57272e+07,1.49544e+08,630,267,572.297,331.592,111.558,0.319179,0,0.066625
+nearest-budget,90,7,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu",48,336,0.5,3.31042e+07,1.49544e+08,400,164,358.693,192.94,84.4997,0.322102,1,0.052583
+uncoordinated,90,7,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu",48,336,0.5,2.22571e+07,1.49544e+08,286,127,281.189,411.78,31.9607,0.355254,1,1.14908
+sequential,90,7,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu",48,336,0.5,4.41615e+07,1.49544e+08,288,1,0.093549,418.805,30.9692,0.623799,1,3.40658
+ils,90,7,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu",48,336,0.5,5.01348e+07,1.49544e+08,293,0,0,449.742,21.4135,0.833232,1,705.506
+nearest,90,7,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban",48,336,0.5,3.74364e+07,1.49544e+08,630,163,350.089,331.939,119.18,0.426593,0,0.076084
+nearest-budget,90,7,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban",48,336,0.5,3.47279e+07,1.49544e+08,402,99,211.815,187.175,83.8686,0.414742,1,0.049583
+uncoordinated,90,7,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban",48,336,0.5,2.11037e+07,1.49544e+08,286,141,313.239,413.536,32.1982,0.440518,1,1.20887
+sequential,90,7,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban",48,336,0.5,4.61337e+07,1.49544e+08,291,0,0,415.399,27.8735,0.72386,1,3.58408
+ils,90,7,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban",48,336,0.5,5.16851e+07,1.49544e+08,297,0,0,442.514,17.7801,0.803276,1,730.35
+nearest,90,7,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping",48,336,0.5,3.47645e+07,1.49544e+08,630,202,322.421,339.866,136.893,0.157072,0,0.062667
+nearest-budget,90,7,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping",48,336,0.5,3.27769e+07,1.49544e+08,394,92,141.296,191.179,94.1198,0.157486,1,0.046583
+uncoordinated,90,7,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping",48,336,0.5,2.08186e+07,1.49544e+08,290,178,382.269,414.991,28.483,0.174869,1,1.41767
+sequential,90,7,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping",48,336,0.5,4.4081e+07,1.49544e+08,290,1,0.621193,423.024,26.2289,0.676767,1,3.87146
+ils,90,7,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping",48,336,0.5,5.05807e+07,1.49544e+08,279,0,0,477.771,20.2299,0.721688,1,701.28
+nearest,90,7,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama",48,336,0.5,3.13395e+07,1.49544e+08,630,414,866.518,332.946,104.189,0.385997,0,0.059375
+nearest-budget,90,7,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama",48,336,0.5,2.99331e+07,1.49544e+08,403,215,441.579,199.591,71.7702,0.393929,1,0.04325
+uncoordinated,90,7,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama",48,336,0.5,1.3212e+07,1.49544e+08,292,633,1487.88,397.945,34.255,0.2984,1,1.29308
+sequential,90,7,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama",48,336,0.5,4.52925e+07,1.49544e+08,289,0,0,410.744,41.4036,0.70456,1,3.56521
+ils,90,7,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama",48,336,0.5,5.13473e+07,1.49544e+08,319,0,0,399.577,22.3016,0.793424,1,718.242
+nearest,90,7,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru",48,336,0.5,3.08319e+07,1.49544e+08,630,334,699.744,328.064,109.95,0.478423,0,0.059
+nearest-budget,90,7,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru",48,336,0.5,2.88335e+07,1.49544e+08,404,199,411.388,195.598,75.4758,0.483049,1,0.04675
+uncoordinated,90,7,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru",48,336,0.5,1.63428e+07,1.49544e+08,284,291,676.185,408.203,37.8733,0.392032,1,1.276
+sequential,90,7,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru",48,336,0.5,4.51383e+07,1.49544e+08,286,1,0.043308,416.755,38.9634,0.673664,1,3.681
+ils,90,7,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru",48,336,0.5,5.14326e+07,1.49544e+08,312,0,0,408.929,23.4797,0.824235,1,706.371
+nearest,90,7,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil",48,336,0.5,3.95905e+07,1.49544e+08,630,32,41.5244,347.207,126.107,0.53581,0,0.069417
+nearest-budget,90,7,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil",48,336,0.5,3.71936e+07,1.49544e+08,394,12,9.27163,202.511,85.6195,0.560449,1,0.052583
+uncoordinated,90,7,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil",48,336,0.5,1.46906e+07,1.49544e+08,289,308,687.679,402.077,32.5495,0.330372,1,1.16817
+sequential,90,7,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil",48,336,0.5,4.58848e+07,1.49544e+08,289,1,0.10053,412.653,35.6167,0.778099,1,3.39333
+ils,90,7,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil",48,336,0.5,5.15625e+07,1.49544e+08,303,0,0,430.242,18.7798,0.816072,1,706.89
+nearest,90,7,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak",48,336,0.5,4.07972e+07,1.49544e+08,630,82,161.938,343.205,115.104,0.624727,0,0.070125
+nearest-budget,90,7,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak",48,336,0.5,3.93227e+07,1.49544e+08,400,46,89.7001,196.817,76.5316,0.64223,1,0.052584
+uncoordinated,90,7,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak",48,336,0.5,1.50973e+07,1.49544e+08,289,342,733.168,405.327,33.4003,0.392828,1,1.2845
+sequential,90,7,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak",48,336,0.5,4.52082e+07,1.49544e+08,295,0,0,401.422,34.6966,0.717462,1,3.64417
+ils,90,7,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak",48,336,0.5,5.05293e+07,1.49544e+08,321,0,0,391.276,27.8023,0.797942,1,732.016
+nearest,90,7,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya",48,336,0.5,3.98343e+07,1.49544e+08,630,107,216.924,332.37,119.602,0.544104,0,0.06825
+nearest-budget,90,7,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya",48,336,0.5,3.76908e+07,1.49544e+08,400,40,83.0422,193.976,80.1225,0.539267,1,0.055417
+uncoordinated,90,7,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya",48,336,0.5,1.79586e+07,1.49544e+08,291,303,675.99,401.9,35.0677,0.368046,1,1.45096
+sequential,90,7,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya",48,336,0.5,4.47441e+07,1.49544e+08,289,2,1.03146,423.663,25.9556,0.606599,1,4.04029
+ils,90,7,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya",48,336,0.5,5.19966e+07,1.49544e+08,289,0,0,454.73,17.558,0.691379,1,695.889
+nearest,90,7,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town",48,336,0.5,3.36374e+07,1.49544e+08,630,189,333.696,330.783,126.476,0.343216,0,0.060792
+nearest-budget,90,7,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town",48,336,0.5,3.19264e+07,1.49544e+08,400,100,170.873,194.215,82.1121,0.353939,1,0.050958
+uncoordinated,90,7,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town",48,336,0.5,1.31439e+07,1.49544e+08,290,398,870.796,404.789,31.8062,0.332885,1,1.17758
+sequential,90,7,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town",48,336,0.5,4.67937e+07,1.49544e+08,289,0,0,417.875,36.2597,0.821463,1,3.67313
+ils,90,7,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town",48,336,0.5,5.1194e+07,1.49544e+08,311,1,0.983584,407.706,23.8614,0.834034,1,710.907
+nearest,90,8,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi",48,336,0.5,3.1159e+07,1.70908e+08,720,433,872.175,384.04,121.896,0.253624,0,0.076125
+nearest-budget,90,8,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi",48,336,0.5,2.93748e+07,1.70908e+08,461,233,445.652,234.883,75.6747,0.279687,1,0.049708
+uncoordinated,90,8,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi",48,336,0.5,1.453e+07,1.70908e+08,332,525,1181.55,456.819,38.5194,0.446126,1,1.43846
+sequential,90,8,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi",48,336,0.5,4.82144e+07,1.70908e+08,346,1,0.461705,434.219,52.6443,0.580694,1,5.26013
+ils,90,8,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi",48,336,0.5,5.42294e+07,1.70908e+08,376,0,0,415.653,46.6169,0.627663,1,841.441
+nearest,90,8,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong",48,336,0.5,4.05577e+07,1.70908e+08,720,273,574.565,383.287,130.838,0.330259,0,0.081333
+nearest-budget,90,8,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong",48,336,0.5,3.79714e+07,1.70908e+08,456,164,358.693,219.372,98.9832,0.305699,1,0.056917
+uncoordinated,90,8,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong",48,336,0.5,2.08934e+07,1.70908e+08,328,189,404.777,467.479,37.1244,0.389589,1,1.44875
+sequential,90,8,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong",48,336,0.5,4.84507e+07,1.70908e+08,330,1,0.093549,478.66,38.5354,0.631544,1,4.53667
+ils,90,8,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong",48,336,0.5,5.41233e+07,1.70908e+08,341,0,0,510.811,21.6691,0.828408,1,894.588
+nearest,90,8,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar",48,336,0.5,3.98608e+07,1.70908e+08,720,170,354.735,379.379,139.866,0.396281,0,0.073917
+nearest-budget,90,8,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar",48,336,0.5,3.71454e+07,1.70908e+08,459,104,216.031,210.939,100.326,0.395876,1,0.057375
+uncoordinated,90,8,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar",48,336,0.5,2.01129e+07,1.70908e+08,327,240,531.013,473.818,34.88,0.440499,1,1.51475
+sequential,90,8,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar",48,336,0.5,5.04911e+07,1.70908e+08,338,1,0.657995,470.764,29.5379,0.692498,1,5.20783
+ils,90,8,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar",48,336,0.5,5.49542e+07,1.70908e+08,332,1,0.390203,517.074,23.8544,0.749546,1,829.736
+nearest,90,8,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar",48,336,0.5,3.85361e+07,1.70908e+08,720,216,347.157,387.306,157.578,0.147085,0,0.072083
+nearest-budget,90,8,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar",48,336,0.5,3.65425e+07,1.70908e+08,451,102,161.725,214.943,110.577,0.147095,1,0.053291
+uncoordinated,90,8,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar",48,336,0.5,1.9374e+07,1.70908e+08,331,246,525.483,475.273,31.1648,0.159004,1,1.34492
+sequential,90,8,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar",48,336,0.5,4.8275e+07,1.70908e+08,336,1,0.621193,475.263,33.7873,0.638716,1,4.73083
+ils,90,8,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar",48,336,0.5,5.48691e+07,1.70908e+08,361,0,0,462.251,26.6749,0.781329,1,858.082
+nearest,90,8,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam",48,336,0.5,3.37246e+07,1.70908e+08,720,416,868.189,378.76,128.019,0.448229,0,0.07275
+nearest-budget,90,8,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam",48,336,0.5,3.21508e+07,1.70908e+08,460,216,442.971,228.061,83.5648,0.450389,1,0.055292
+uncoordinated,90,8,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam",48,336,0.5,1.37142e+07,1.70908e+08,331,685,1591.06,462.504,37.7282,0.362766,1,1.32775
+sequential,90,8,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam",48,336,0.5,4.90617e+07,1.70908e+08,336,0,0,462.028,48.7433,0.594464,1,4.76337
+ils,90,8,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam",48,336,0.5,5.52635e+07,1.70908e+08,364,0,0,457.581,31.2219,0.793571,1,826.462
+nearest,90,8,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara",48,336,0.5,3.12617e+07,1.70908e+08,720,404,826.046,375.758,134.211,0.395667,0,0.066875
+nearest-budget,90,8,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara",48,336,0.5,2.92963e+07,1.70908e+08,460,235,464.803,224.662,88.9365,0.436904,1,0.050083
+uncoordinated,90,8,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara",48,336,0.5,1.57024e+07,1.70908e+08,326,426,992.06,463.482,43.1413,0.374691,1,1.53125
+sequential,90,8,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara",48,336,0.5,4.88775e+07,1.70908e+08,332,1,0.043308,470.741,45.4415,0.641802,1,4.79413
+ils,90,8,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara",48,336,0.5,5.53008e+07,1.70908e+08,364,0,0,461.873,23.0579,0.723513,1,841.63
+nearest,90,8,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling",48,336,0.5,4.42489e+07,1.70908e+08,720,56,77.4313,398.643,145.302,0.505479,0,0.079292
+nearest-budget,90,8,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling",48,336,0.5,4.1813e+07,1.70908e+08,451,13,10.3169,229.021,100.019,0.512472,1,0.058208
+uncoordinated,90,8,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling",48,336,0.5,1.39856e+07,1.70908e+08,331,453,1025.47,457.273,37.8967,0.297882,1,1.44283
+sequential,90,8,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling",48,336,0.5,4.96487e+07,1.70908e+08,333,1,0.10053,471.542,41.4821,0.619433,1,5.05279
+ils,90,8,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling",48,336,0.5,5.54872e+07,1.70908e+08,367,0,0,464.054,17.815,0.836621,1,843.929
+nearest,90,8,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara",48,336,0.5,4.35531e+07,1.70908e+08,720,86,167.62,390.345,134.205,0.625671,0,0.075417
+nearest-budget,90,8,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara",48,336,0.5,4.15212e+07,1.70908e+08,458,49,94.9011,224.269,87.0812,0.67121,1,0.055625
+uncoordinated,90,8,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara",48,336,0.5,1.46116e+07,1.70908e+08,329,443,957.499,467.271,36.5621,0.271466,1,1.29979
+sequential,90,8,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara",48,336,0.5,4.90432e+07,1.70908e+08,337,0,0,467.502,37.8776,0.600404,1,4.63071
+ils,90,8,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara",48,336,0.5,5.56308e+07,1.70908e+08,330,0,0,528.63,18.8025,0.832077,1,823.215
+nearest,90,8,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara",48,336,0.5,3.9241e+07,1.70908e+08,720,262,534.494,380.321,131.556,0.396012,0,0.07825
+nearest-budget,90,8,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara",48,336,0.5,3.71645e+07,1.70908e+08,458,114,230.103,224.8,87.4405,0.387946,1,0.065
+uncoordinated,90,8,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara",48,336,0.5,1.73788e+07,1.70908e+08,333,480,1098.64,457.115,40.3183,0.305973,1,1.42346
+sequential,90,8,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara",48,336,0.5,4.88624e+07,1.70908e+08,340,2,1.03146,471.613,29.8026,0.594633,1,4.79179
+ils,90,8,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara",48,336,0.5,5.6066e+07,1.70908e+08,361,1,0.102769,469.96,19.7843,0.794182,1,826.851
+nearest,90,8,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang",48,336,0.5,3.40262e+07,1.70908e+08,720,265,479.221,378.615,150.259,0.325581,0,0.071958
+nearest-budget,90,8,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang",48,336,0.5,3.23207e+07,1.70908e+08,456,142,243.51,223.694,95.0948,0.355717,1,0.050042
+uncoordinated,90,8,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang",48,336,0.5,1.27232e+07,1.70908e+08,332,577,1288.89,460.226,37.1289,0.332879,1,1.39279
+sequential,90,8,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang",48,336,0.5,5.11589e+07,1.70908e+08,332,0,0,475.654,43.7098,0.804901,1,4.88308
+ils,90,8,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang",48,336,0.5,5.75736e+07,1.70908e+08,360,0,0,457.895,25.4211,0.817124,1,848.586
+nearest,90,9,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya",48,336,0.5,3.02468e+07,1.92271e+08,810,713,1441.08,431.857,133.937,0.20613,0,0.073125
+nearest-budget,90,9,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya",48,336,0.5,2.85007e+07,1.92271e+08,519,382,734.235,265.465,83.079,0.227389,1,0.0545
+uncoordinated,90,9,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya",48,336,0.5,1.41961e+07,1.92271e+08,374,747,1712.59,512.374,43.7115,0.442739,1,1.53275
+sequential,90,9,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya",48,336,0.5,5.20768e+07,1.92271e+08,390,1,0.461705,493.264,57.6483,0.572446,1,6.50392
+ils,90,9,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya",48,336,0.5,5.91039e+07,1.92271e+08,421,0,0,491.941,41.3098,0.720955,1,1184.09
+nearest,90,9,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara",48,336,0.5,4.37861e+07,1.92271e+08,810,281,581.219,430.981,155.099,0.348519,0,0.083584
+nearest-budget,90,9,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara",48,336,0.5,4.11121e+07,1.92271e+08,512,170,362.736,248.436,112.444,0.324053,1,0.070375
+uncoordinated,90,9,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara",48,336,0.5,1.96665e+07,1.92271e+08,370,293,634.436,522.759,42.3923,0.341004,1,1.53579
+sequential,90,9,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara",48,336,0.5,5.22672e+07,1.92271e+08,374,2,0.157142,536.262,44.2189,0.596802,1,6.17521
+ils,90,9,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara",48,336,0.5,5.91483e+07,1.92271e+08,403,0,0,534.531,35.082,0.763097,1,1144.34
+nearest,90,9,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang",48,336,0.5,4.36887e+07,1.92271e+08,810,173,359.949,427.402,164.794,0.418855,0,0.085834
+nearest-budget,90,9,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang",48,336,0.5,4.08128e+07,1.92271e+08,515,105,218.635,239.064,114.453,0.405433,1,0.066209
+uncoordinated,90,9,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang",48,336,0.5,1.9313e+07,1.92271e+08,370,381,861.929,529.226,39.1676,0.376998,1,1.61312
+sequential,90,9,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang",48,336,0.5,5.40253e+07,1.92271e+08,385,1,0.657995,527.716,34.011,0.566975,1,6.44858
+ils,90,9,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang",48,336,0.5,5.85518e+07,1.92271e+08,409,0,0,517.116,30.295,0.699311,1,1135.04
+nearest,90,9,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong",48,336,0.5,3.78102e+07,1.92271e+08,810,387,643.212,434.5,176.603,0.0936105,0,0.105542
+nearest-budget,90,9,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong",48,336,0.5,3.58823e+07,1.92271e+08,509,187,297.959,242.549,121.05,0.0945862,1,0.059417
+uncoordinated,90,9,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong",48,336,0.5,1.87278e+07,1.92271e+08,371,350,752.129,537.36,34.2538,0.136753,1,1.6185
+sequential,90,9,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong",48,336,0.5,5.13259e+07,1.92271e+08,378,1,0.621193,543.157,35.4461,0.468762,1,6.31121
+ils,90,9,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong",48,336,0.5,5.67345e+07,1.92271e+08,405,1,2.3039,535.446,34.5837,0.684453,1,1156.49
+nearest,90,9,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong",48,336,0.5,3.79367e+07,1.92271e+08,810,424,880.432,430.455,147.298,0.411271,0,0.082292
+nearest-budget,90,9,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong",48,336,0.5,3.63186e+07,1.92271e+08,516,219,448.156,254.492,98.0483,0.402553,1,0.060291
+uncoordinated,90,9,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong",48,336,0.5,1.34869e+07,1.92271e+08,373,942,2214.98,518.202,42.8918,0.315709,1,1.62025
+sequential,90,9,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong",48,336,0.5,5.31348e+07,1.92271e+08,381,0,0,523.691,50.5112,0.599904,1,6.28637
+ils,90,9,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong",48,336,0.5,5.95125e+07,1.92271e+08,408,0,0,523.322,34.2531,0.801244,1,1137.04
+nearest,90,9,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya",48,336,0.5,3.05711e+07,1.92271e+08,810,556,1120.92,423.575,146.252,0.310291,0,0.076375
+nearest-budget,90,9,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya",48,336,0.5,2.86614e+07,1.92271e+08,518,319,615.066,255.244,96.3408,0.345239,1,0.054416
+uncoordinated,90,9,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya",48,336,0.5,1.52367e+07,1.92271e+08,368,603,1414.01,519.037,48.3333,0.326368,1,1.5005
+sequential,90,9,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya",48,336,0.5,5.22668e+07,1.92271e+08,377,1,0.043308,530.958,49.1491,0.588571,1,6.08754
+ils,90,9,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya",48,336,0.5,5.94958e+07,1.92271e+08,410,0,0,518.109,31.8878,0.763252,1,1140.42
+nearest,90,9,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika",48,336,0.5,4.38348e+07,1.92271e+08,810,146,271.587,444.78,159.046,0.471899,0,0.086125
+nearest-budget,90,9,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika",48,336,0.5,4.13861e+07,1.92271e+08,509,70,133.643,254.794,111.814,0.432258,1,0.060084
+uncoordinated,90,9,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika",48,336,0.5,1.32814e+07,1.92271e+08,370,508,1145.79,518.865,43.0956,0.537472,1,1.45496
+sequential,90,9,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika",48,336,0.5,5.33478e+07,1.92271e+08,381,1,0.10053,524.551,47.684,0.595716,1,6.48808
+ils,90,9,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika",48,336,0.5,5.86089e+07,1.92271e+08,418,0,0,520.587,24.8078,0.744808,1,1152.11
+nearest,90,9,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra",48,336,0.5,4.34364e+07,1.92271e+08,810,223,455.076,438.193,146.409,0.503991,0,0.08175
+nearest-budget,90,9,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra",48,336,0.5,4.14612e+07,1.92271e+08,516,120,243.407,255.029,94.6486,0.534689,1,0.06125
+uncoordinated,90,9,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra",48,336,0.5,1.41949e+07,1.92271e+08,371,628,1380.74,522.501,41.7479,0.25356,1,1.566
+sequential,90,9,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra",48,336,0.5,5.24124e+07,1.92271e+08,384,0,0,522.666,42.8267,0.549725,1,6.40942
+ils,90,9,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra",48,336,0.5,5.90983e+07,1.92271e+08,411,0,0,515.412,31.3002,0.662332,1,1165.55
+nearest,90,9,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam",48,336,0.5,3.84286e+07,1.92271e+08,810,479,986.371,428.335,143.523,0.306861,0,0.085084
+nearest-budget,90,9,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam",48,336,0.5,3.6402e+07,1.92271e+08,516,217,440.753,255.51,94.7717,0.297052,1,0.065542
+uncoordinated,90,9,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam",48,336,0.5,1.70128e+07,1.92271e+08,375,699,1627.34,512.588,45.4696,0.263937,1,1.73771
+sequential,90,9,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam",48,336,0.5,5.2454e+07,1.92271e+08,382,2,1.03146,532.557,36.4864,0.602937,1,6.84704
+ils,90,9,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam",48,336,0.5,5.87791e+07,1.92271e+08,413,1,0.849904,515.136,29.8567,0.714584,1,1166.52
+nearest,90,9,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong",48,336,0.5,3.94248e+07,1.92271e+08,810,270,488.734,430.311,169.538,0.298586,0,0.07975
+nearest-budget,90,9,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong",48,336,0.5,3.7662e+07,1.92271e+08,512,143,245.837,250.126,109.578,0.300448,1,0.064042
+uncoordinated,90,9,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong",48,336,0.5,1.24598e+07,1.92271e+08,374,798,1812.45,515.925,42.2925,0.331936,1,1.76929
+sequential,90,9,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong",48,336,0.5,5.43089e+07,1.92271e+08,376,1,0.267696,528.113,56.1773,0.550215,1,6.81496
+ils,90,9,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong",48,336,0.5,5.92584e+07,1.92271e+08,410,0,0,512.498,31.8827,0.622096,1,1111.26
+nearest,90,10,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya; Iskandar Puteri",48,336,0.5,3.03508e+07,2.13634e+08,900,796,1622.18,477.52,148.275,0.261681,0,0.083292
+nearest-budget,90,10,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya; Iskandar Puteri",48,336,0.5,2.86084e+07,2.13634e+08,577,428,837.381,290.723,95.4676,0.290183,1,0.06425
+uncoordinated,90,10,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya; Iskandar Puteri",48,336,0.5,1.48667e+07,2.13634e+08,413,794,1800.86,574.22,48.7807,0.443685,1,1.74242
+sequential,90,10,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya; Iskandar Puteri",48,336,0.5,5.50226e+07,2.13634e+08,435,2,0.49934,552.611,61.6726,0.497176,1,8.08575
+ils,90,10,0.5,14,12,"Selayang Baru Utara; Hulu Langat; Bukit Mertajam; Bandar Saujana Utama; Kuala Lumpur; Shah Alam; Kuantan; Kota Tinggi; Subang Jaya; Iskandar Puteri",48,336,0.5,6.26621e+07,2.13634e+08,465,1,2.48999,555.015,49.0213,0.588448,1,1529.02
+nearest,90,10,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara; Kota Bharu",48,336,0.5,4.59555e+07,2.13634e+08,900,301,618.293,485.209,172.006,0.344636,0,0.096459
+nearest-budget,90,10,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara; Kota Bharu",48,336,0.5,4.3279e+07,2.13634e+08,569,184,396.525,276.199,123.03,0.323562,1,0.06825
+uncoordinated,90,10,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara; Kota Bharu",48,336,0.5,2.09363e+07,2.13634e+08,408,339,735.357,587.339,49.1563,0.296233,1,1.72821
+sequential,90,10,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara; Kota Bharu",48,336,0.5,5.54096e+07,2.13634e+08,426,2,0.157142,586.25,48.6689,0.515275,1,8.26517
+ils,90,10,0.5,14,12,"Pasir Gudang; Ipoh; Kuala Lumpur; Yan Besar; Kluang; Gelang Patah; Kuala Terengganu; Puchong; Kota Damansara; Kota Bharu",48,336,0.5,6.19857e+07,2.13634e+08,460,1,0.960909,587.96,22.3668,0.662311,1,1570.96
+nearest,90,10,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang; Kota Damansara",48,336,0.5,4.36125e+07,2.13634e+08,900,235,489.352,475.096,189.055,0.442939,0,0.091458
+nearest-budget,90,10,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang; Kota Damansara",48,336,0.5,4.0796e+07,2.13634e+08,571,131,272.538,268.128,127.914,0.429872,1,0.068541
+uncoordinated,90,10,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang; Kota Damansara",48,336,0.5,1.86579e+07,2.13634e+08,412,564,1294.62,584.506,44.4355,0.310135,1,1.98308
+sequential,90,10,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang; Kota Damansara",48,336,0.5,5.7387e+07,2.13634e+08,429,1,0.657995,593.048,37.1291,0.58734,1,8.60187
+ils,90,10,0.5,14,12,"Puchong; Johor Bahru; Bukit Mertajam; Tasek Glugor; Iskandar Puteri; Ipoh; Seremban; Muar; Kampung Sungai Kajang; Kota Damansara",48,336,0.5,6.209e+07,2.13634e+08,462,0,0,580.014,27.2014,0.713054,1,1593.42
+nearest,90,10,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong; Setapak",48,336,0.5,4.28813e+07,2.13634e+08,900,391,647.679,486.826,196.024,0.0953598,0,0.087583
+nearest-budget,90,10,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong; Setapak",48,336,0.5,4.07796e+07,2.13634e+08,563,191,302.426,273.834,133.816,0.0962509,1,0.064208
+uncoordinated,90,10,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong; Setapak",48,336,0.5,1.75739e+07,2.13634e+08,413,459,997.191,592.646,39.5832,0.111749,1,2.07621
+sequential,90,10,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong; Setapak",48,336,0.5,5.41717e+07,2.13634e+08,424,1,0.621193,599.477,42.1449,0.471639,1,8.85896
+ils,90,10,0.5,14,12,"Jitra; Kuala Nerus; Puchong; Ipoh; Kampong Sidam; Tasek Glugor; Taiping; Muar; Paya Terubong; Setapak",48,336,0.5,6.09674e+07,2.13634e+08,456,0,0,596.788,27.2864,0.661063,1,1583.25
+nearest,90,10,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong; Petaling Jaya",48,336,0.5,3.72877e+07,2.13634e+08,900,510,1062.3,481.668,166.85,0.380982,0,0.087833
+nearest-budget,90,10,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong; Petaling Jaya",48,336,0.5,3.56767e+07,2.13634e+08,572,266,549.942,280.546,112.805,0.370172,1,0.06075
+uncoordinated,90,10,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong; Petaling Jaya",48,336,0.5,1.33115e+07,2.13634e+08,415,1241,2943.84,573.552,48.2018,0.280729,1,1.85692
+sequential,90,10,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong; Petaling Jaya",48,336,0.5,5.65447e+07,2.13634e+08,424,0,0,582.939,59.6567,0.616052,1,8.03663
+ils,90,10,0.5,14,12,"Subang Jaya; Kuala Lumpur; Ijok; Cheras; Malacca; Pasir Gudang; Bandar Saujana Utama; Simpang Renggam; Puchong; Petaling Jaya",48,336,0.5,6.23176e+07,2.13634e+08,454,1,2.73797,573.379,36.046,0.649801,1,1501.21
+nearest,90,10,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya; Simpang Empat",48,336,0.5,3.48907e+07,2.13634e+08,900,558,1124.38,470.927,172.078,0.301141,0,0.085334
+nearest-budget,90,10,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya; Simpang Empat",48,336,0.5,3.19959e+07,2.13634e+08,573,321,618.527,284.471,112.064,0.359991,1,0.063458
+uncoordinated,90,10,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya; Simpang Empat",48,336,0.5,1.66811e+07,2.13634e+08,409,629,1446.51,578.886,52.546,0.327608,1,1.71608
+sequential,90,10,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya; Simpang Empat",48,336,0.5,5.53323e+07,2.13634e+08,420,2,0.111859,586.962,62.7894,0.581895,1,7.74683
+ils,90,10,0.5,14,12,"Pendang; Johor Jaya; Iskandar Puteri; Shah Alam; Bandar Tasik Puteri; Kuala Lumpur; Johor Bahru; Kota Damansara; Subang Jaya; Simpang Empat",48,336,0.5,6.30315e+07,2.13634e+08,453,0,0,586.283,37.9243,0.742697,1,1537.34
+nearest,90,10,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika; Iskandar Puteri",48,336,0.5,4.39145e+07,2.13634e+08,900,306,617.761,490.443,173.385,0.341429,0,0.092125
+nearest-budget,90,10,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika; Iskandar Puteri",48,336,0.5,4.14581e+07,2.13634e+08,567,165,339.938,280.053,124.202,0.319518,1,0.064542
+uncoordinated,90,10,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika; Iskandar Puteri",48,336,0.5,1.28673e+07,2.13634e+08,409,602,1365.37,580.712,48.1649,0.544663,1,1.6375
+sequential,90,10,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika; Iskandar Puteri",48,336,0.5,5.6363e+07,2.13634e+08,426,1,0.10053,587.1,53.6356,0.492336,1,8.11571
+ils,90,10,0.5,14,12,"Johor Bahru; Bukit Rahman Putra; Batu Pahat; Kuantan; Kuala Terengganu; Temerluh; Bukit Jalil; Taman Petaling; Setia Tropika; Iskandar Puteri",48,336,0.5,6.17379e+07,2.13634e+08,459,1,3,578.056,32.7606,0.794704,1,1639.33
+nearest,90,10,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra; Kuala Terengganu",48,336,0.5,4.5491e+07,2.13634e+08,900,229,470.184,491.614,168.411,0.576055,0,0.097542
+nearest-budget,90,10,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra; Kuala Terengganu",48,336,0.5,4.32824e+07,2.13634e+08,570,126,258.514,285.262,110.488,0.592324,1,0.070292
+uncoordinated,90,10,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra; Kuala Terengganu",48,336,0.5,1.38873e+07,2.13634e+08,412,775,1714.88,583.312,44.8577,0.20073,1,1.77383
+sequential,90,10,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra; Kuala Terengganu",48,336,0.5,5.53423e+07,2.13634e+08,433,0,0,576.397,47.8556,0.524467,1,8.10138
+ils,90,10,0.5,14,12,"Kuala Krai; Kuala Lumpur; Parit; Malacca; Perling; Selayang Baru Utara; Setapak; Kampung Sungai Ara; Bukit Rahman Putra; Kuala Terengganu",48,336,0.5,6.338e+07,2.13634e+08,472,1,0.420159,544.038,38.8556,0.659625,1,1763.17
+nearest,90,10,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam; Petaling Jaya",48,336,0.5,3.76244e+07,2.13634e+08,900,563,1164.25,479.547,163.075,0.335217,0,0.093
+nearest-budget,90,10,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam; Petaling Jaya",48,336,0.5,3.56336e+07,2.13634e+08,572,262,538.829,281.564,109.528,0.366041,1,0.065334
+uncoordinated,90,10,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam; Petaling Jaya",48,336,0.5,1.67666e+07,2.13634e+08,417,960,2261.12,567.938,50.7796,0.22925,1,2.13696
+sequential,90,10,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam; Petaling Jaya",48,336,0.5,5.5329e+07,2.13634e+08,429,2,1.03146,586.422,45.4274,0.466587,1,9.40008
+ils,90,10,0.5,14,12,"Kuala Lumpur; Sungai Petani; Puchong; Alor Setar; Seremban; Johor Bahru; Subang Jaya; Selayang Baru Utara; Shah Alam; Petaling Jaya",48,336,0.5,6.22812e+07,2.13634e+08,453,0,0,596.307,29.6638,0.671568,1,1525.44
+nearest,90,10,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong; Kapar",48,336,0.5,3.93369e+07,2.13634e+08,900,403,742.974,478.225,193.927,0.271385,0,0.085334
+nearest-budget,90,10,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong; Kapar",48,336,0.5,3.75793e+07,2.13634e+08,568,207,352.331,279.204,123.167,0.274315,1,0.0645
+uncoordinated,90,10,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong; Kapar",48,336,0.5,1.22917e+07,2.13634e+08,416,1061,2438.48,571.456,47.156,0.334181,1,1.75788
+sequential,90,10,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong; Kapar",48,336,0.5,5.7678e+07,2.13634e+08,424,1,0.267696,582.636,61.4279,0.571419,1,8.57021
+ils,90,10,0.5,14,12,"Kulim; Malacca; Kuala Lumpur; Alor Setar; Kampong Baharu Cheras Batu Sebelas; Kota Damansara; George Town; Ampang; Puchong; Kapar",48,336,0.5,6.2323e+07,2.13634e+08,454,0,0,580.889,40.7647,0.779736,1,1629.84

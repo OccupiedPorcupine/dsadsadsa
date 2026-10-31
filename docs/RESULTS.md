@@ -2,7 +2,7 @@
 
 All numbers below come from `build/campaign` runs of **v2** of the model: own home bases, a 14 × 12 h daily window, time decay and the soft clash rule (see [CHANGES_V2.md](CHANGES_V2.md)). The raw CSVs are in [results/sweep/](../results/sweep/). The v1 results are in git history (commit `94aa4dd`). They used a different reach model, so they can't be compared number for number.
 
-**Note (2026-10-31):** every section and every CSV in `results/sweep/` was re-run after all the fixes since v2 (CHANGES_V2 §11). The last two changed every number: five places that double-counted a city were dropped from the data (#11, ASSUMPTIONS D6), so the default instance has 90 towns instead of 92, and a budgeted nearest-neighbour benchmark was added (#12). Figures in earlier commits and issue comments used the old data and can't be compared with these.
+**Note (2026-10-31):** section 4.1 (homes weighted by population, k = 2 to 10) was added after the re-run below, with the same code and data. Every section and every CSV in `results/sweep/` was re-run after all the fixes since v2 (CHANGES_V2 §11). The last two changed every number: five places that double-counted a city were dropped from the data (#11, ASSUMPTIONS D6), so the default instance has 90 towns instead of 92, and a budgeted nearest-neighbour benchmark was added (#12). Figures in earlier commits and issue comments used the old data and can't be compared with these.
 
 Runtimes are from a single run on an Apple Silicon Mac (Apple clang 21, `-O2`). They will differ on other machines and vary a little between runs. The other numbers are deterministic.
 
@@ -99,6 +99,56 @@ Default settings. Fixed homes vs five random seeds (`--starts random --seed N`).
 
 Reach barely depends on where politicians start: A and B each vary by about 7% across the six. Fourteen days is long enough to reach the big towns from anywhere on the peninsula. B beats A for every set of homes. (The random homes differ from earlier versions of this table, because they are drawn from the town list, which changed with #11.)
 
+### 4.1 Homes weighted by population, k = 2 to 10
+
+Default settings except k. For each k from 2 to 10, ten runs with `--starts weighted --seed 1` to `10`. These draw k distinct rally towns, each with probability proportional to its population, so big towns (KL, Puchong, JB) are home more often and many teams have two politicians in the Klang Valley. The same seed gives the same team plus one more politician at the next k, so each k adds one politician to the same ten teams. Raw rows: [results/sweep/weighted_starts.csv](../results/sweep/weighted_starts.csv); the tables come from `python3 scripts/average_by_k.py results/sweep/weighted_starts.csv`. All 360 plans are valid.
+
+Mean reach in millions over the ten runs (standard deviation in brackets):
+
+| k | NN | Uncoordinated | A | B |
+|---|---|---|---|---|
+| 2 | 15.80 (1.99) | 14.26 (2.30) | 16.95 (0.19) | **20.25** (0.31) |
+| 3 | 22.02 (3.59) | 16.05 (3.22) | 23.68 (0.33) | **28.27** (0.43) |
+| 4 | 25.80 (4.74) | 17.47 (4.11) | 29.80 (0.44) | **34.97** (0.42) |
+| 5 | 29.09 (4.51) | 17.60 (4.50) | 35.53 (0.54) | **40.91** (0.53) |
+| 6 | 31.63 (4.49) | 17.57 (4.09) | 40.70 (0.62) | **46.19** (0.68) |
+| 7 | 32.89 (4.74) | 16.71 (3.63) | 45.21 (0.87) | **51.05** (0.68) |
+| 8 | 35.53 (4.55) | 16.30 (2.93) | 49.21 (0.96) | **55.35** (0.98) |
+| 9 | 36.82 (4.88) | 15.76 (2.70) | 52.76 (0.93) | **58.83** (0.81) |
+| 10 | 37.91 (4.93) | 15.78 (2.81) | 55.86 (1.10) | **62.28** (0.67) |
+
+Leads, as the mean over the ten runs (lowest to highest in brackets):
+
+| k | B vs A | B vs NN | A vs NN | Runs where A beats NN |
+|---|---|---|---|---|
+| 2 | +19.5% (+15.9 to +21.7) | +30.5% (+15.6 to +77.4) | +9.2% (−4.4 to +49.7) | 7 of 10 |
+| 3 | +19.4% (+15.3 to +22.1) | +32.4% (+13.5 to +93.2) | +10.8% (−4.9 to +60.2) | 6 of 10 |
+| 4 | +17.4% (+13.6 to +19.8) | +41.6% (+13.7 to +140.9) | +20.7% (−5.2 to +105.7) | 9 of 10 |
+| 5 | +15.2% (+9.6 to +18.7) | +44.0% (+12.2 to +86.3) | +25.0% (−2.0 to +56.9) | 9 of 10 |
+| 6 | +13.5% (+10.5 to +16.7) | +49.0% (+25.5 to +108.1) | +31.3% (+8.2 to +80.5) | 10 of 10 |
+| 7 | +13.0% (+9.4 to +16.2) | +58.4% (+28.5 to +113.7) | +40.3% (+15.0 to +90.6) | 10 of 10 |
+| 8 | +12.5% (+8.8 to +14.7) | +58.2% (+32.7 to +88.8) | +40.6% (+18.1 to +66.8) | 10 of 10 |
+| 9 | +11.5% (+8.4 to +13.8) | +62.7% (+41.6 to +107.6) | +45.8% (+26.4 to +82.7) | 10 of 10 |
+| 10 | +11.5% (+8.1 to +14.5) | +67.2% (+43.2 to +119.0) | +49.8% (+27.9 to +92.3) | 10 of 10 |
+
+Mean fairness and clashes:
+
+| k | NN fairness | Uncoord. fairness | A fairness | B fairness | NN clashes | Uncoord. clashes | A clashes | B clashes | B runtime |
+|---|---|---|---|---|---|---|---|---|---|
+| 2 | 0.91 | 0.85 | 0.90 | 0.96 | 4.2 | 12.0 | 0.1 | 0.0 | 0.17 s |
+| 4 | 0.66 | 0.60 | 0.81 | 0.85 | 27.3 | 81.5 | 0.5 | 0.0 | 0.46 s |
+| 6 | 0.47 | 0.43 | 0.75 | 0.82 | 83.0 | 222.1 | 0.6 | 0.0 | 0.77 s |
+| 8 | 0.39 | 0.34 | 0.64 | 0.78 | 137.2 | 426.4 | 0.8 | 0.2 | 0.84 s |
+| 10 | 0.34 | 0.31 | 0.53 | 0.69 | 228.1 | 742.4 | 1.2 | 0.5 | 1.59 s |
+
+(The script prints every k; odd k follow the same trend.)
+
+- **B beats A and NN in all 90 runs,** by at least 8.1% over A and 12.2% over NN. Its lead over A shrinks as k grows, from 19.5% at k = 2 to 11.5% at k = 10.
+- **A beats NN on average at every k, and in every run from k = 6.** NN wins 9 of the 40 runs at k = 2 to 5, by at most 5.2%. A's lead over NN grows from 9% to 50% as NN's clashes grow from 4 to 228: NN's politicians ignore each other.
+- **The default homes favour NN.** At k = 2, NN's mean is 15.80M against 16.89M with the fixed KL and George Town homes, which are 300 km apart. NN does worst when two homes are close: its lowest run, Subang Jaya and Kuala Lumpur (about 10 km apart), reaches 11.38M with 32 clashes, while A reaches 17.03M. A's and B's reach hardly depends on the homes (standard deviation about 1–2% of the mean), so "NN is within 1% of A" holds for the fixed homes, not in general.
+- **Uncoordinated planning stops gaining after k = 5.** It falls from 17.60M at k = 5 to 15.78M at k = 10, while its clashes grow from 150 to 742.
+- **Fairness falls with k for every approach,** and B is the fairest at every k (0.69 at k = 10, against 0.53 for A).
+
 ## 5. Time-decay parameters
 
 Default settings, k = 2. Reach in millions. tauPoll = 100,000 h effectively turns the polling-day weight off.
@@ -155,7 +205,8 @@ k = 2, default settings. Larger instances were made by lowering the population c
 4. **Uncoordinated planning costs reach.** At the defaults the baseline reaches 12% less than A, and less than budgeted nearest neighbour too, despite choosing towns by reach. At k = 5 over 14 days it reaches less than half of A (14.67M vs 35.35M at alpha = 0). At beta = 1 with a shared home it reaches nobody.
 5. **The soft clash rule is used when the overlap penalty is mild.** A and B clash when beta < (1 − alpha) / 2 (beta ≤ 0.25 at the default alpha); above that, they wait or go elsewhere. B never clashes more than A when the politicians have separate homes, because it can spread them out instead.
 6. **The daily window makes waiting matter.** Waiting goes from about 0 in v1 to as much as 27 h (A at k = 5, alpha = 0, 14 days), because every evening blocks out the late slots.
-7. **Where politicians start barely matters** for total reach (about ±3.5%), but it does help fairness. With separate homes, A's fairness rises from 0.68 (v1) to 0.91.
+7. **Where politicians start barely matters to A and B** (about ±3.5% in section 4, and a standard deviation of 1–2% of the mean in section 4.1), but it does help fairness. With separate homes, A's fairness rises from 0.68 (v1) to 0.91. It matters a lot to NN and the baseline, which ignore the other politicians: at k = 2, NN's worst run (two homes 10 km apart) reaches a third less than its best (section 4.1).
+10. **Averaged over homes weighted by population, the order is the same at every k from 2 to 10:** B, then A, then NN, then the baseline. B beats both in all 90 runs, and A beats NN in every run from k = 6. Finding 2 depends on the fixed homes: with weighted random homes, A is 9% ahead of NN on average at k = 2, and 50% ahead at k = 10 (section 4.1).
 8. **Maximising reach still isn't fair.** Fairness drops as low as 0.47 for both A and B (k = 5, alpha = 0, 6 days). Nothing in the objective rewards using every politician.
 9. **The decay parameters matter more than the algorithm.** tauPoll moves reach by about 1.8× and B vs A by 1–41%; it also decides whether A beats nearest neighbour at all. The parameters should be justified, or swept, in the report.
 
@@ -174,6 +225,11 @@ done; done
 # Section 4
 ./build/campaign --summary results/sweep/starts.csv > /dev/null
 for s in 1 2 3 4 5; do ./build/campaign --starts random --seed $s --summary results/sweep/starts.csv > /dev/null; done
+# Section 4.1
+for k in 2 3 4 5 6 7 8 9 10; do for s in 1 2 3 4 5 6 7 8 9 10; do
+  ./build/campaign --k $k --starts weighted --seed $s --summary results/sweep/weighted_starts.csv > /dev/null
+done; done
+python3 scripts/average_by_k.py results/sweep/weighted_starts.csv
 # Section 5
 for tr in 12 48 168; do for tp in 168 336 100000; do
   ./build/campaign --tau-repeat $tr --tau-poll $tp --summary results/sweep/decay.csv > /dev/null
