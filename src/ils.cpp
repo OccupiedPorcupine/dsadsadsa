@@ -6,6 +6,10 @@
 //   2. Shake:   remove a few visits from every route, so the next round can try other choices.
 // The best plan seen in any round is the answer.
 //
+// With --ils-sa, each round's new plan is kept if it reaches at least as many as the plan before
+// the shake, or else with probability exp(change / T), as in SAILS (Gunawan et al. 2017). T falls a
+// little every round, and the search goes back to the best plan after a while without improvement.
+//
 // The search runs twice: from empty routes, as in the paper, and from Approach A's plan. Neither
 // start is always better (#7), so the better of the two plans is returned.
 //
@@ -24,6 +28,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 using namespace std;
 
@@ -59,6 +64,8 @@ public:
 
     double totalReach() const;
     int shortestRouteLength() const;
+    int numVisits() const;
+    void copyFrom(const IlsPlanner& other);
     Solution currentPlan() const;
 
 private:
@@ -288,6 +295,19 @@ int IlsPlanner::shortestRouteLength() const {
     return shortest;
 }
 
+int IlsPlanner::numVisits() const {
+    int total = 0;
+    for (const vector<PlannedVisit>& route : routes) total += route.size();
+    return total;
+}
+
+// Makes this planner hold the same plan as `other` (both are for the same instance).
+void IlsPlanner::copyFrom(const IlsPlanner& other) {
+    routes = other.routes;
+    bookings = other.bookings;
+    inRoute = other.inRoute;
+}
+
 Solution IlsPlanner::currentPlan() const {
     Solution plan;
     for (int p = 0; p < inst.numPoliticians; ++p) {
@@ -309,11 +329,22 @@ static Solution search(const Instance& inst, IlsPlanner& planner, const IlsParam
     // ranked on the inserted town alone, and a run from A's plan must never end below A.
     Solution bestPlan = planner.currentPlan();
     bestReach = planner.totalReach();
+    IlsPlanner bestState = planner;  // only used with annealing, to go back to the best plan
     planner.insertUntilFull();
     if (planner.totalReach() > bestReach + EPS) {
         bestPlan = planner.currentPlan();
         bestReach = planner.totalReach();
+        if (params.annealing) bestState.copyFrom(planner);
     }
+
+    // Annealing: `current` is the plan the next shake starts from. The temperature starts at a
+    // share of the average rally's reach, so it means the same at any size of instance.
+    // Like instance.cpp, mt19937's raw output is turned into a number in [0, 1) by hand, so the
+    // same seed gives the same run on every compiler.
+    IlsPlanner current = planner;
+    double currentReach = planner.totalReach();
+    double temperature = params.startTemperature * currentReach / max(1, planner.numVisits());
+    mt19937 random(params.seed);
 
     // Shake schedule from the paper: the removal point moves along the route and the number
     // removed grows by one each round. It goes back to 1 after an improvement, or once it
@@ -336,8 +367,26 @@ static Solution search(const Instance& inst, IlsPlanner& planner, const IlsParam
             removeCount = 1;
             roundsWithoutImprovement = 0;
             stats.improvements++;
+            if (params.annealing) bestState.copyFrom(planner);
         } else {
             roundsWithoutImprovement++;
+        }
+
+        if (params.annealing) {
+            double change = reach - currentReach;
+            bool accept = change >= -EPS || random() / 4294967296.0 < exp(change / temperature);
+            if (roundsWithoutImprovement > 0 && roundsWithoutImprovement % params.restartAfter == 0) {
+                // Restart from the best plan found so far.
+                current.copyFrom(bestState);
+                currentReach = bestReach;
+                planner.copyFrom(bestState);
+            } else if (accept) {
+                current.copyFrom(planner);
+                currentReach = reach;
+            } else {
+                planner.copyFrom(current);
+            }
+            temperature *= params.cooling;
         }
 
         removeFrom += removeCount;

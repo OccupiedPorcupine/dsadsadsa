@@ -22,6 +22,14 @@ Solution solveSequential(const Instance& inst);
 struct IlsParams {
     int maxIterations = 5000;
     int maxNoImprove = 150;  // give up after this many rounds without finding a better plan
+
+    // Simulated-annealing acceptance, as in SAILS (Gunawan et al. 2017). Off by default: the
+    // search then always carries on from the shaken plan.
+    bool annealing = false;
+    double startTemperature = 0.5;  // as a share of the average rally's reach in the first full plan
+    double cooling = 0.99;          // the temperature is multiplied by this every round
+    int restartAfter = 50;          // go back to the best plan after this many rounds without improvement
+    unsigned seed = 1;              // for the random acceptance; separate from the home-base seed
 };
 
 struct IlsStats {

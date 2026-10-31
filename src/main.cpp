@@ -49,6 +49,12 @@ static void printUsage() {
             "  --approach NAME      nearest | nearest-budget | uncoordinated | sequential | ils | all (default all)\n"
             "  --ils-iters N        ILS iteration cap (default 5000)\n"
             "  --ils-no-improve N   ILS stops after N rounds without improvement (default 150)\n"
+            "  --ils-sa             ILS keeps a worse plan only with probability exp(change / T), as in\n"
+            "                       SAILS; otherwise it goes back to the plan before the shake (default off)\n"
+            "  --ils-sa-temp F      starting T, as a share of the average rally's reach (default 0.5)\n"
+            "  --ils-sa-cooling C   T is multiplied by C every round (default 0.99)\n"
+            "  --ils-sa-restart N   go back to the best plan after N rounds without improvement (default 50)\n"
+            "  --ils-sa-seed N      random seed for the acceptance rule (default 1)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -86,6 +92,11 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--approach") options.approach = nextValue(i, argc, argv);
         else if (option == "--ils-iters") options.ilsParams.maxIterations = stoi(nextValue(i, argc, argv));
         else if (option == "--ils-no-improve") options.ilsParams.maxNoImprove = stoi(nextValue(i, argc, argv));
+        else if (option == "--ils-sa") options.ilsParams.annealing = true;
+        else if (option == "--ils-sa-temp") options.ilsParams.startTemperature = stod(nextValue(i, argc, argv));
+        else if (option == "--ils-sa-cooling") options.ilsParams.cooling = stod(nextValue(i, argc, argv));
+        else if (option == "--ils-sa-restart") options.ilsParams.restartAfter = stoi(nextValue(i, argc, argv));
+        else if (option == "--ils-sa-seed") options.ilsParams.seed = (unsigned)stoul(nextValue(i, argc, argv));
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -99,6 +110,10 @@ static bool parseOptions(int argc, char** argv, Options& options) {
     // which breaks the % max bound and ILS's pruning.
     if (config.alpha < 0 || config.alpha > 1) throw runtime_error("--alpha must be between 0 and 1");
     if (config.clashPenalty < 0 || config.clashPenalty > 1) throw runtime_error("--clash-penalty must be between 0 and 1");
+    const IlsParams& ils = options.ilsParams;
+    if (ils.startTemperature < 0 || ils.cooling <= 0 || ils.cooling > 1 || ils.restartAfter < 1) {
+        throw runtime_error("need --ils-sa-temp >= 0, 0 < --ils-sa-cooling <= 1 and --ils-sa-restart >= 1");
+    }
     const string& a = options.approach;
     if (a != "all" && a != "nearest" && a != "nearest-budget" && a != "uncoordinated" && a != "sequential" &&
         a != "ils") {
