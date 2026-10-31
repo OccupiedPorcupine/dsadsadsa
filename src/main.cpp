@@ -61,6 +61,8 @@ static void printUsage() {
             "  --ils-sa-cooling C   T is multiplied by C every round (default 0.99)\n"
             "  --ils-sa-restart N   go back to the best plan after N rounds without improvement (default 50)\n"
             "  --ils-sa-seed N      random seed for the acceptance rule (default 1)\n"
+            "  --ils-vnd            after each ILS round's insertions, also try replacing, moving and swapping\n"
+            "                       rallies, keeping any move that raises total reach (off by default)\n"
             "  --routes-dir DIR     write the towns, settings and each approach's timed routes as CSV into DIR\n"
             "  --summary FILE       append results as CSV rows to FILE\n"
             "  --list-towns         print the towns in the instance\n";
@@ -105,6 +107,7 @@ static bool parseOptions(int argc, char** argv, Options& options) {
         else if (option == "--ils-sa-cooling") options.ilsParams.cooling = stod(nextValue(i, argc, argv));
         else if (option == "--ils-sa-restart") options.ilsParams.restartAfter = stoi(nextValue(i, argc, argv));
         else if (option == "--ils-sa-seed") options.ilsParams.seed = (unsigned)stoul(nextValue(i, argc, argv));
+        else if (option == "--ils-vnd") options.ilsParams.localSearch = true;
         else if (option == "--routes-dir") options.routesDir = nextValue(i, argc, argv);
         else if (option == "--summary") options.summaryFile = nextValue(i, argc, argv);
         else if (option == "--list-towns") options.listTowns = true;
@@ -304,6 +307,7 @@ int main(int argc, char** argv) {
         printf("\nILS: %d iterations, %d improvements over two runs. Best reach from empty routes %.0f, "
                "from A's plan %.0f\n",
                ilsStats.iterations, ilsStats.improvements, ilsStats.reachFromEmpty, ilsStats.reachFromA);
+        if (options.ilsParams.localSearch) printf("ILS local search kept %d moves\n", ilsStats.localMoves);
     }
     return 0;
 }
