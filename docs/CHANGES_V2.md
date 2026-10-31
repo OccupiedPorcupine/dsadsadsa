@@ -155,4 +155,5 @@ After v2 was built, a review raised the problems below as GitHub issues. Each wa
 | — | The `clash` column in the routes CSV missed overlaps the planner didn't choose (the baseline's) | Written from the validator | `7ab845b` |
 | — | `--routes-dir` and `--summary` into a missing folder wrote nothing, silently | Folders are created, or the run stops with an error | `8ce405e` |
 | #11 | Five places carried a district's population on top of their city, inflating the JB area to 4.0M and the total to 24.0M | Dropped via `data/excluded_places.csv` (ASSUMPTIONS D6); 90 towns | `98dff91` |
-| #12 | The nearest-neighbour benchmark visits every town, so it's never valid and can't be compared | Kept as the full tour (which now reports it needs 22 days), plus a budgeted version that stops when it must head home (ASSUMPTIONS A7) | `50e401f` |
+| #12 | The nearest-neighbour benchmark visits every town, so it's never valid and can't be compared | Kept as the full tour (which reports how many days it needs: 22 with 12-hour days), plus a budgeted version that stops when it must head home (ASSUMPTIONS A7) | `50e401f` |
+| — | 08:00–20:00 left only 12 campaigning hours a day | The window is 06:00–22:00 (16 h, 224 active hours); every result re-run. Budgeted nearest neighbour now beats A at the defaults (ASSUMPTIONS V3, RESULTS §6) | not committed yet |

@@ -19,7 +19,7 @@ During a Malaysian general election, the official campaign period is short (abou
 
 The politicians are **teammates, planned together** (ASSUMPTIONS S8). Under a time crunch the party can't send its whole team on a tour of every town, so it has to split its people up and decide centrally who goes where. We don't model rival parties: nobody would be trying to maximise the combined reach of both, so a single plan for everyone wouldn't make sense.
 
-Campaigning only happens in the daytime: rallies and driving run from 08:00 to 20:00, and nights are spent wherever the day ended.
+Campaigning only happens in the daytime: rallies and driving run from 06:00 to 22:00, and nights are spent wherever the day ended.
 
 Two of them holding a rally **in the same town at the same time** is allowed, but it is costly:
 - **Security and continuity:** the party's top figures shouldn't all be in one place at once.
@@ -51,11 +51,11 @@ The planner has to pick whichever is worth most.
 | Only the visiting order matters, with no clock | Clashes, the daily window and reach all depend on *when* each rally happens |
 | Any number of travellers can be in a city at once | Rallies that overlap in one town both lose reach |
 | A city's value is fixed | A rally is worth more near polling day and less soon after another rally in the same town |
-| Travel can happen at any time | Only 12 hours a day are usable, and a rally can't run past 20:00 |
+| Travel can happen at any time | Only 16 hours a day are usable, and a rally can't run past 22:00 |
 | Every city must be visited, starting and ending at one depot | There isn't time, so towns are *chosen*; each politician has their own start and end |
 | Minimise distance | Maximise population reached within a time budget |
 
-The baseline shows this directly. Two politicians who each plan as if they were alone pick largely the same towns at the same times. They clash 6 times in the default run and reach 12% less than A's coordinated plan, and less than the budgeted nearest-neighbour benchmark, which picks towns by distance alone.
+The baseline shows this directly. Two politicians who each plan as if they were alone pick largely the same towns at the same times. They clash 13 times in the default run and reach 18% less than A's coordinated plan, and 29% less than the budgeted nearest-neighbour benchmark, which picks towns by distance alone.
 
 ## 3. The problem we solve
 
@@ -63,7 +63,7 @@ The baseline shows this directly. Two politicians who each plan as if they were 
 - n towns, each with population `pop(c)` and rally length `rally(c)` hours.
 - k politicians, each with a home base `home(p)` where their route starts and ends.
 - Travel time `travel(a, b)` hours between any two places (homes included).
-- A campaign clock: D days of H campaigning hours (default 14 × 12, 08:00–20:00).
+- A campaign clock: D days of H campaigning hours (default 14 × 16, 06:00–22:00).
 - Reach parameters:
   - `alpha` ∈ [0, 1]: repeat-rally discount.
   - `tauRepeat`: how fast that discount fades.
@@ -188,7 +188,7 @@ It is computed backwards from the end of each route:
 delayNextCanTake = D·H − (time back home)                  # slack before the campaign ends
 for each visit i from last to first:
     slackBeforeClash = (next other-politician booking in visit.town) − visit.finish
-    slackInDay       = dayEnd(visit.start) − visit.finish      # don't run past 20:00
+    slackInDay       = dayEnd(visit.start) − visit.finish      # don't run past 22:00
     visit.maxShift   = max(0, min(slackBeforeClash, slackInDay, delayNextCanTake))
     delayNextCanTake = visit.waitTime + visit.maxShift
 ```
@@ -229,7 +229,7 @@ for each politician p:
 ```
 
 It visits every town and has no idea of population, the time budget or the other politicians. It is here to show the starting point the redesigns improve on.
-- **Invalid:** the validator marks it invalid, because about a third of its rallies (62 of 180) run past the end of the campaign. It needs 264 active hours, 22 days of 12 h, to get everyone home, against 168.
+- **Invalid:** the validator marks it invalid, because 22 of its 180 rallies run past the end of the campaign. It needs 260.5 active hours, 16.3 days of 16 h, to get everyone home, against 224.
 - **Reach counts only the rallies before polling day.** The later ones reach nobody (ASSUMPTIONS V5).
 - **How long it really takes:** the output prints the active hours the full tour needs to get everyone home, and the equivalent number of days.
 
@@ -313,7 +313,7 @@ insertUntilFull(plan):
 - **`gain² / delay`:** the scoring rule from the paper. Squaring favours big towns.
 - **Pruning:** no rally reaches more than its town's population, so `pop² / delay` is an upper bound on a candidate's score. The exact `reachGain` (O(k³)) is only computed for candidates that could beat the best so far.
 - **What the ranking leaves out:** pushing later rallies back changes their reach a little, through `w` and `E`. The ranking ignores this to keep each candidate cheap. Each round's total reach is always computed exactly, so the best plan is chosen correctly, but a move can be ranked slightly wrong. Counting the knock-on change exactly was tried (#7) and didn't help: B still lost to A in the same settings, did worse on the default run, and took about twice as long.
-- **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 4 of the 27 settings in RESULTS §2 and §5, by up to 3.8% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 10 of the same 27 settings (15.34M from empty vs 14.68M from A's plan at tauRepeat = 12 h, tauPoll = 168 h). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
+- **Two starts:** the paper starts from empty routes. On its own, that start lost to A in 4 of the 27 settings in RESULTS §2 and §5, by up to 6.1% (#7). Starting from A's plan never ends below A, but it is worse than the empty start in 10 of the same 27 settings (17.83M from empty vs 16.78M from A's plan at tauRepeat = 12 h, tauPoll = 168 h). B therefore runs the whole search from both and keeps the better plan. The starting plan itself is the first candidate for best, because filling it up can lower its reach (insertions are ranked on the inserted town alone). This doubles the runtime. `ILS:` in the output gives both runs' reach.
 - **Shake and re-timing:** removing visits lets the next insertion round try other choices. After a shake, every route is re-timed from home:
   - a `clash` rally starts as early as the window allows;
   - a `wait` rally starts when the town is free.
@@ -322,7 +322,7 @@ insertUntilFull(plan):
 - **Weaknesses:**
   - It is slower than A, and running it twice doubles that.
   - The objective has no fairness term; at k = 5 with a 6-day campaign, one politician can end up with under half of another's reach.
-  - From empty routes, the search is weakest with k = 5 or with the polling-day weight off. With the weight off, B ends up only 1.2–3.6% above A, and at tauRepeat = 12 h that comes from the run seeded with A's plan (see [RESULTS.md](RESULTS.md) §2 and §5).
+  - From empty routes, the search is weakest with k = 5 or with the polling-day weight off. With the weight off, B ends up only 0.6–5.1% above A, and at tauRepeat = 12 h that comes from the run seeded with A's plan (see [RESULTS.md](RESULTS.md) §2 and §5).
 
 ### 6.4 The two approaches side by side
 
@@ -366,9 +366,9 @@ At most k rallies share a town, so one reach calculation for a town is O(k³) (�
 
 Measured (see [RESULTS.md](RESULTS.md) §7):
 - **Both nearest-neighbour benchmarks** take under 0.1 ms.
-- **A** takes about 0.4 ms at 90 towns and 1.3 ms at 253.
-- **B** takes 3 ms at 15 towns, about 215 ms at 90, and about 1.5 s at 253.
-- **v1 comparison:** B is about 1.7× slower than in v1 at 90 towns, and 1.4× slower at 253. That comes from the two timings per candidate, the full reach model, and (since #7) running the search twice. Pruning keeps it far below the worst case.
+- **A** takes about 1.0 ms at 90 towns and 2.7 ms at 253.
+- **B** takes 5 ms at 15 towns, about 216 ms at 90, and about 3.8 s at 253.
+- **v1 comparison:** B is about 1.7× slower than in v1 at 90 towns, and 3.6× slower at 253. That comes from the two timings per candidate, the full reach model, (since #7) running the search twice, and the longer routes that 16-hour days allow. Pruning keeps it far below the worst case.
 
 ## 8. How results are checked
 
@@ -383,9 +383,9 @@ Measured (see [RESULTS.md](RESULTS.md) §7):
 A plan is reported as `valid` only if there are no errors.
 
 Checks run on v2:
-- **Stress test:** after the last changes (#11, #12), every budgeted nearest-neighbour, baseline, A and B plan was valid in 360 settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × {default, Borneo, 15 towns, 8 h days, random homes}. The same holds for every run in [RESULTS.md](RESULTS.md). The full-tour nearest-neighbour benchmark is invalid by design.
-- **Reach consistency:** B's internal running total of reach matched the validator's figure in all 144 settings checked: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {default, Borneo, random homes, 15 towns}.
-- **Clash option:** with both politicians in KL and alpha = 0.5, A chooses to clash 42 times at beta = 0 and once at beta = 0.25, and never above the threshold `(1 − alpha) / 2` (RESULTS §3).
+- **Stress test:** after the daily window was widened to 16 h, every budgeted nearest-neighbour, baseline, A and B plan was valid in 360 settings: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {3, 14} days × {default, Borneo, 15 towns, 8 h days, random homes}. The same holds for every run in [RESULTS.md](RESULTS.md). The full-tour nearest-neighbour benchmark is invalid by design, except in the 36 settings with 15 towns over 14 days, where the whole tour fits.
+- **Reach consistency:** B's internal running total of reach matched the validator's figure in all 27 settings of RESULTS §2 and §5 after the window was widened. With 12-hour days it matched in all 144 settings checked: k ∈ {1, 2, 3, 5} × alpha ∈ {0, 0.5, 1} × beta ∈ {0, 0.5, 1} × {default, Borneo, random homes, 15 towns}.
+- **Clash option:** with both politicians in KL and alpha = 0.5, A chooses to clash 64 times at beta = 0 and 7 times at beta = 0.25 (where clashing and waiting tie), and never above the threshold `(1 − alpha) / 2` (RESULTS §3).
 - **Reach model:** the overlap rules (#2, #3) were checked against hand-worked examples, for instance any number of fully overlapping rallies reaching exactly one crowd at beta = 0.5. #2 was also compared against a build with the old rule over 72 settings: every k = 2 result was unchanged.
 - **Options:** `--alpha` and `--clash-penalty` outside [0, 1], or an unknown `--approach`, are rejected (#6), because they would break the reach bound that B's pruning relies on.
 
@@ -394,12 +394,12 @@ Checks run on v2:
 - **A vs B:** A is more than 100× faster and simple to explain. B reaches at least as many people as A in every setting, because one of its two runs starts from A's plan (#7). It is usually fairer, but not always (see [RESULTS.md](RESULTS.md)).
 - **Neither is optimal.** We don't yet know the gap to the true best plan. The next step is an exact solver for about 10 towns.
 - **The soft clash rule only matters when beta is small.** Planners clash when `beta < (1 − alpha) / 2` (0.25 at the default alpha); at the default beta = 0.5 they always wait or go elsewhere (RESULTS §3).
-- **A barely beats a distance-only plan.** Budgeted nearest neighbour reaches within 1% of A at the defaults and beats it in 4 of 27 settings, all 14-day campaigns (RESULTS §2, §5). A's reach-per-hour choice doesn't look ahead to the rallies that are worth more later, and it drives twice as far. B beats both everywhere.
-- **B's search from empty routes can still lose to A** (§6.3), by up to 1.5% in 6-day campaigns and 3.8% when the polling-day weight is off. The run from A's plan covers this, but with the weight off B's gain over A is small (1.2–3.6%). Ranking on the exact knock-on reach was tried and was not the fix.
+- **A loses to a distance-only plan at the defaults.** Budgeted nearest neighbour reaches 15% more than A at the defaults and beats it in 16 of 27 settings, mostly 14-day campaigns (RESULTS §2, §5). A's reach-per-hour choice doesn't look ahead to the rallies that are worth more later, and it drives 1.8 times as far. With more politicians from random homes, A pulls ahead from k = 4 (RESULTS §4.1). B beats both everywhere.
+- **B's search from empty routes can still lose to A** (§6.3), by up to 6.1% in 6-day campaigns and 1.9% when the polling-day weight is off. The run from A's plan covers this, but with the weight off B's gain over A is small (0.6–5.1%). Ranking on the exact knock-on reach was tried and was not the fix.
 - **The decay parameters are guesses**, and they move reach more than the choice of algorithm does (RESULTS §5).
 - **Straight-line travel × 1.3.** No real road network, traffic or terrain. Night stops along a drive are assumed to be possible anywhere.
-- **The objective ignores fairness.** At k = 5, alpha = 0 and 6 days, fairness is 0.47 for both A and B.
-- **Population ≠ voters.** Five places that double-count a city are excluded by hand (ASSUMPTIONS D6); a few round-number figures (Bukit Rahman Putra 607,000) are kept on purpose, though dropping them would put the budgeted nearest-neighbour benchmark ahead of A at the defaults.
+- **The objective ignores fairness.** At k = 5, alpha = 0 and 6 days, fairness is 0.44 for A and 0.41 for B.
+- **Population ≠ voters.** Five places that double-count a city are excluded by hand (ASSUMPTIONS D6); a few round-number figures (Bukit Rahman Putra 607,000) are kept on purpose, though dropping them would cut B's lead over the budgeted nearest-neighbour benchmark from 12% to 3% at the defaults.
 
 ## 10. Code map
 
@@ -453,3 +453,4 @@ Made on 2026-10-30 and 2026-10-31 through GitHub issues, after a review of v2:
 | #9 | Stray files removed, notebook renamed | README |
 | #11 | Five places that double-count a city are dropped from the data; the default instance has 90 towns | §4, ASSUMPTIONS D6 |
 | #12 | A budgeted nearest-neighbour benchmark, valid and comparable with A and B; the full tour reports how long it needs | §6.0, ASSUMPTIONS A7, RESULTS §1 |
+| — | The daily window is 06:00–22:00 (16 h) instead of 08:00–20:00 (12 h), so the campaign has 224 active hours. Budgeted nearest neighbour now beats A at the defaults | §3, ASSUMPTIONS V3, V8, RESULTS §6 |

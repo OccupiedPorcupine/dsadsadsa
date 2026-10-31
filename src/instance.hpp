@@ -24,8 +24,8 @@ struct Town {
 // has to fit inside one day.
 struct Clock {
     int days = 14;
-    double dayHours = 12;     // length of the daily window
-    double dayStartHour = 8;  // wall-clock hour the window opens (08:00)
+    double dayHours = 16;     // length of the daily window
+    double dayStartHour = 6;  // wall-clock hour the window opens (06:00)
 
     double end() const { return days * dayHours; }
 
@@ -41,8 +41,8 @@ struct Clock {
         return dayEnd(t);
     }
 
-    // Real hours since the campaign opened (08:00 on day 1), nights included. `atEnd` says t is
-    // a finish time, so a rally ending exactly at 20:00 stays on that day.
+    // Real hours since the campaign opened (06:00 on day 1), nights included. `atEnd` says t is
+    // a finish time, so a rally ending exactly at 22:00 stays on that day.
     double wallHours(double t, bool atEnd = false) const {
         int day = atEnd ? (int)std::floor((t - EPS) / dayHours) : dayOf(t);
         if (day < 0) day = 0;

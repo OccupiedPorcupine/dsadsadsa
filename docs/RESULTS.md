@@ -1,8 +1,8 @@
 # Results
 
-All numbers below come from `build/campaign` runs of **v2** of the model: own home bases, a 14 × 12 h daily window, time decay and the soft clash rule (see [CHANGES_V2.md](CHANGES_V2.md)). The raw CSVs are in [results/sweep/](../results/sweep/). The v1 results are in git history (commit `94aa4dd`). They used a different reach model, so they can't be compared number for number.
+All numbers below come from `build/campaign` runs of **v2** of the model: own home bases, a 14 × 16 h daily window (06:00–22:00), time decay and the soft clash rule (see [CHANGES_V2.md](CHANGES_V2.md)). The raw CSVs are in [results/sweep/](../results/sweep/). The v1 results are in git history (commit `94aa4dd`). They used a different reach model, so they can't be compared number for number.
 
-**Note (2026-10-31):** section 4.1 (homes weighted by population, k = 2 to 10) was added after the re-run below, with the same code and data. Every section and every CSV in `results/sweep/` was re-run after all the fixes since v2 (CHANGES_V2 §11). The last two changed every number: five places that double-counted a city were dropped from the data (#11, ASSUMPTIONS D6), so the default instance has 90 towns instead of 92, and a budgeted nearest-neighbour benchmark was added (#12). Figures in earlier commits and issue comments used the old data and can't be compared with these.
+**Note (2026-10-31):** every section and every CSV in `results/sweep/` was re-run after the daily window was widened from 08:00–20:00 (12 h) to 06:00–22:00 (16 h), so the campaign has 224 active hours instead of 168 (ASSUMPTIONS V3). This changed every number, and it changed one conclusion: budgeted nearest neighbour now beats A at the defaults (finding 2). Figures in earlier commits and issue comments used 12-hour days and can't be compared with these, except the 14 × 12 h rows of section 6, which reproduce them.
 
 Runtimes are from a single run on an Apple Silicon Mac (Apple clang 21, `-O2`). They will differ on other machines and vary a little between runs. The other numbers are deterministic.
 
@@ -12,58 +12,58 @@ Column meanings:
 - **NN:** the budgeted nearest-neighbour benchmark (`nearest-budget`): the brief's classic heuristic, stopping each politician when no nearby town leaves time to get home.
 - **Rallies:** total number of rallies across all politicians.
 - **Clashes:** pairs of rallies in the same town at overlapping times. They are allowed, but they cost reach.
-- **Travel / wait:** total hours driving or flying, and hours spent waiting (for a town to be free, or for the next morning because a rally wouldn't finish before 20:00).
+- **Travel / wait:** total hours driving or flying, and hours spent waiting (for a town to be free, or for the next morning because a rally wouldn't finish before 22:00).
 - **Fairness:** lowest politician's reach ÷ highest politician's reach.
 
 ## 1. Default run
 
-90 Peninsular towns, k = 2 (homes: Kuala Lumpur and George Town), alpha = 0.5, 14 days × 12 h, tauRepeat = 48 h, tauPoll = 336 h, beta = 0.5.
+90 Peninsular towns, k = 2 (homes: Kuala Lumpur and George Town), alpha = 0.5, 14 days × 16 h, tauRepeat = 48 h, tauPoll = 336 h, beta = 0.5.
 
 | Approach | Reach | % max | Rallies | Clashes | Travel (h) | Wait (h) | Fairness | Valid | Runtime |
 |---|---|---|---|---|---|---|---|---|---|
-| Classic nearest neighbour, full tour | 18.00M | 42.1% | 180 | 0 | 94.8 | 31.0 | 0.93 | **no** | < 0.1 ms |
-| Classic nearest neighbour, budgeted | 16.89M | 39.5% | 115 | 0 | 57.9 | 20.6 | **0.95** | yes | < 0.1 ms |
-| Uncoordinated (baseline) | 15.03M | 35.2% | 82 | **6** (6.6 h) | 117.2 | 8.6 | 0.69 | yes | 0.3 ms |
-| A: one at a time | 17.06M | 39.9% | 84 | 0 | 112.8 | 8.8 | 0.91 | yes | 0.4 ms |
-| B: iterated local search | **19.96M** | **46.7%** | 80 | 0 | 133.8 | 1.6 | 0.90 | yes | ~215 ms |
+| Classic nearest neighbour, full tour | 21.58M | 50.5% | 180 | 1 (1.1 h) | 94.8 | 28.0 | 0.91 | **no** | < 0.1 ms |
+| Classic nearest neighbour, budgeted | 21.14M | 49.5% | 154 | 1 (1.1 h) | 82.1 | 23.2 | 0.89 | yes | < 0.1 ms |
+| Uncoordinated (baseline) | 15.08M | 35.3% | 124 | **13** (34.2 h) | 140.5 | 13.1 | 0.72 | yes | 0.7 ms |
+| A: one at a time | 18.36M | 43.0% | 122 | 0 | 148.8 | 8.9 | 0.87 | yes | 1.0 ms |
+| B: iterated local search | **23.62M** | **55.3%** | 113 | 0 | 172.8 | 4.7 | **0.92** | yes | ~216 ms |
 
-- **Full tour:** invalid. Each tour visits all 90 towns and needs **264 active hours (22 days of 12 h)** to get everyone home, against a 168 h campaign (258 h for the KL politician, 264 h for George Town). 62 of its 180 rallies are after polling day and reach nobody (#4), so its reach comes from the first 118 alone.
-- **Budgeted nearest neighbour:** the same rule, but each politician stops when no town leaves time to get home. It is valid and reaches 16.89M, **within 1% of A**. It holds far more rallies than A (115 vs 84) and drives half as far (58 h vs 113 h), because the big towns cluster around KL, JB and Penang.
-- **Baseline:** both politicians plan as if alone and end up in some of the same towns at the same times. The 6 clashes cost it reach, and it reaches 12% less than A and 11% less than budgeted nearest neighbour. Its fairness is also the lowest (0.69).
-- **A:** valid, never chooses to clash, and fairness is 0.91. It barely beats budgeted nearest neighbour, with 31 fewer rallies and twice the driving.
-- **B:** reaches 17% more than A and 18% more than budgeted nearest neighbour, with fairness 0.90 and the least waiting (1.6 h). It travels the most (134 h). The polling-day weight rewards rallying in big towns late, and B is better at fitting those in. Its result here comes from the search that starts from empty routes; the one that starts from A's plan reaches 19.92M.
+- **Full tour:** invalid. Each tour visits all 90 towns and needs **260.5 active hours (16.3 days of 16 h)** to get everyone home, against a 224 h campaign (260.5 h for the KL politician, 258.7 h for George Town). 22 of its 180 rallies are after polling day and reach nobody (#4), so its reach comes from the first 158 alone.
+- **Budgeted nearest neighbour:** the same rule, but each politician stops when no town leaves time to get home. It is valid and reaches 21.14M, **15% more than A**. It holds more rallies than A (154 vs 122) and drives a little over half as far (82 h vs 149 h), because the big towns cluster around KL, JB and Penang. Its two routes meet once, in one 1.1 h clash.
+- **Baseline:** both politicians plan as if alone and end up in some of the same towns at the same times. The 13 clashes cost it reach: it reaches 18% less than A and 29% less than budgeted nearest neighbour, and its fairness is the lowest (0.72).
+- **A:** valid, never chooses to clash, and fairness is 0.87. It now falls behind budgeted nearest neighbour, with 32 fewer rallies and 1.8 times the driving.
+- **B:** reaches 29% more than A and 12% more than budgeted nearest neighbour, with the best fairness (0.92). It travels the most (173 h). The polling-day weight rewards rallying in big towns late, and B is better at fitting those in. Its result here comes from the search that starts from empty routes; the one that starts from A's plan reaches 23.08M.
 
 The route map for this run is `results/default/campaign_map.html` (see [viz/README.md](../viz/README.md)). It can show the budgeted nearest-neighbour plan, the baseline, A and B.
 
 ## 2. Across settings
 
-90 towns, default homes and decay. k ∈ {2, 3, 5}, alpha ∈ {0, 0.5, 1}, campaign of 6 or 14 days. Reach is in millions. Every NN, baseline, A and B plan was valid. A clashed once in each of the two k = 5, 14-day runs with alpha 0.5 and 1; B never clashed.
+90 towns, default homes and decay. k ∈ {2, 3, 5}, alpha ∈ {0, 0.5, 1}, campaign of 6 or 14 days. Reach is in millions. Every NN, baseline, A and B plan was valid. A clashed 3 times in both k = 5, alpha = 1 runs; B clashed 3 times in the 6-day one and never otherwise.
 
 | k | alpha | days | NN reach | A reach | B reach | A / NN | B / A | A fairness | B fairness | A wait (h) | B wait (h) | Baseline reach (clashes) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | 0 | 6 | 10.62 | 14.27 | 15.13 | 1.343 | 1.060 | 0.88 | 0.83 | 4.7 | 1.3 | 8.73 (1) |
-| 2 | 0 | 14 | 16.38 | 16.22 | 19.85 | **0.990** | 1.224 | 0.77 | 0.86 | 10.3 | 2.8 | 12.11 (6) |
-| 2 | 0.5 | 6 | 10.62 | 14.31 | 15.15 | 1.348 | 1.058 | 0.89 | 0.96 | 3.6 | 2.2 | 11.82 (1) |
-| 2 | 0.5 | 14 | 16.89 | 17.06 | 19.96 | 1.010 | 1.170 | 0.91 | 0.90 | 8.8 | 1.6 | 15.03 (6) |
-| 2 | 1 | 6 | 10.62 | 15.16 | 16.55 | 1.428 | 1.091 | 0.95 | 0.94 | 3.0 | 0.8 | 14.91 (1) |
-| 2 | 1 | 14 | 17.41 | 19.01 | 21.38 | 1.092 | 1.125 | 0.99 | 0.97 | 9.8 | 2.5 | 17.95 (6) |
-| 3 | 0 | 6 | 14.93 | 18.43 | 18.84 | 1.235 | 1.022 | 0.69 | 0.58 | 5.0 | 0.4 | 10.05 (1) |
-| 3 | 0 | 14 | 21.85 | 23.33 | 26.59 | 1.068 | 1.140 | 0.75 | 0.96 | 15.3 | 7.5 | 12.83 (9) |
-| 3 | 0.5 | 6 | 14.93 | 19.97 | 20.78 | 1.338 | 1.040 | 0.78 | 0.85 | 4.4 | 3.3 | 15.64 (1) |
-| 3 | 0.5 | 14 | 24.26 | 24.05 | 27.95 | **0.991** | 1.162 | 0.83 | 0.92 | 11.4 | 7.7 | 19.21 (9) |
-| 3 | 1 | 6 | 14.93 | 23.21 | 24.30 | 1.555 | 1.047 | 0.92 | 0.95 | 3.6 | 4.3 | 22.47 (1) |
-| 3 | 1 | 14 | 26.68 | 28.06 | 31.18 | 1.052 | 1.111 | 0.95 | 0.93 | 10.6 | 10.5 | 26.95 (9) |
-| 5 | 0 | 6 | 20.68 | 24.62 | 24.84 | 1.191 | **1.009** | **0.47** | **0.47** | 7.0 | 1.3 | 13.38 (20) |
-| 5 | 0 | 14 | 27.00 | 35.35 | 36.72 | 1.309 | 1.039 | 0.65 | 0.66 | 26.9 | 17.4 | 14.67 (35) |
-| 5 | 0.5 | 6 | 24.39 | 28.36 | 28.98 | 1.163 | 1.022 | 0.52 | 0.60 | 5.7 | 3.4 | 19.54 (20) |
-| 5 | 0.5 | 14 | 35.38 | 35.66 | 40.78 | 1.008 | 1.144 | 0.71 | 0.79 | 19.5 | 9.4 | 25.14 (35) |
-| 5 | 1 | 6 | 28.27 | 38.87 | 39.78 | 1.375 | 1.023 | 0.92 | 0.80 | 12.1 | 5.1 | 29.61 (20) |
-| 5 | 1 | 14 | 44.01 | 47.32 | 51.21 | 1.075 | 1.082 | 0.92 | 0.94 | 24.4 | 9.3 | 40.05 (35) |
+| 2 | 0 | 6 | 12.98 | 17.43 | 17.89 | 1.343 | 1.026 | 0.95 | 0.99 | 4.8 | 4.8 | 10.62 (10) |
+| 2 | 0 | 14 | 20.12 | 18.26 | 22.71 | **0.907** | 1.244 | 0.89 | 0.98 | 11.3 | 3.2 | 12.45 (13) |
+| 2 | 0.5 | 6 | 13.64 | 17.69 | 18.55 | 1.297 | 1.049 | 0.89 | 0.89 | 6.9 | 1.5 | 12.48 (10) |
+| 2 | 0.5 | 14 | 21.14 | 18.36 | 23.62 | **0.868** | 1.287 | 0.87 | 0.92 | 8.9 | 4.7 | 15.08 (13) |
+| 2 | 1 | 6 | 14.30 | 19.57 | 20.00 | 1.369 | 1.022 | 0.95 | 0.95 | 6.5 | 2.1 | 14.35 (10) |
+| 2 | 1 | 14 | 22.15 | 21.02 | 24.46 | **0.949** | 1.164 | 0.99 | 1.00 | 9.7 | 5.0 | 17.70 (13) |
+| 3 | 0 | 6 | 19.35 | 21.62 | 22.23 | 1.117 | 1.028 | 0.68 | 0.77 | 8.0 | 4.8 | 12.57 (10) |
+| 3 | 0 | 14 | 26.67 | 24.38 | 29.65 | **0.914** | 1.216 | 0.75 | 0.86 | 14.2 | 6.2 | 13.04 (20) |
+| 3 | 0.5 | 6 | 20.55 | 23.46 | 24.37 | 1.142 | 1.039 | 0.68 | 0.86 | 6.9 | 4.7 | 17.23 (10) |
+| 3 | 0.5 | 14 | 30.04 | 25.14 | 32.14 | **0.837** | 1.278 | 0.75 | 0.89 | 11.3 | 6.5 | 19.21 (20) |
+| 3 | 1 | 6 | 21.74 | 29.29 | 29.61 | 1.347 | 1.011 | 0.95 | 0.95 | 8.6 | 4.2 | 24.06 (10) |
+| 3 | 1 | 14 | 33.42 | 31.39 | 35.50 | **0.939** | 1.131 | 0.98 | 0.96 | 13.9 | 7.2 | 27.63 (20) |
+| 5 | 0 | 6 | 20.86 | 28.69 | 29.09 | 1.375 | 1.014 | **0.44** | **0.41** | 10.6 | 6.2 | 14.26 (27) |
+| 5 | 0 | 14 | 29.01 | 35.52 | 40.12 | 1.224 | 1.130 | 0.66 | 0.69 | 28.4 | 16.7 | 15.39 (43) |
+| 5 | 0.5 | 6 | 28.71 | 32.42 | 34.34 | 1.129 | 1.059 | 0.52 | 0.62 | 13.4 | 9.3 | 22.16 (27) |
+| 5 | 0.5 | 14 | 40.89 | 36.66 | 46.46 | **0.897** | 1.268 | 0.67 | 0.86 | 24.3 | 10.9 | 26.08 (43) |
+| 5 | 1 | 6 | 37.56 | 48.16 | 48.94 | 1.282 | 1.016 | 0.94 | 0.93 | 19.0 | 7.7 | 38.39 (27) |
+| 5 | 1 | 14 | 54.11 | 51.82 | 58.59 | **0.958** | 1.131 | 0.97 | 0.89 | 29.0 | 17.8 | 45.26 (43) |
 
 - **Reach rises steadily with alpha and with campaign length** for A and B in every row.
-- **A's lead over budgeted nearest neighbour depends on the campaign length.** Over 6 days A is 16–56% ahead. Over 14 days it is 1–31% ahead, and behind in two settings (k = 2 with alpha = 0, and k = 3 with alpha = 0.5, both by about 1%). In a long campaign, nearest neighbour fits in many more rallies with little driving, and A's reach-per-hour choice, made from day 1 when the polling-day weight is lowest, doesn't make up for it.
-- **B beats A in every setting,** by 0.9–22.4%, and budgeted nearest neighbour by 15–63%.
-- **Budgeted nearest neighbour ignores alpha** when the politicians' routes don't share towns, which is why its reach is the same for every alpha at k = 2 and 3 over 6 days.
+- **A's lead over budgeted nearest neighbour depends on the campaign length.** Over 6 days A is 12–38% ahead. Over 14 days it is behind in 8 of the 9 settings, by 4–16%, and ahead only at k = 5 with alpha = 0 (by 22%). In a long campaign, nearest neighbour fits in many more rallies with little driving, and A's reach-per-hour choice, made from day 1 when the polling-day weight is lowest, doesn't make up for it.
+- **B beats A in every setting,** by 1.1–28.7%, and budgeted nearest neighbour by 6–40%.
+- **Budgeted nearest neighbour now depends on alpha** even at k = 2 over 6 days. Alpha only matters when a town gets more than one rally, so its routes now share towns; with 12-hour days they didn't.
 
 ## 3. Soft clash rule: does anyone choose to clash?
 
@@ -71,33 +71,34 @@ k = 2, alpha = 0.5, 14 days. Shared home (both in KL, the case most likely to cl
 
 | beta | Homes | Baseline reach (clashes) | A reach | A clashes | A wait (h) | B reach | B clashes | B wait (h) |
 |---|---|---|---|---|---|---|---|---|
-| 0 | KL, KL | 19.07 (42) | 19.07 | **42** | 11.1 | 21.19 | **37** | 9.2 |
-| 0 | KL, George Town | 15.77 (6) | 17.29 | **5** | 9.2 | 20.14 | 0 | 3.9 |
-| 0.25 | KL, KL | 14.30 (42) | 17.38 | **1** | 8.0 | 20.67 | **1** | 2.2 |
-| 0.25 | KL, George Town | 15.40 (6) | 17.06 | 0 | 8.8 | 20.32 | 0 | 1.5 |
-| 0.5 | KL, KL | 9.54 (42) | 17.04 | 0 | 10.7 | 20.83 | 0 | 4.4 |
-| 0.5 | KL, George Town | 15.03 (6) | 17.06 | 0 | 8.8 | 19.96 | 0 | 1.6 |
-| 1 | KL, KL | 0.00 (42) | 17.04 | 0 | 10.7 | 20.48 | 0 | 3.7 |
-| 1 | KL, George Town | 14.29 (6) | 17.06 | 0 | 8.8 | 20.19 | 0 | 2.1 |
+| 0 | KL, KL | 20.93 (64) | 20.93 | **64** | 10.3 | 23.54 | 0 | 6.4 |
+| 0 | KL, George Town | 18.31 (13) | 18.92 | **2** | 12.2 | 23.16 | 0 | 4.0 |
+| 0.25 | KL, KL | 15.70 (64) | 18.31 | **7** | 7.7 | 23.04 | 0 | 5.2 |
+| 0.25 | KL, George Town | 16.69 (13) | 18.36 | 0 | 8.9 | 23.62 | 0 | 4.7 |
+| 0.5 | KL, KL | 10.47 (64) | 18.43 | 0 | 10.6 | 23.46 | 0 | 2.8 |
+| 0.5 | KL, George Town | 15.08 (13) | 18.36 | 0 | 8.9 | 23.62 | 0 | 4.7 |
+| 1 | KL, KL | 0.00 (64) | 18.43 | 0 | 10.6 | 23.46 | 0 | 2.8 |
+| 1 | KL, George Town | 11.85 (13) | 18.36 | 0 | 8.9 | 23.62 | 0 | 4.7 |
 
-- **Clashing is a real trade-off.** While two rallies overlap, the crowd is split (beta) instead of counted as already reached (ASSUMPTIONS V12). A full overlap reaches `2 × (1 − beta)` crowds in total, against `1 + alpha` for two rallies one after the other, so on reach alone clashing wins when beta < (1 − alpha) / 2 (0.25 at the default alpha). At or below that, A and B clash; above it, they wait or go elsewhere.
-- **At beta = 0 a full overlap costs nothing**, so A with both homes in KL follows the same route as the baseline (42 clashes). B's best plan there clashes almost as often (37), because the clashes cost it nothing. With separate homes, A clashes 5 times and B never.
+- **Clashing is a real trade-off.** While two rallies overlap, the crowd is split (beta) instead of counted as already reached (ASSUMPTIONS V12). A full overlap reaches `2 × (1 − beta)` crowds in total, against `1 + alpha` for two rallies one after the other, so on reach alone clashing wins when beta < (1 − alpha) / 2 (0.25 at the default alpha). A clashes at or below that, and never above it. At beta = 0.25 exactly, the two options tie on reach.
+- **At beta = 0 a full overlap costs nothing**, so A with both homes in KL follows the same route as the baseline (64 clashes). With separate homes, A clashes twice.
+- **B's best plan never clashes in this table,** even when clashing is free. With 16-hour days it finds enough free slots and other towns to do better without (23.54M vs A's 20.93M at beta = 0 from a shared home). With 12-hour days it clashed 37 times in that cell.
 - **The baseline shows what coordination is worth.** At beta = 1 with a shared home, both uncoordinated politicians follow identical routes, overlap completely, and reach nobody.
 
 ## 4. Starting points
 
 Default settings. Fixed homes vs five random seeds (`--starts random --seed N`).
 
-| Homes | A reach | A fairness | A travel (h) | B reach | B fairness | B travel (h) |
-|---|---|---|---|---|---|---|
-| Kuala Lumpur, George Town (fixed) | 17.06 | 0.91 | 113 | 19.96 | 0.90 | 134 |
-| Yan Besar, Kampong Baharu Cheras Batu Sebelas (seed 1) | 16.67 | 1.00 | 116 | 20.46 | 0.87 | 122 |
-| Setia Alam, Hulu Langat (seed 2) | 17.03 | 0.83 | 110 | 21.13 | 0.90 | 133 |
-| Parit Sulung, Paya Terubong (seed 3) | 17.87 | 0.93 | 111 | 20.37 | 0.93 | 127 |
-| Bukit Mertajam, Kampung Sungai Ara (seed 4) | 17.32 | 0.98 | 118 | 19.82 | 0.97 | 141 |
-| Simpang Empat, Kuantan (seed 5) | 17.35 | 0.87 | 119 | 20.14 | 0.87 | 133 |
+| Homes | NN reach | A reach | A fairness | A travel (h) | B reach | B fairness | B travel (h) |
+|---|---|---|---|---|---|---|---|
+| Kuala Lumpur, George Town (fixed) | 21.14 | 18.36 | 0.87 | 149 | 23.62 | 0.92 | 173 |
+| Yan Besar, Kampong Baharu Cheras Batu Sebelas (seed 1) | 20.81 | 17.95 | 0.99 | 157 | 22.96 | 0.97 | 186 |
+| Setia Alam, Hulu Langat (seed 2) | 13.04 | 18.43 | 0.88 | 137 | 23.10 | 0.99 | 162 |
+| Parit Sulung, Paya Terubong (seed 3) | 20.66 | 18.47 | 0.90 | 159 | 22.90 | 0.97 | 198 |
+| Bukit Mertajam, Kampung Sungai Ara (seed 4) | 11.82 | 18.71 | 0.90 | 151 | 22.73 | 0.87 | 195 |
+| Simpang Empat, Kuantan (seed 5) | 19.32 | 18.49 | 0.89 | 153 | 23.36 | 0.93 | 174 |
 
-Reach barely depends on where politicians start: A and B each vary by about 7% across the six. Fourteen days is long enough to reach the big towns from anywhere on the peninsula. B beats A for every set of homes. (The random homes differ from earlier versions of this table, because they are drawn from the town list, which changed with #11.)
+Reach barely depends on where politicians start for A and B: each varies by about 4% across the six. Fourteen days is long enough to reach the big towns from anywhere on the peninsula. B beats A and NN for every set of homes. NN varies far more (11.82M to 21.14M), and the fixed homes are its best case: it does worst when the two homes are close (Bukit Mertajam and Kampung Sungai Ara, 22 km apart, reach 11.82M).
 
 ### 4.1 Homes weighted by population, k = 2 to 10
 
@@ -107,47 +108,47 @@ Mean reach in millions over the ten runs (standard deviation in brackets):
 
 | k | NN | Uncoordinated | A | B |
 |---|---|---|---|---|
-| 2 | 15.80 (1.99) | 14.26 (2.30) | 16.95 (0.19) | **20.25** (0.31) |
-| 3 | 22.02 (3.59) | 16.05 (3.22) | 23.68 (0.33) | **28.27** (0.43) |
-| 4 | 25.80 (4.74) | 17.47 (4.11) | 29.80 (0.44) | **34.97** (0.42) |
-| 5 | 29.09 (4.51) | 17.60 (4.50) | 35.53 (0.54) | **40.91** (0.53) |
-| 6 | 31.63 (4.49) | 17.57 (4.09) | 40.70 (0.62) | **46.19** (0.68) |
-| 7 | 32.89 (4.74) | 16.71 (3.63) | 45.21 (0.87) | **51.05** (0.68) |
-| 8 | 35.53 (4.55) | 16.30 (2.93) | 49.21 (0.96) | **55.35** (0.98) |
-| 9 | 36.82 (4.88) | 15.76 (2.70) | 52.76 (0.93) | **58.83** (0.81) |
-| 10 | 37.91 (4.93) | 15.78 (2.81) | 55.86 (1.10) | **62.28** (0.67) |
+| 2 | 19.31 (2.74) | 14.95 (2.93) | 18.39 (0.21) | **22.96** (0.47) |
+| 3 | 26.40 (4.57) | 17.17 (3.45) | 25.12 (0.40) | **32.18** (0.58) |
+| 4 | 30.83 (6.21) | 18.32 (4.21) | 31.13 (0.47) | **40.16** (0.43) |
+| 5 | 33.96 (5.42) | 18.71 (3.63) | 36.66 (0.55) | **46.49** (0.43) |
+| 6 | 36.21 (5.64) | 18.78 (3.51) | 41.73 (0.84) | **51.83** (0.63) |
+| 7 | 36.98 (6.10) | 18.30 (2.74) | 46.16 (0.94) | **56.59** (0.46) |
+| 8 | 39.02 (5.65) | 18.16 (2.87) | 50.27 (1.10) | **60.36** (0.68) |
+| 9 | 39.76 (5.56) | 17.56 (2.70) | 54.00 (1.28) | **64.24** (0.59) |
+| 10 | 40.76 (5.58) | 17.31 (2.63) | 56.98 (1.46) | **67.35** (0.60) |
 
 Leads, as the mean over the ten runs (lowest to highest in brackets):
 
 | k | B vs A | B vs NN | A vs NN | Runs where A beats NN |
 |---|---|---|---|---|
-| 2 | +19.5% (+15.9 to +21.7) | +30.5% (+15.6 to +77.4) | +9.2% (−4.4 to +49.7) | 7 of 10 |
-| 3 | +19.4% (+15.3 to +22.1) | +32.4% (+13.5 to +93.2) | +10.8% (−4.9 to +60.2) | 6 of 10 |
-| 4 | +17.4% (+13.6 to +19.8) | +41.6% (+13.7 to +140.9) | +20.7% (−5.2 to +105.7) | 9 of 10 |
-| 5 | +15.2% (+9.6 to +18.7) | +44.0% (+12.2 to +86.3) | +25.0% (−2.0 to +56.9) | 9 of 10 |
-| 6 | +13.5% (+10.5 to +16.7) | +49.0% (+25.5 to +108.1) | +31.3% (+8.2 to +80.5) | 10 of 10 |
-| 7 | +13.0% (+9.4 to +16.2) | +58.4% (+28.5 to +113.7) | +40.3% (+15.0 to +90.6) | 10 of 10 |
-| 8 | +12.5% (+8.8 to +14.7) | +58.2% (+32.7 to +88.8) | +40.6% (+18.1 to +66.8) | 10 of 10 |
-| 9 | +11.5% (+8.4 to +13.8) | +62.7% (+41.6 to +107.6) | +45.8% (+26.4 to +82.7) | 10 of 10 |
-| 10 | +11.5% (+8.1 to +14.5) | +67.2% (+43.2 to +119.0) | +49.8% (+27.9 to +92.3) | 10 of 10 |
+| 2 | +24.9% (+18.9 to +28.5) | +21.7% (+4.4 to +62.7) | −2.7% (−14.5 to +29.9) | 3 of 10 |
+| 3 | +28.1% (+23.4 to +30.6) | +26.4% (+6.5 to +100.7) | −1.4% (−16.5 to +56.6) | 3 of 10 |
+| 4 | +29.0% (+26.1 to +32.8) | +37.8% (+10.5 to +151.3) | +6.9% (−13.9 to +96.7) | 4 of 10 |
+| 5 | +26.8% (+24.3 to +29.2) | +40.7% (+15.9 to +88.3) | +10.8% (−9.8 to +46.9) | 6 of 10 |
+| 6 | +24.3% (+19.3 to +29.0) | +46.9% (+17.5 to +106.2) | +18.1% (−7.2 to +64.4) | 9 of 10 |
+| 7 | +22.6% (+16.8 to +27.1) | +57.2% (+26.7 to +113.7) | +28.2% (+1.3 to +72.2) | 10 of 10 |
+| 8 | +20.1% (+13.9 to +25.1) | +57.8% (+33.5 to +94.5) | +31.5% (+10.6 to +61.6) | 10 of 10 |
+| 9 | +19.0% (+15.3 to +21.8) | +64.7% (+33.9 to +106.3) | +38.3% (+14.3 to +70.4) | 10 of 10 |
+| 10 | +18.3% (+11.3 to +21.8) | +68.3% (+41.4 to +114.8) | +42.3% (+18.2 to +77.6) | 10 of 10 |
 
 Mean fairness and clashes:
 
 | k | NN fairness | Uncoord. fairness | A fairness | B fairness | NN clashes | Uncoord. clashes | A clashes | B clashes | B runtime |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 | 0.91 | 0.85 | 0.90 | 0.96 | 4.2 | 12.0 | 0.1 | 0.0 | 0.17 s |
-| 4 | 0.66 | 0.60 | 0.81 | 0.85 | 27.3 | 81.5 | 0.5 | 0.0 | 0.46 s |
-| 6 | 0.47 | 0.43 | 0.75 | 0.82 | 83.0 | 222.1 | 0.6 | 0.0 | 0.77 s |
-| 8 | 0.39 | 0.34 | 0.64 | 0.78 | 137.2 | 426.4 | 0.8 | 0.2 | 0.84 s |
-| 10 | 0.34 | 0.31 | 0.53 | 0.69 | 228.1 | 742.4 | 1.2 | 0.5 | 1.59 s |
+| 2 | 0.91 | 0.87 | 0.91 | 0.97 | 6.6 | 22.3 | 0.1 | 0.0 | 0.26 s |
+| 4 | 0.64 | 0.59 | 0.78 | 0.91 | 46.6 | 124.0 | 0.3 | 0.0 | 0.80 s |
+| 6 | 0.45 | 0.41 | 0.67 | 0.85 | 140.6 | 287.1 | 0.5 | 0.1 | 1.49 s |
+| 8 | 0.39 | 0.24 | 0.58 | 0.79 | 233.0 | 553.1 | 0.5 | 0.5 | 1.59 s |
+| 10 | 0.31 | 0.18 | 0.48 | 0.74 | 372.8 | 1002.8 | 0.6 | 0.5 | 2.84 s |
 
 (The script prints every k; odd k follow the same trend.)
 
-- **B beats A and NN in all 90 runs,** by at least 8.1% over A and 12.2% over NN. Its lead over A shrinks as k grows, from 19.5% at k = 2 to 11.5% at k = 10.
-- **A beats NN on average at every k, and in every run from k = 6.** NN wins 9 of the 40 runs at k = 2 to 5, by at most 5.2%. A's lead over NN grows from 9% to 50% as NN's clashes grow from 4 to 228: NN's politicians ignore each other.
-- **The default homes favour NN.** At k = 2, NN's mean is 15.80M against 16.89M with the fixed KL and George Town homes, which are 300 km apart. NN does worst when two homes are close: its lowest run, Subang Jaya and Kuala Lumpur (about 10 km apart), reaches 11.38M with 32 clashes, while A reaches 17.03M. A's and B's reach hardly depends on the homes (standard deviation about 1–2% of the mean), so "NN is within 1% of A" holds for the fixed homes, not in general.
-- **Uncoordinated planning stops gaining after k = 5.** It falls from 17.60M at k = 5 to 15.78M at k = 10, while its clashes grow from 150 to 742.
-- **Fairness falls with k for every approach,** and B is the fairest at every k (0.69 at k = 10, against 0.53 for A).
+- **B beats A and NN in all 90 runs,** by at least 11.3% over A and 4.4% over NN. Its lead over A peaks at 29.0% at k = 4 and falls to 18.3% at k = 10.
+- **NN beats A on average at k = 2 and 3; A is ahead from k = 4, and in every run from k = 7.** NN wins 25 of the 50 runs at k = 2 to 6, with A up to 16.5% behind. A's lead over NN grows to 42% at k = 10 as NN's clashes grow from 7 to 373: NN's politicians ignore each other.
+- **The default homes favour NN.** At k = 2, NN's mean is 19.31M against 21.14M with the fixed KL and George Town homes, which are 300 km apart. NN does worst when two homes are close: its lowest run at k = 2, Selayang Baru Utara and Hulu Langat (23 km apart, both next to KL), reaches 14.19M with 32 clashes, while A reaches 18.43M. A's and B's reach hardly depends on the homes (standard deviation at most 3% of the mean).
+- **Uncoordinated planning stops gaining after k = 6.** It falls from 18.78M at k = 6 to 17.31M at k = 10, while its clashes grow from 287 to 1,003.
+- **Fairness falls with k for every approach,** and B is the fairest at every k (0.74 at k = 10, against 0.48 for A).
 
 ## 5. Time-decay parameters
 
@@ -155,29 +156,39 @@ Default settings, k = 2. Reach in millions. tauPoll = 100,000 h effectively turn
 
 | tauRepeat | tauPoll = 168 h | tauPoll = 336 h | tauPoll off |
 |---|---|---|---|
-| 12 h | NN 11.20 / A 11.56 / B 15.34 | NN 17.36 / A 18.88 / B 20.69 | NN 28.77 / A 33.66 / B 34.05 |
-| 48 h (default) | NN 10.90 / A **10.36** / B 14.12 | NN 16.89 / A 17.06 / B 19.96 | NN 28.04 / A 30.94 / B 32.06 |
-| 168 h | NN 9.75 / A **9.13** / B 12.86 | NN 15.25 / A 15.55 / B 18.46 | NN 25.67 / A 28.35 / B 29.01 |
+| 12 h | NN 14.33 / A **11.72** / B 17.83 | NN 22.07 / A **20.35** / B 24.81 | NN 36.67 / A 37.33 / B 37.57 |
+| 48 h (default) | NN 13.70 / A **10.71** / B 16.58 | NN 21.14 / A **18.36** / B 23.62 | NN 35.22 / A **33.98** / B 35.45 |
+| 168 h | NN 12.45 / A **9.74** / B 14.53 | NN 19.23 / A **17.11** / B 21.30 | NN 32.22 / A **31.01** / B 32.58 |
 
-- **tauPoll has the most effect on reach.** Halving it from 336 h to 168 h cuts reach by 26–41%, and switching it off raises reach about 1.6–1.8×.
+Bold: A is behind budgeted nearest neighbour.
+
+- **tauPoll has the most effect on reach.** Halving it from 336 h to 168 h cuts reach by 28–43%, and switching it off raises reach about 1.5–1.85×.
 - **Faster repeat fading (smaller tauRepeat) helps a little,** because second rallies days apart become worth almost a full crowd.
-- **The stronger the polling-day weight, the worse A does against nearest neighbour.** With tauPoll = 168 h, budgeted nearest neighbour beats A (by 5–7% at tauRepeat 48 h and 168 h). With the weight off, A is 10–17% ahead. A's reach-per-hour choice doesn't look ahead to the rallies that will be worth more later.
-- **B's advantage over A also depends on the polling-day weight.** With it on, B beats A by 10–41%. With it off, B is only 1.2–3.6% ahead, and at tauRepeat = 12 h B's search from empty routes loses to A (−3.8%); B's figure in that cell comes from its second run, which starts from A's plan (#7). Ranking insertions on the exact knock-on reach was tried and didn't close the gap (see [DESIGN.md §6.3](DESIGN.md#63-approach-b-iterated-local-search-solveils)).
+- **The stronger the polling-day weight, the worse A does against nearest neighbour.** With tauPoll = 168 h, budgeted nearest neighbour beats A by 18–22%; at 336 h, by 8–13%. A is ahead in only one cell, with the weight off and tauRepeat = 12 h (by 1.8%). A's reach-per-hour choice doesn't look ahead to the rallies that will be worth more later.
+- **B's advantage also depends on the polling-day weight.** With it on, B beats A by 22–55% and NN by 11–24%. With it off, B is only 0.6–5.1% ahead of A and 0.7–2.5% ahead of NN, and at tauRepeat = 12 h B's search from empty routes loses to A (−1.9%); B's figure in that cell comes from its second run, which starts from A's plan (#7). Ranking insertions on the exact knock-on reach was tried and didn't close the gap (see [DESIGN.md §6.3](DESIGN.md#63-approach-b-iterated-local-search-solveils)).
 
-## 6. Daily window vs continuous hours
+## 6. Daily window
 
-Default settings. The same 168 hours of campaigning, either as 7 days × 24 h (no nights, like v1) or 14 days × 12 h.
+Default settings, with four campaign clocks. 7 × 24 h and 14 × 12 h have the same 168 active hours (7 × 24 h is v1's continuous clock); 14 × 12 h was the default before the window was widened; 14 × 16 h is the default now; 14 × 24 h drops the nights altogether.
 
-| Clock | Approach | Reach | Rallies | Wait (h) | Travel (h) |
-|---|---|---|---|---|---|
-| 7 × 24 h | NN | 20.44 | 117 | 14.5 | 59.0 |
-| 7 × 24 h | A | 21.24 | 87 | 7.1 | 109.3 |
-| 7 × 24 h | B | 24.31 | 83 | 2.8 | 123.0 |
-| 14 × 12 h | NN | 16.89 | 115 | 20.6 | 57.9 |
-| 14 × 12 h | A | 17.06 | 84 | 8.8 | 112.8 |
-| 14 × 12 h | B | 19.96 | 80 | 1.6 | 133.8 |
+| Clock | Active hours | Approach | Reach | Rallies | Wait (h) | Travel (h) |
+|---|---|---|---|---|---|---|
+| 7 × 24 h | 168 | NN | 20.44 | 117 | 14.5 | 59.0 |
+| 7 × 24 h | 168 | A | 21.24 | 87 | 7.1 | 109.3 |
+| 7 × 24 h | 168 | B | 24.31 | 83 | 2.8 | 123.0 |
+| 14 × 12 h | 168 | NN | 16.89 | 115 | 20.6 | 57.9 |
+| 14 × 12 h | 168 | A | 17.06 | 84 | 8.8 | 112.8 |
+| 14 × 12 h | 168 | B | 19.96 | 80 | 1.6 | 133.8 |
+| 14 × 16 h | 224 | NN | 21.14 | 154 | 23.2 | 82.1 |
+| 14 × 16 h | 224 | A | 18.36 | 122 | 8.9 | 148.8 |
+| 14 × 16 h | 224 | B | 23.62 | 113 | 4.7 | 172.8 |
+| 14 × 24 h | 336 | NN | 20.43 | 180 | 22.4 | 94.8 |
+| 14 × 24 h | 336 | A | 18.18 | 180 | 10.5 | 245.9 |
+| 14 × 24 h | 336 | B | 26.02 | 166 | 11.8 | 289.5 |
 
-The daily window increases waiting for nearest neighbour (14.5 h to 20.6 h) and A (7.1 h to 8.8 h), because a rally that won't finish by 20:00 has to wait until the next morning. B's waiting falls (2.8 h to 1.6 h), because it can fit rallies around the evenings. Reach is lower partly because of the window and partly because a 14-day campaign spreads rallies over a longer stretch of the polling-day weight than a 7-day one. These two effects are not separated here.
+- **Same hours, with and without nights (7 × 24 h vs 14 × 12 h).** The daily window increases waiting for nearest neighbour (14.5 h to 20.6 h) and A (7.1 h to 8.8 h), because a rally that won't finish in the window has to wait until the next morning. B's waiting falls (2.8 h to 1.6 h), because it can fit rallies around the evenings. Reach is lower partly because of the window and partly because a 14-day campaign spreads rallies over a longer stretch of the polling-day weight than a 7-day one. These two effects are not separated here.
+- **Widening the window from 12 h to 16 h** (a third more active hours) raises NN's reach by 25%, B's by 18%, and A's by only 8%, although A holds 38 more rallies. This is what puts NN ahead of A at the defaults.
+- **With 24-hour days,** NN and A rally in every town (180 rallies), yet both reach slightly less than with 16-hour days. Only B gains (26.02M). We haven't looked into why.
 
 ## 7. Scaling with instance size
 
@@ -185,30 +196,30 @@ k = 2, default settings. Larger instances were made by lowering the population c
 
 | Towns | NN reach | A reach | B reach | A runtime | B runtime |
 |---|---|---|---|---|---|
-| 15 | 7.72M | 7.74M | 10.77M | < 0.1 ms | 3 ms |
-| 30 | 13.90M | 13.73M | 19.03M | 0.1 ms | 8 ms |
-| 60 | 19.67M | 17.00M | 20.21M | 0.3 ms | 72 ms |
-| 90 | 16.89M | 17.06M | 19.96M | 0.4 ms | 217 ms |
-| 173 (pop ≥ 20k) | 12.01M | 17.06M | 20.45M | 0.8 ms | 808 ms |
-| 253 (pop ≥ 10k) | 10.19M | 17.09M | 20.15M | 1.3 ms | 1,484 ms |
+| 15 | 7.15M | 7.24M | 9.41M | 0.1 ms | 5 ms |
+| 30 | 12.49M | 12.34M | 17.98M | 0.2 ms | 10 ms |
+| 60 | 20.68M | 18.05M | 22.92M | 0.6 ms | 88 ms |
+| 90 | 21.14M | 18.36M | 23.62M | 1.0 ms | 216 ms |
+| 173 (pop ≥ 20k) | 18.49M | 18.35M | 23.08M | 1.8 ms | 969 ms |
+| 253 (pop ≥ 10k) | 12.41M | 18.35M | 23.16M | 2.7 ms | 3,753 ms |
 
-- **Nearest neighbour peaks at 60 towns and then falls**, to 10.19M at 253 towns: with smaller towns in the list, the nearest town is often a small one, and it ignores population. A and B pick by reach, so smaller towns barely change their results.
-- **On the 30- and 60-town instances, nearest neighbour beats A** (by 1% and 16%).
-- **B is about 1.7× slower than in v1 at 90 towns** (217 ms vs 125 ms) and 1.4× slower at 253 (1.48 s vs 1.05 s). Each candidate now tries two timings and scores reach with the full model, and since #7 the whole search runs twice (from empty routes and from A's plan). The pruning in `tryInsertion` (skip the exact reach calculation when even a full crowd couldn't win) keeps the cost down. A is still more than 100× faster.
-- **B's reach isn't monotone in the number of towns** (20.21M at 60, 19.96M at 90): it is a heuristic, and a larger list gives it more ways to settle on a slightly worse plan.
+- **Nearest neighbour peaks at 90 towns and then falls**, to 12.41M at 253 towns: with smaller towns in the list, the nearest town is often a small one, and it ignores population. A and B pick by reach, so smaller towns barely change their results.
+- **Nearest neighbour beats A on the 30-, 60-, 90- and 173-town instances** (by 1%, 15%, 15% and 1%).
+- **B is about 1.7× slower than in v1 at 90 towns** (216 ms vs 125 ms) and 3.6× slower at 253 (3.75 s vs 1.05 s). Each candidate now tries two timings and scores reach with the full model, since #7 the whole search runs twice (from empty routes and from A's plan), and 16-hour days make routes longer. The pruning in `tryInsertion` (skip the exact reach calculation when even a full crowd couldn't win) keeps the cost down. A is still more than 100× faster from 60 towns up.
+- **B's reach isn't monotone in the number of towns** (23.62M at 90, 23.08M at 173): it is a heuristic, and a larger list gives it more ways to settle on a slightly worse plan.
 
 ## 8. Findings
 
-1. **The classic TSP heuristic can't be used unchanged.** The full nearest-neighbour tour needs 22 days for a 14-day campaign. With one check added (only go where there's still time to get home), it is valid.
-2. **A valid classic heuristic is a strong benchmark.** Budgeted nearest neighbour reaches within 1% of A at the defaults, and beats A in 4 of the 27 settings in sections 2 and 5, all 14-day campaigns: two in section 2, and the two with tauPoll = 168 h and tauRepeat ≥ 48 h in section 5. It wins by holding many more rallies with much less driving in the big-town clusters. A's advantage is clear only in short campaigns (16–56% over 6 days) or with the polling-day weight off (10–17%).
-3. **B beats both in every setting.** It is 0.9–22.4% ahead of A in section 2, and 13–63% ahead of budgeted nearest neighbour in sections 2 and 5. B's search from empty routes alone fell below A in 4 of the 27 settings in sections 2 and 5 (by up to 3.8%); B also runs from A's plan and keeps the better result (#7), which closes those gaps. The run from A's plan gives B's figure in 16 of the 27 settings; the default run's figure comes from the empty start.
-4. **Uncoordinated planning costs reach.** At the defaults the baseline reaches 12% less than A, and less than budgeted nearest neighbour too, despite choosing towns by reach. At k = 5 over 14 days it reaches less than half of A (14.67M vs 35.35M at alpha = 0). At beta = 1 with a shared home it reaches nobody.
-5. **The soft clash rule is used when the overlap penalty is mild.** A and B clash when beta < (1 − alpha) / 2 (beta ≤ 0.25 at the default alpha); above that, they wait or go elsewhere. B never clashes more than A when the politicians have separate homes, because it can spread them out instead.
-6. **The daily window makes waiting matter.** Waiting goes from about 0 in v1 to as much as 27 h (A at k = 5, alpha = 0, 14 days), because every evening blocks out the late slots.
-7. **Where politicians start barely matters to A and B** (about ±3.5% in section 4, and a standard deviation of 1–2% of the mean in section 4.1), but it does help fairness. With separate homes, A's fairness rises from 0.68 (v1) to 0.91. It matters a lot to NN and the baseline, which ignore the other politicians: at k = 2, NN's worst run (two homes 10 km apart) reaches a third less than its best (section 4.1).
-10. **Averaged over homes weighted by population, the order is the same at every k from 2 to 10:** B, then A, then NN, then the baseline. B beats both in all 90 runs, and A beats NN in every run from k = 6. Finding 2 depends on the fixed homes: with weighted random homes, A is 9% ahead of NN on average at k = 2, and 50% ahead at k = 10 (section 4.1).
-8. **Maximising reach still isn't fair.** Fairness drops as low as 0.47 for both A and B (k = 5, alpha = 0, 6 days). Nothing in the objective rewards using every politician.
-9. **The decay parameters matter more than the algorithm.** tauPoll moves reach by about 1.8× and B vs A by 1–41%; it also decides whether A beats nearest neighbour at all. The parameters should be justified, or swept, in the report.
+1. **The classic TSP heuristic can't be used unchanged.** The full nearest-neighbour tour needs 16.3 days of 16 h for a 14-day campaign, and 22 of its rallies fall after polling day. With one check added (only go where there's still time to get home), it is valid.
+2. **A valid classic heuristic is a strong benchmark, and beats A at the defaults.** Budgeted nearest neighbour reaches 15% more than A at the defaults, and beats A in 16 of the 27 settings in sections 2 and 5: 8 of the 9 14-day campaigns in section 2, and 8 of the 9 cells in section 5. It wins by holding many more rallies with much less driving in the big-town clusters. A's advantage is clear only in 6-day campaigns (12–38%), at k = 5 with alpha = 0 (22%), and with more politicians from random homes (section 4.1). With 12-hour days A was narrowly ahead at the defaults; the wider window helps NN far more than A (section 6).
+3. **B beats both in every setting.** It is 1.1–28.7% ahead of A in section 2, and 0.7–40% ahead of budgeted nearest neighbour in sections 2 and 5. B's search from empty routes alone fell below A in 4 of the 27 settings in sections 2 and 5 (by up to 6.1%, at k = 5 with alpha = 0 over 6 days); B also runs from A's plan and keeps the better result (#7), which closes those gaps. The run from A's plan gives B's figure in 17 of the 27 settings; the default run's figure comes from the empty start.
+4. **Uncoordinated planning costs reach.** At the defaults the baseline reaches 18% less than A and 29% less than budgeted nearest neighbour, despite choosing towns by reach. At k = 5 over 14 days it reaches less than half of A (15.39M vs 35.52M at alpha = 0). At beta = 1 with a shared home it reaches nobody.
+5. **The soft clash rule is used when the overlap penalty is mild.** A clashes when beta ≤ (1 − alpha) / 2 (0.25 at the default alpha); above that, it waits or goes elsewhere. In sections 2 and 3 B never clashes more than A, and in section 3 its best plans never clash at all: with 16-hour days it can spread the politicians out instead.
+6. **The daily window makes waiting matter.** Waiting goes from about 0 in v1 to as much as 29 h (A at k = 5, alpha = 1, 14 days), because a rally that won't finish by 22:00 waits for the next morning.
+7. **Where politicians start barely matters to A and B** (about 4% across the homes in section 4, and a standard deviation of at most 3% of the mean in section 4.1), but it does help fairness. With separate homes, A's fairness is 0.87, against 0.68 in v1. It matters a lot to NN and the baseline, which ignore the other politicians: NN ranges from 11.82M to 21.14M across the six homes in section 4.
+8. **Averaged over homes weighted by population, B is first at every k from 2 to 10** and the baseline last. B beats both in all 90 runs. NN is ahead of A on average at k = 2 and 3; A is ahead from k = 4, and in every run from k = 7 (section 4.1).
+9. **Maximising reach still isn't fair.** Fairness drops as low as 0.44 for A and 0.41 for B (k = 5, alpha = 0, 6 days). Nothing in the objective rewards using every politician.
+10. **The decay parameters matter more than the algorithm.** tauPoll moves reach by about 1.5–1.85× and B vs A by 0.6–55%; it also decides how far A falls behind nearest neighbour. The parameters should be justified, or swept, in the report.
 
 ## 9. Reproduce
 
@@ -236,7 +247,9 @@ for tr in 12 48 168; do for tp in 168 336 100000; do
 done; done
 # Section 6
 ./build/campaign --days 7 --day-hours 24 --summary results/sweep/window.csv > /dev/null
+./build/campaign --day-hours 12 --day-start 8 --summary results/sweep/window.csv > /dev/null
 ./build/campaign --summary results/sweep/window.csv > /dev/null
+./build/campaign --day-hours 24 --day-start 0 --summary results/sweep/window.csv > /dev/null
 # Section 7
 for opt in "--max-towns 15" "--max-towns 30" "--max-towns 60" "" "--min-pop 20000" "--min-pop 10000"; do
   ./build/campaign $opt --summary results/sweep/scaling.csv > /dev/null   # in zsh use ${=opt}
@@ -249,6 +262,7 @@ Delete the old CSVs in `results/sweep/` first: `--summary` appends.
 
 - Gap to the optimal plan on small instances (needs an exact solver).
 - Separating the effect of the daily window from the effect of campaign length on the polling-day weight (section 6).
-- A look-ahead for A, so it can save big towns for the last days when the polling-day weight is high. Without one, it falls behind budgeted nearest neighbour in long campaigns (findings 2 and 9).
+- Why NN and A reach less with 24-hour days than with 16-hour days (section 6).
+- A look-ahead for A, so it can save big towns for the last days when the polling-day weight is high. Without one, it falls behind budgeted nearest neighbour in long campaigns (findings 2 and 10).
 - A better search for B when the polling-day weight is off or k = 5. From empty routes it still loses to A in some of those settings (sections 2 and 5), and exact knock-on ranking didn't fix it (#7).
 - Repeated runs to give runtime averages instead of single measurements.

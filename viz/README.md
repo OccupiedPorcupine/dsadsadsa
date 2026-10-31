@@ -39,7 +39,7 @@ Requirements: Python 3 standard library only. The page loads [Leaflet](https://l
 | Dashed red ring | Clash: two rallies in this town overlap in time. Allowed under the soft clash rule, but both lose reach. Also counted in the ⚠ Clashes tile |
 | `H` badge, in the politician's colour | A politician's home base, where they start and must end |
 | Numbered badges (optional) | Stop number in each politician's route |
-| `P1`, `P2` markers (timeline) | Where each politician is at the selected time. The slider runs over active hours only, so it jumps from 20:00 to 08:00 the next day |
+| `P1`, `P2` markers (timeline) | Where each politician is at the selected time. The slider runs over active hours only, so it jumps from 22:00 to 06:00 the next day |
 
 **Controls**
 - Switch approach (budgeted nearest neighbour, baseline, A, B).

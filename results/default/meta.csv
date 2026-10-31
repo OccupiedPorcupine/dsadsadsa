@@ -1,10 +1,10 @@
 key,value
 politicians,2
 alpha,0.5
-campaign_hours,168
+campaign_hours,224
 days,14
-day_hours,12
-day_start,8
+day_hours,16
+day_start,6
 tau_repeat,48
 tau_poll,336
 clash_penalty,0.5

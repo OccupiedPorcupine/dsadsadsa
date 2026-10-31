@@ -1,6 +1,6 @@
 # Campaign routing: Team Orienteering with soft-clash rallies
 
-k politicians from one party campaign across Malaysia for 14 days, rallying and travelling only between 08:00 and 20:00. They are teammates, planned together to maximise the party's combined reach. Each politician starts from their own home base and must be back there by the end of the campaign.
+k politicians from one party campaign across Malaysia for 14 days, rallying and travelling only between 06:00 and 22:00. They are teammates, planned together to maximise the party's combined reach. Each politician starts from their own home base and must be back there by the end of the campaign.
 - **Goal:** maximise population reach. Rallies are worth more closer to polling day, and a rally after polling day reaches nobody. A repeat rally in a town is discounted by `alpha`, but the discount fades as time passes since the last one.
 - **Soft clash rule:** two or more politicians *may* rally in the same town at the same time, but they split the crowd: with the default `beta = 0.5`, any number of them speaking at once reach one crowd between them. Each planner chooses whether to wait, clash, or go somewhere else.
 
@@ -125,7 +125,7 @@ The full list, with the reasoning behind each one, is in [docs/ASSUMPTIONS.md](d
 | Clash penalty `beta` | 0.5: a rally fully overlapped by one other loses half its reach |
 
 - Each politician rallies in a town at most once.
-- Campaigning happens 08:00–20:00 for 14 days. Rallies must fit within one day; drives can be split across a night.
+- Campaigning happens 06:00–22:00 for 14 days. Rallies must fit within one day; drives can be split across a night.
 
 ## Output columns
 
