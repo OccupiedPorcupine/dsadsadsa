@@ -4,13 +4,10 @@ k politicians from one party campaign across Malaysia for 14 days, rallying and 
 - **Goal:** maximise population reach. Rallies are worth more closer to polling day, and a rally after polling day reaches nobody. A repeat rally in a town is discounted by `alpha`, but the discount fades as time passes since the last one.
 - **Soft clash rule:** two or more politicians *may* rally in the same town at the same time, but they split the crowd: with the default `beta = 0.5`, any number of them speaking at once reach one crowd between them. Each planner chooses whether to wait, clash, or go somewhere else.
 
-What changed from the first version, and the fixes made since, with reasons: [docs/CHANGES_V2.md](docs/CHANGES_V2.md).
-
 ## Documentation
 
 | Document | Read it for |
 |---|---|
-| [docs/CHANGES_V2.md](docs/CHANGES_V2.md) | Every change from v1 to v2 (model, options, output files, code, results), and the fixes made since (GitHub issues #2–#9) |
 | [docs/DESIGN.md](docs/DESIGN.md) | The problem, why classic TSP doesn't fit, data structures, both algorithms with pseudocode, complexity, how results are checked, limitations, and a code map |
 | [docs/RESULTS.md](docs/RESULTS.md) | Experiment results, findings, and the commands to reproduce them |
 | [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) | Every modelling assumption and decision, with reasons |
@@ -87,7 +84,7 @@ What the map shows:
 | `CS201_2026_project/` | Provided GeoNames dataset (`MY.txt`) |
 | `data/excluded_places.csv` | Places dropped because they double-count a city, with the reason for each |
 | `notebooks/explore_geonames.ipynb` | First look at the GeoNames spreadsheet with pandas |
-| `docs/` | Design, results, assumptions, change history, AI acknowledgement (see [Documentation](#documentation)), and the project brief (`Project_2627T1.pdf`) |
+| `docs/` | Design, results, assumptions, AI acknowledgement (see [Documentation](#documentation)), and the project brief (`Project_2627T1.pdf`) |
 | `docs/papers/` | Reference papers and reading list |
 
 ## Approaches

@@ -2,12 +2,11 @@
 
 This document explains what the project solves and how: the problem, the data structures, the algorithms, their complexity, and how the results are checked. It follows the order the presentation needs (motivation → variant → redesign → complexity → trade-offs).
 
-It describes **v2** of the model, including the fixes made since (GitHub issues #2–#9). What changed from v1, and why, is in [CHANGES_V2.md](CHANGES_V2.md) and summarised in [section 11](#11-v2-changes).
+It describes the final model, called **v2** below. The first version (v1), and what changed from it, are summarised in [section 11](#11-v2-changes).
 
 Related documents:
 - [ASSUMPTIONS.md](ASSUMPTIONS.md): every modelling assumption, with reasons.
 - [RESULTS.md](RESULTS.md): experiment results and how to reproduce them.
-- [CHANGES_V2.md](CHANGES_V2.md): everything that changed from v1 to v2.
 - [AI_USAGE.md](AI_USAGE.md): AI acknowledgement required by the brief.
 - [papers/README.md](papers/README.md): reading list.
 
@@ -475,7 +474,7 @@ Checks run on v2:
 
 ## 11. v2 changes
 
-v1 (commit `94aa4dd`) had:
+v1 had:
 - one HQ in Kuala Lumpur;
 - 168 continuous hours with no nights;
 - `pop × alpha^(v−1)` reach;
@@ -490,8 +489,6 @@ On 2026-10-29 the model changed to what this document describes:
 | 3 | Everyone must be back at their own home by the end of the campaign | §3, §8, ASSUMPTIONS V2 |
 | 4 | Soft clash rule: wait, clash at an overlap-weighted penalty, or go elsewhere | §1, §3, §6, ASSUMPTIONS V6, V7, V12 |
 | 5 | 14 days × 12 active hours; rallies and travel only in the window | §3, §5.2, §5.5, ASSUMPTIONS V3, V8 |
-
-The full list (options, output files, every file in the code, and v1 vs v2 results) is in [CHANGES_V2.md](CHANGES_V2.md).
 
 ### Changes since v2
 

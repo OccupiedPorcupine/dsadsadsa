@@ -57,7 +57,7 @@ The code reads its defaults from `Config` in `src/instance.hpp`. If you change a
 
 ## v2 (agreed and implemented 2026-10-29)
 
-These replace the rows named in the last column. Rows that have been replaced are marked *(v1, replaced by …)* in the tables above. How they are modelled is in [DESIGN.md](DESIGN.md) §3 (problem and reach formula), §5 (data structures) and §6 (algorithms). The full list of changes is in [CHANGES_V2.md](CHANGES_V2.md).
+These replace the rows named in the last column. Rows that have been replaced are marked *(v1, replaced by …)* in the tables above. How they are modelled is in [DESIGN.md](DESIGN.md) §3 (problem and reach formula), §5 (data structures) and §6 (algorithms). A summary of the changes is in [DESIGN.md](DESIGN.md) §11.
 
 | # | Assumption | Why | Replaces |
 |---|---|---|---|

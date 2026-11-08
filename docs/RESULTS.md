@@ -1,6 +1,6 @@
 # Results
 
-All numbers below come from `build/campaign` runs of **v2** of the model: own home bases, a 14 × 16 h daily window (06:00–22:00), time decay and the soft clash rule (see [CHANGES_V2.md](CHANGES_V2.md)). The raw CSVs are in [results/sweep/](../results/sweep/). The v1 results are in git history (commit `94aa4dd`). They used a different reach model, so they can't be compared number for number.
+All numbers below come from `build/campaign` runs of the final model (**v2**): own home bases, a 14 × 16 h daily window (06:00–22:00), time decay and the soft clash rule (see [DESIGN.md §11](DESIGN.md#11-v2-changes)). The raw CSVs are in [results/sweep/](../results/sweep/). The first version (v1) used a different reach model, so its results can't be compared number for number.
 
 **Note (2026-10-31):** every section and every CSV in `results/sweep/` was re-run after the daily window was widened from 08:00–20:00 (12 h) to 06:00–22:00 (16 h), so the campaign has 224 active hours instead of 168 (ASSUMPTIONS V3). This changed every number, and it changed one conclusion: budgeted nearest neighbour now beats A at the defaults (finding 2). Figures in earlier commits and issue comments used 12-hour days and can't be compared with these, except the 14 × 12 h rows of section 6, which reproduce them.
 
